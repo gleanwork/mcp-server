@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature/multi-arch-docker-build
     tags:
       - 'v*'
   pull_request:
