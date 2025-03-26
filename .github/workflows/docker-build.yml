@@ -28,30 +28,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 10.6.2
-          run_install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
       - name: Install dependencies
-        run: pnpm install
+        run: npm ci
 
       - name: Run tests
-        run: pnpm test
+        run: npm test
 
   build-and-deploy:
     needs: test
@@ -70,7 +51,7 @@ jobs:
         with:
           images: |
             gleanwork/mcp-server
-            ghcr.io/gleanwork/mcp-server
+            ghcr.io/aaronsb/glean-mcp-server
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern={{version}}
@@ -124,7 +105,8 @@ jobs:
       - name: Remove old packages
         uses: actions/delete-package-versions@v4
         with:
-          package-name: ${{ github.event.repository.name }}
+          package-name: glean-mcp-server
+          owner: aaronsb
           package-type: container
           min-versions-to-keep: 10
           delete-only-untagged-versions: true

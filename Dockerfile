@@ -4,7 +4,7 @@
 FROM --platform=$BUILDPLATFORM node:20.11-bullseye AS builder
 
 # Add metadata
-LABEL org.opencontainers.image.source="https://github.com/gleanwork/mcp-server"
+LABEL org.opencontainers.image.source="https://github.com/aaronsb/glean-mcp-server"
 LABEL org.opencontainers.image.description="Glean MCP Server"
 LABEL org.opencontainers.image.licenses="MIT"
 
@@ -14,17 +14,17 @@ RUN apt-get update && apt-get install -y \
     git \
     build-essential \
     python3 \
-    && rm -rf /var/lib/apt/lists/* \
-    && npm install -g pnpm@10.6.2
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # Copy package files first for better layer caching
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
 
 # Copy source and build
 COPY . .
-RUN pnpm run build
+# Run TypeScript compiler and set permissions separately
+RUN npx tsc && chmod +x build/index.js
 
 # Production stage
 FROM node:20.11-bullseye
@@ -37,9 +37,8 @@ ENV DOCKER_HASH=$DOCKER_HASH
 
 # Copy only necessary files from builder
 COPY --from=builder /app/build ./build
-COPY --from=builder /app/package.json /app/pnpm-lock.yaml ./
-RUN npm install -g pnpm@10.6.2 && \
-    pnpm install --frozen-lockfile --prod && \
+COPY --from=builder /app/package.json /app/package-lock.json ./
+RUN npm ci --only=production --ignore-scripts && \
     chmod +x build/index.js && \
     mkdir -p /app/logs && \
     chown -R 1000:1000 /app
