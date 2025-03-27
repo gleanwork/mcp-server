@@ -12,6 +12,33 @@ import { z } from 'zod';
 import { getClient } from '../common/client.js';
 
 /**
+ * Schema for document in search requests.
+ * Basic document schema - can be expanded if needed.
+ */
+export const DocumentSchema = z.object({
+  id: z.string().describe('The Glean Document ID'),
+  title: z.string().optional().describe('The title of the document'),
+  url: z.string().optional().describe('A permalink for the document'),
+  datasource: z
+    .string()
+    .optional()
+    .describe(
+      'The app or other repository type from which the document was extracted',
+    ),
+});
+
+/**
+ * Schema for search result in search requests.
+ * Basic search result schema - can be expanded if needed.
+ */
+export const SearchResultSchema = z.object({
+  document: DocumentSchema.optional(),
+  title: z.string().optional(),
+  url: z.string().optional(),
+  snippets: z.array(z.any()).optional(),
+});
+
+/**
  * Schema for related documents in search requests.
  * Matches the Glean SDK's RelatedDocuments type structure.
  */
@@ -43,13 +70,13 @@ export const RelatedDocumentsSchema = z.object({
     .optional()
     .describe('Query suggestion for this relation'),
   documents: z
-    .array(z.any())
+    .array(DocumentSchema)
     .optional()
     .describe(
       'A truncated list of documents with this relation. TO BE DEPRECATED.',
     ),
   results: z
-    .array(z.any())
+    .array(SearchResultSchema)
     .optional()
     .describe('A truncated list of documents associated with this relation.'),
 });
