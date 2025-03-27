@@ -12,6 +12,49 @@ import { z } from 'zod';
 import { getClient } from '../common/client.js';
 
 /**
+ * Schema for related documents in search requests.
+ * Matches the Glean SDK's RelatedDocuments type structure.
+ */
+export const RelatedDocumentsSchema = z.object({
+  relation: z
+    .enum([
+      'ATTACHMENT',
+      'CANONICAL',
+      'CASE',
+      'CONTACT',
+      'CONVERSATION_MESSAGES',
+      'EXPERT',
+      'FROM',
+      'HIGHLIGHT',
+      'OPPORTUNITY',
+      'RECENT',
+      'SOURCE',
+      'TICKET',
+      'TRANSCRIPT',
+      'WITH',
+    ])
+    .describe('How this document relates to the including entity.'),
+  associatedEntityId: z
+    .string()
+    .optional()
+    .describe('Which entity in the response that this entity relates to.'),
+  querySuggestion: z
+    .any()
+    .optional()
+    .describe('Query suggestion for this relation'),
+  documents: z
+    .array(z.any())
+    .optional()
+    .describe(
+      'A truncated list of documents with this relation. TO BE DEPRECATED.',
+    ),
+  results: z
+    .array(z.any())
+    .optional()
+    .describe('A truncated list of documents associated with this relation.'),
+});
+
+/**
  * Schema for a person entity in search requests.
  * Matches the Glean SDK's Person type structure.
  *
@@ -22,7 +65,7 @@ export const PersonSchema = z.object({
   obfuscatedId: z.string(),
   email: z.string().optional(),
   metadata: z.any().optional(),
-  relatedDocuments: z.array(z.any()).optional(),
+  relatedDocuments: z.array(RelatedDocumentsSchema).optional(),
 });
 
 /**
