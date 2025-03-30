@@ -29,6 +29,44 @@ describe('Glean Errors', () => {
       expect(formatted).toBe('Authentication Failed: Invalid credentials');
     });
 
+    it('should format expired token error correctly', () => {
+      const serverResponse = 'Token has expired\nNot allowed';
+      const error = createGleanError(401, {
+        message: 'Authentication token has expired',
+        originalResponse: serverResponse,
+      });
+      expect(error).toBeInstanceOf(GleanAuthenticationError);
+      expect(error.message).toBe('Authentication token has expired');
+      expect(error.response).toEqual({
+        message: 'Authentication token has expired',
+        originalResponse: serverResponse,
+      });
+
+      const formatted = formatGleanError(error);
+      expect(formatted).toBe(
+        'Authentication Failed: Authentication token has expired',
+      );
+    });
+
+    it('should format invalid token error correctly', () => {
+      const serverResponse = 'Invalid Secret\nNot allowed';
+      const error = createGleanError(401, {
+        message: 'Invalid authentication token',
+        originalResponse: serverResponse,
+      });
+      expect(error).toBeInstanceOf(GleanAuthenticationError);
+      expect(error.message).toBe('Invalid authentication token');
+      expect(error.response).toEqual({
+        message: 'Invalid authentication token',
+        originalResponse: serverResponse,
+      });
+
+      const formatted = formatGleanError(error);
+      expect(formatted).toBe(
+        'Authentication Failed: Invalid authentication token',
+      );
+    });
+
     it('should format GleanPermissionError correctly', () => {
       const error = new GleanPermissionError('Access denied');
       const formatted = formatGleanError(error);
@@ -175,6 +213,48 @@ describe('Glean Errors', () => {
       const error500 = createGleanError(500, { message: 'Server error' });
       expect(error500).toBeInstanceOf(GleanError);
       expect(error500.status).toBe(500);
+    });
+
+    it('should handle expired token error correctly', () => {
+      const error = createGleanError(401, {
+        message: 'Authentication token has expired',
+        originalResponse: 'Token has expired\nNot allowed',
+      });
+      expect(error).toBeInstanceOf(GleanAuthenticationError);
+      expect(error.status).toBe(401);
+      expect(error.message).toBe('Authentication token has expired');
+      expect(error.response).toEqual({
+        message: 'Authentication token has expired',
+        originalResponse: 'Token has expired\nNot allowed',
+      });
+    });
+
+    it('should handle invalid token error correctly', () => {
+      const error = createGleanError(401, {
+        message: 'Invalid authentication token',
+        originalResponse: 'Invalid Secret\nNot allowed',
+      });
+      expect(error).toBeInstanceOf(GleanAuthenticationError);
+      expect(error.status).toBe(401);
+      expect(error.message).toBe('Invalid authentication token');
+      expect(error.response).toEqual({
+        message: 'Invalid authentication token',
+        originalResponse: 'Invalid Secret\nNot allowed',
+      });
+    });
+
+    it('should handle non-JSON error responses correctly', () => {
+      const error = createGleanError(401, {
+        message: 'Authentication token has expired',
+        originalResponse: 'Token has expired\nNot allowed',
+      });
+      expect(error).toBeInstanceOf(GleanAuthenticationError);
+      expect(error.status).toBe(401);
+      expect(error.message).toBe('Authentication token has expired');
+      expect(error.response).toEqual({
+        message: 'Authentication token has expired',
+        originalResponse: 'Token has expired\nNot allowed',
+      });
     });
 
     it('should use default message if none provided', () => {

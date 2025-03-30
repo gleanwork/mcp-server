@@ -80,13 +80,39 @@ class GleanClientImpl implements GleanClient {
         body: JSON.stringify(body),
       });
 
-      const data = await response.json();
+      let data: Record<string, unknown>;
+      const contentType = response.headers.get('content-type');
+
+      if (contentType?.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        data = { message: text };
+      }
 
       if (!response.ok) {
-        const errorMessage = `Glean API error: ${response.statusText}`;
+        let errorMessage: string;
+
+        if (response.status === 401) {
+          if (typeof data === 'object' && data && 'message' in data) {
+            const message = String(data.message);
+            if (message.includes('expired')) {
+              errorMessage = 'Authentication token has expired';
+            } else if (message.includes('Invalid Secret')) {
+              errorMessage = 'Invalid authentication token';
+            } else {
+              errorMessage = message;
+            }
+          } else {
+            errorMessage = 'Authentication failed';
+          }
+        } else {
+          errorMessage = `Glean API error: ${response.statusText}`;
+        }
+
         throw createGleanError(response.status, {
-          ...data,
           message: errorMessage,
+          originalResponse: data.message,
         });
       }
 
