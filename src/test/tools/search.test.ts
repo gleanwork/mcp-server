@@ -1,21 +1,18 @@
-import { describe, it, expect, vi } from 'vitest';
-import { SearchSchema } from '../../tools/search';
-import { search } from '../../tools/search';
-
-vi.mock('../../common/client', () => ({
-  getClient: vi.fn().mockReturnValue({
-    search: vi.fn().mockResolvedValue({
-      results: [
-        {
-          title: 'Test Result',
-          url: 'https://example.com',
-        },
-      ],
-    }),
-  }),
-}));
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { SearchSchema, search } from '../../tools/search';
+import '../mocks/setup';
 
 describe('Search Tool', () => {
+  beforeEach(() => {
+    process.env.GLEAN_SUBDOMAIN = 'test';
+    process.env.GLEAN_API_TOKEN = 'test-token';
+  });
+
+  afterEach(() => {
+    delete process.env.GLEAN_SUBDOMAIN;
+    delete process.env.GLEAN_API_TOKEN;
+  });
+
   describe('Schema Validation', () => {
     it('should validate a valid search request', () => {
       const validRequest = {
@@ -68,15 +65,12 @@ describe('Search Tool', () => {
 
       const response = await search(params);
 
-      // The response is now the raw response from the Glean API
-      // We just verify it's returned as expected from the mock
-      // Add type assertion to fix the 'response is of type unknown' error
-      const typedResponse = response as { results: any[] };
+      // Verify response structure
+      const typedResponse = response as { results: unknown[]; trackingToken: string; sessionInfo: unknown };
       expect(typedResponse).toHaveProperty('results');
       expect(typedResponse.results).toBeInstanceOf(Array);
-
-      const { getClient } = await import('../../common/client');
-      expect(getClient).toHaveBeenCalled();
+      expect(typedResponse).toHaveProperty('trackingToken');
+      expect(typedResponse).toHaveProperty('sessionInfo');
     });
   });
 });

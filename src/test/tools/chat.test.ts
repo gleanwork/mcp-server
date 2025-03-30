@@ -1,25 +1,18 @@
-import { describe, it, expect, vi } from 'vitest';
-import { ChatSchema } from '../../tools/chat';
-import { chat } from '../../tools/chat';
-
-vi.mock('../../common/client', () => ({
-  getClient: vi.fn().mockReturnValue({
-    chat: vi.fn().mockResolvedValue({
-      messages: [
-        {
-          author: 'GLEAN_AI',
-          fragments: [
-            {
-              text: 'Hello! How can I help you today?',
-            },
-          ],
-        },
-      ],
-    }),
-  }),
-}));
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { ChatSchema, chat } from '../../tools/chat';
+import '../mocks/setup';
 
 describe('Chat Tool', () => {
+  beforeEach(() => {
+    process.env.GLEAN_SUBDOMAIN = 'test';
+    process.env.GLEAN_API_TOKEN = 'test-token';
+  });
+
+  afterEach(() => {
+    delete process.env.GLEAN_SUBDOMAIN;
+    delete process.env.GLEAN_API_TOKEN;
+  });
+
   describe('Schema Validation', () => {
     it('should validate a valid chat request', () => {
       const validRequest = {
@@ -103,15 +96,20 @@ describe('Chat Tool', () => {
 
       const response = await chat(params as any);
 
-      // Verify response structure for raw response from Glean API
-      // Add type assertion to fix the 'response is of type unknown' error
-      const typedResponse = response as { messages: any[] };
+      // Verify response structure
+      const typedResponse = response as { messages: Array<{ author: string; fragments: Array<{ text: string }>; messageId: string; messageType: string }> };
       expect(typedResponse).toHaveProperty('messages');
       expect(typedResponse.messages).toBeInstanceOf(Array);
-
-      // Verify client was called
-      const { getClient } = await import('../../common/client');
-      expect(getClient).toHaveBeenCalled();
+      expect(typedResponse.messages[0]).toMatchObject({
+        author: 'GLEAN_AI',
+        fragments: [
+          {
+            text: 'Search company knowledge'
+          }
+        ],
+        messageId: expect.any(String),
+        messageType: 'UPDATE'
+      });
     });
   });
 });
