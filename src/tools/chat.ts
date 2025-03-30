@@ -1,5 +1,12 @@
 import { z } from 'zod';
 import { getClient } from '../common/client.js';
+import {
+  DocumentSchema,
+  DocumentSpecSchema,
+  QuerySuggestionSchema,
+  SearchResultSnippetSchema,
+  TextRangeSchema,
+} from './schemas.js';
 
 /**
  * Schema for agent configuration in chat requests.
@@ -7,7 +14,7 @@ import { getClient } from '../common/client.js';
  *
  * @type {z.ZodObject}
  */
-const AgentConfigSchema = z.object({
+export const AgentConfigSchema = z.object({
   agent: z
     .enum(['DEFAULT', 'GPT'])
     .optional()
@@ -26,7 +33,7 @@ const AgentConfigSchema = z.object({
  *
  * @type {z.ZodObject}
  */
-const ParameterSchema = z.object({
+export const ParameterSchema = z.object({
   description: z.string().optional().describe('Description of the parameter'),
   displayName: z.string().optional().describe('Display name for the parameter'),
   isRequired: z
@@ -47,7 +54,7 @@ const ParameterSchema = z.object({
  *
  * @type {z.ZodObject}
  */
-const ActionSchema = z.object({
+export const ActionSchema = z.object({
   parameters: z
     .record(z.string(), ParameterSchema)
     .optional()
@@ -60,7 +67,7 @@ const ActionSchema = z.object({
  *
  * @type {z.ZodObject}
  */
-const ChatFileSchema = z.object({
+export const ChatFileSchema = z.object({
   id: z.string().describe('Unique identifier for the file'),
   name: z.string().describe('Name of the file'),
 });
@@ -71,7 +78,7 @@ const ChatFileSchema = z.object({
  *
  * @type {z.ZodObject}
  */
-const ChatMessageCitationSchema = z.object({
+export const ChatMessageCitationSchema = z.object({
   sourceDocument: z
     .object({
       id: z.string().describe('Document ID'),
@@ -79,19 +86,9 @@ const ChatMessageCitationSchema = z.object({
       referenceRanges: z
         .array(
           z.object({
-            textRange: z
-              .object({
-                startIndex: z
-                  .number()
-                  .describe('Inclusive start index of the range'),
-                endIndex: z
-                  .number()
-                  .describe('Exclusive end index of the range'),
-                type: z
-                  .enum(['BOLD', 'CITATION', 'LINK'])
-                  .describe('Type of formatting to apply'),
-              })
-              .describe('A subsection of text with special formatting'),
+            textRange: TextRangeSchema.describe(
+              'A subsection of text with special formatting',
+            ),
           }),
         )
         .optional()
@@ -101,12 +98,29 @@ const ChatMessageCitationSchema = z.object({
 });
 
 /**
+ * Schema for structured results in chat message fragments.
+ */
+export const StructuredResultSchema = z.object({
+  document: DocumentSchema.optional().describe(
+    'The document this result represents',
+  ),
+  snippets: z
+    .array(SearchResultSnippetSchema)
+    .optional()
+    .describe('Any snippets associated to the populated object'),
+  trackingToken: z
+    .string()
+    .optional()
+    .describe('An opaque token that represents this particular result'),
+});
+
+/**
  * Schema for chat message fragments.
  * Defines parts of a chat message that originate from a single action/tool.
  *
  * @type {z.ZodObject}
  */
-const ChatMessageFragmentSchema = z.object({
+export const ChatMessageFragmentSchema = z.object({
   text: z.string().optional().describe('Text content of the fragment'),
   action: ActionSchema.optional().describe(
     'Action information for the fragment',
@@ -114,12 +128,11 @@ const ChatMessageFragmentSchema = z.object({
   file: ChatFileSchema.optional().describe(
     'File referenced in the message fragment',
   ),
-  querySuggestion: z
-    .any()
-    .optional()
-    .describe('Search query suggestion associated with the fragment'),
+  querySuggestion: QuerySuggestionSchema.optional().describe(
+    'Search query suggestion associated with the fragment',
+  ),
   structuredResults: z
-    .array(z.any())
+    .array(StructuredResultSchema)
     .optional()
     .describe('Structured results associated with the fragment'),
 });
@@ -130,11 +143,13 @@ const ChatMessageFragmentSchema = z.object({
  *
  * @type {z.ZodObject}
  */
-const ChatRestrictionFiltersSchema = z.object({
-  datasources: z
-    .array(z.string())
+export const ChatRestrictionFiltersSchema = z.object({
+  containerSpecs: z
+    .array(DocumentSpecSchema)
     .optional()
-    .describe('List of datasources to include/exclude'),
+    .describe(
+      'Specifications for containers that should be used as part of the restriction',
+    ),
 });
 
 /**
@@ -143,7 +158,7 @@ const ChatRestrictionFiltersSchema = z.object({
  *
  * @type {z.ZodObject}
  */
-const ChatMessageSchema = z.object({
+export const ChatMessageSchema = z.object({
   agentConfig: AgentConfigSchema.optional().describe(
     'Agent config that generated this message',
   ),
