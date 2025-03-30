@@ -47,7 +47,7 @@ importers:
         version: 9.23.0
       eslint-plugin-prettier:
         specifier: ^4.2.1
-        version: 4.2.1(eslint@9.23.0)(prettier@2.8.8)
+        version: 4.2.1(eslint@9.23.0)(prettier@3.5.3)
       fs-extra:
         specifier: ^11.3.0
         version: 11.3.0
@@ -55,8 +55,8 @@ importers:
         specifier: ^16.0.0
         version: 16.0.0
       prettier:
-        specifier: ^2.8.8
-        version: 2.8.8
+        specifier: ^3.5.3
+        version: 3.5.3
       release-it:
         specifier: ^17.11.0
         version: 17.11.0(typescript@5.8.2)
@@ -2054,9 +2054,9 @@ packages:
     resolution: {integrity: sha512-GbK2cP9nraSSUF9N2XwUwqfzlAFlMNYYl+ShE/V+H8a9uNl/oUqB1w2EL54Jh0OlyRSd8RfWYJ3coVS4TROP2w==}
     engines: {node: '>=6.0.0'}
 
-  prettier@2.8.8:
-    resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
-    engines: {node: '>=10.13.0'}
+  prettier@3.5.3:
+    resolution: {integrity: sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==}
+    engines: {node: '>=14'}
     hasBin: true
 
   progress@2.0.3:
@@ -3636,10 +3636,10 @@ snapshots:
     optionalDependencies:
       source-map: 0.6.1
 
-  eslint-plugin-prettier@4.2.1(eslint@9.23.0)(prettier@2.8.8):
+  eslint-plugin-prettier@4.2.1(eslint@9.23.0)(prettier@3.5.3):
     dependencies:
       eslint: 9.23.0
-      prettier: 2.8.8
+      prettier: 3.5.3
       prettier-linter-helpers: 1.0.0
 
   eslint-scope@8.3.0:
@@ -4771,7 +4771,7 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier@2.8.8: {}
+  prettier@3.5.3: {}
 
   progress@2.0.3: {}
 
