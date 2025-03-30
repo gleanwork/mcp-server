@@ -14,10 +14,10 @@
   "license": "MIT",
   "author": "Steve Calvert <steve.calvert@glean.com>",
   "type": "module",
+  "main": "./build/index.js",
   "bin": {
     "glean-mcp-server": "build/index.js"
   },
-  "main": "./build/index.js",
   "files": [
     "build/common/**/*",
     "build/tools/**/*",
@@ -26,14 +26,14 @@
   ],
   "scripts": {
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
-    "watch": "tsc -w",
     "format": "prettier src/**/*.ts -w",
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
     "lint": "eslint --ext ts,js --fix src",
     "prepare": "pnpm run build",
     "release": "release-it",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "watch": "tsc -w"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",
@@ -67,8 +67,13 @@
     "pnpm": "10.6.2"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org",
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "release-it": {
     "plugins": {
