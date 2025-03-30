@@ -14,7 +14,7 @@ import {
  *
  * @type {z.ZodObject}
  */
-export const AgentConfigSchema = z.object({
+const AgentConfigSchema = z.object({
   agent: z
     .enum(['DEFAULT', 'GPT'])
     .optional()
@@ -33,7 +33,7 @@ export const AgentConfigSchema = z.object({
  *
  * @type {z.ZodObject}
  */
-export const ParameterSchema = z.object({
+const ParameterSchema = z.object({
   description: z.string().optional().describe('Description of the parameter'),
   displayName: z.string().optional().describe('Display name for the parameter'),
   isRequired: z
@@ -54,7 +54,7 @@ export const ParameterSchema = z.object({
  *
  * @type {z.ZodObject}
  */
-export const ActionSchema = z.object({
+const ActionSchema = z.object({
   parameters: z
     .record(z.string(), ParameterSchema)
     .optional()
@@ -67,7 +67,7 @@ export const ActionSchema = z.object({
  *
  * @type {z.ZodObject}
  */
-export const ChatFileSchema = z.object({
+const ChatFileSchema = z.object({
   id: z.string().describe('Unique identifier for the file'),
   name: z.string().describe('Name of the file'),
 });
@@ -78,7 +78,7 @@ export const ChatFileSchema = z.object({
  *
  * @type {z.ZodObject}
  */
-export const ChatMessageCitationSchema = z.object({
+const ChatMessageCitationSchema = z.object({
   sourceDocument: z
     .object({
       id: z.string().describe('Document ID'),
@@ -100,7 +100,7 @@ export const ChatMessageCitationSchema = z.object({
 /**
  * Schema for structured results in chat message fragments.
  */
-export const StructuredResultSchema = z.object({
+const StructuredResultSchema = z.object({
   document: DocumentSchema.optional().describe(
     'The document this result represents',
   ),
@@ -120,7 +120,7 @@ export const StructuredResultSchema = z.object({
  *
  * @type {z.ZodObject}
  */
-export const ChatMessageFragmentSchema = z.object({
+const ChatMessageFragmentSchema = z.object({
   text: z.string().optional().describe('Text content of the fragment'),
   action: ActionSchema.optional().describe(
     'Action information for the fragment',
@@ -143,7 +143,7 @@ export const ChatMessageFragmentSchema = z.object({
  *
  * @type {z.ZodObject}
  */
-export const ChatRestrictionFiltersSchema = z.object({
+const ChatRestrictionFiltersSchema = z.object({
   containerSpecs: z
     .array(DocumentSpecSchema)
     .optional()
@@ -158,7 +158,7 @@ export const ChatRestrictionFiltersSchema = z.object({
  *
  * @type {z.ZodObject}
  */
-export const ChatMessageSchema = z.object({
+const ChatMessageSchema = z.object({
   agentConfig: AgentConfigSchema.optional().describe(
     'Agent config that generated this message',
   ),
