@@ -40,6 +40,25 @@ export const DocumentSectionSchema = z.object({
 });
 
 /**
+ * Schema for simplified document references to avoid circular dependencies.
+ */
+export const DocumentReferenceSchema = z.object({
+  id: z.string().describe('The Glean Document ID'),
+  title: z.string().optional().describe('The title of the document'),
+  url: z.string().optional().describe('A permalink for the document'),
+  datasource: z
+    .string()
+    .optional()
+    .describe(
+      'The app or other repository type from which the document was extracted',
+    ),
+  docType: z
+    .string()
+    .optional()
+    .describe('The datasource-specific type of the document'),
+});
+
+/**
  * Schema for document in search requests.
  */
 export type DocumentSchemaType = z.ZodObject<{
@@ -61,8 +80,8 @@ export type DocumentSchemaType = z.ZodObject<{
   >;
   docType: z.ZodOptional<z.ZodString>;
   content: z.ZodOptional<typeof DocumentContentSchema>;
-  containerDocument: z.ZodOptional<z.ZodLazy<any>>;
-  parentDocument: z.ZodOptional<z.ZodLazy<any>>;
+  containerDocument: z.ZodOptional<typeof DocumentReferenceSchema>;
+  parentDocument: z.ZodOptional<typeof DocumentReferenceSchema>;
   title: z.ZodOptional<z.ZodString>;
   url: z.ZodOptional<z.ZodString>;
   metadata: z.ZodOptional<typeof DocumentMetadataSchema>;
@@ -95,14 +114,12 @@ export const DocumentSchema: DocumentSchemaType = z.object({
     .optional()
     .describe('The datasource-specific type of the document'),
   content: DocumentContentSchema.optional(),
-  containerDocument: z
-    .lazy(() => DocumentSchema)
-    .optional()
-    .describe('The container document'),
-  parentDocument: z
-    .lazy(() => DocumentSchema)
-    .optional()
-    .describe('The parent document'),
+  containerDocument: DocumentReferenceSchema.optional().describe(
+    'The container document',
+  ),
+  parentDocument: DocumentReferenceSchema.optional().describe(
+    'The parent document',
+  ),
   title: z.string().optional().describe('The title of the document'),
   url: z.string().optional().describe('A permalink for the document'),
   metadata: DocumentMetadataSchema.optional(),

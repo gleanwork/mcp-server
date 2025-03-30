@@ -98,7 +98,34 @@ describe('Schema to JSON Schema conversion', () => {
                                   "type": "string",
                                 },
                                 "containerDocument": {
+                                  "additionalProperties": false,
                                   "description": "The container document",
+                                  "properties": {
+                                    "datasource": {
+                                      "description": "The app or other repository type from which the document was extracted",
+                                      "type": "string",
+                                    },
+                                    "docType": {
+                                      "description": "The datasource-specific type of the document",
+                                      "type": "string",
+                                    },
+                                    "id": {
+                                      "description": "The Glean Document ID",
+                                      "type": "string",
+                                    },
+                                    "title": {
+                                      "description": "The title of the document",
+                                      "type": "string",
+                                    },
+                                    "url": {
+                                      "description": "A permalink for the document",
+                                      "type": "string",
+                                    },
+                                  },
+                                  "required": [
+                                    "id",
+                                  ],
+                                  "type": "object",
                                 },
                                 "content": {
                                   "additionalProperties": false,
@@ -137,7 +164,34 @@ describe('Schema to JSON Schema conversion', () => {
                                   "type": "object",
                                 },
                                 "parentDocument": {
+                                  "additionalProperties": false,
                                   "description": "The parent document",
+                                  "properties": {
+                                    "datasource": {
+                                      "description": "The app or other repository type from which the document was extracted",
+                                      "type": "string",
+                                    },
+                                    "docType": {
+                                      "description": "The datasource-specific type of the document",
+                                      "type": "string",
+                                    },
+                                    "id": {
+                                      "description": "The Glean Document ID",
+                                      "type": "string",
+                                    },
+                                    "title": {
+                                      "description": "The title of the document",
+                                      "type": "string",
+                                    },
+                                    "url": {
+                                      "description": "A permalink for the document",
+                                      "type": "string",
+                                    },
+                                  },
+                                  "required": [
+                                    "id",
+                                  ],
+                                  "type": "object",
                                 },
                                 "sections": {
                                   "description": "A list of content sub-sections in the document",
@@ -254,7 +308,34 @@ describe('Schema to JSON Schema conversion', () => {
                                       "type": "string",
                                     },
                                     "containerDocument": {
+                                      "additionalProperties": false,
                                       "description": "The container document",
+                                      "properties": {
+                                        "datasource": {
+                                          "description": "The app or other repository type from which the document was extracted",
+                                          "type": "string",
+                                        },
+                                        "docType": {
+                                          "description": "The datasource-specific type of the document",
+                                          "type": "string",
+                                        },
+                                        "id": {
+                                          "description": "The Glean Document ID",
+                                          "type": "string",
+                                        },
+                                        "title": {
+                                          "description": "The title of the document",
+                                          "type": "string",
+                                        },
+                                        "url": {
+                                          "description": "A permalink for the document",
+                                          "type": "string",
+                                        },
+                                      },
+                                      "required": [
+                                        "id",
+                                      ],
+                                      "type": "object",
                                     },
                                     "content": {
                                       "additionalProperties": false,
@@ -293,7 +374,34 @@ describe('Schema to JSON Schema conversion', () => {
                                       "type": "object",
                                     },
                                     "parentDocument": {
+                                      "additionalProperties": false,
                                       "description": "The parent document",
+                                      "properties": {
+                                        "datasource": {
+                                          "description": "The app or other repository type from which the document was extracted",
+                                          "type": "string",
+                                        },
+                                        "docType": {
+                                          "description": "The datasource-specific type of the document",
+                                          "type": "string",
+                                        },
+                                        "id": {
+                                          "description": "The Glean Document ID",
+                                          "type": "string",
+                                        },
+                                        "title": {
+                                          "description": "The title of the document",
+                                          "type": "string",
+                                        },
+                                        "url": {
+                                          "description": "A permalink for the document",
+                                          "type": "string",
+                                        },
+                                      },
+                                      "required": [
+                                        "id",
+                                      ],
+                                      "type": "object",
                                     },
                                     "sections": {
                                       "description": "A list of content sub-sections in the document",
@@ -391,7 +499,34 @@ describe('Schema to JSON Schema conversion', () => {
                                                   "type": "string",
                                                 },
                                                 "containerDocument": {
+                                                  "additionalProperties": false,
                                                   "description": "The container document",
+                                                  "properties": {
+                                                    "datasource": {
+                                                      "description": "The app or other repository type from which the document was extracted",
+                                                      "type": "string",
+                                                    },
+                                                    "docType": {
+                                                      "description": "The datasource-specific type of the document",
+                                                      "type": "string",
+                                                    },
+                                                    "id": {
+                                                      "description": "The Glean Document ID",
+                                                      "type": "string",
+                                                    },
+                                                    "title": {
+                                                      "description": "The title of the document",
+                                                      "type": "string",
+                                                    },
+                                                    "url": {
+                                                      "description": "A permalink for the document",
+                                                      "type": "string",
+                                                    },
+                                                  },
+                                                  "required": [
+                                                    "id",
+                                                  ],
+                                                  "type": "object",
                                                 },
                                                 "content": {
                                                   "additionalProperties": false,
@@ -430,7 +565,34 @@ describe('Schema to JSON Schema conversion', () => {
                                                   "type": "object",
                                                 },
                                                 "parentDocument": {
+                                                  "additionalProperties": false,
                                                   "description": "The parent document",
+                                                  "properties": {
+                                                    "datasource": {
+                                                      "description": "The app or other repository type from which the document was extracted",
+                                                      "type": "string",
+                                                    },
+                                                    "docType": {
+                                                      "description": "The datasource-specific type of the document",
+                                                      "type": "string",
+                                                    },
+                                                    "id": {
+                                                      "description": "The Glean Document ID",
+                                                      "type": "string",
+                                                    },
+                                                    "title": {
+                                                      "description": "The title of the document",
+                                                      "type": "string",
+                                                    },
+                                                    "url": {
+                                                      "description": "A permalink for the document",
+                                                      "type": "string",
+                                                    },
+                                                  },
+                                                  "required": [
+                                                    "id",
+                                                  ],
+                                                  "type": "object",
                                                 },
                                                 "sections": {
                                                   "description": "A list of content sub-sections in the document",
@@ -1199,7 +1361,34 @@ describe('Schema to JSON Schema conversion', () => {
                                               "type": "string",
                                             },
                                             "containerDocument": {
+                                              "additionalProperties": false,
                                               "description": "The container document",
+                                              "properties": {
+                                                "datasource": {
+                                                  "description": "The app or other repository type from which the document was extracted",
+                                                  "type": "string",
+                                                },
+                                                "docType": {
+                                                  "description": "The datasource-specific type of the document",
+                                                  "type": "string",
+                                                },
+                                                "id": {
+                                                  "description": "The Glean Document ID",
+                                                  "type": "string",
+                                                },
+                                                "title": {
+                                                  "description": "The title of the document",
+                                                  "type": "string",
+                                                },
+                                                "url": {
+                                                  "description": "A permalink for the document",
+                                                  "type": "string",
+                                                },
+                                              },
+                                              "required": [
+                                                "id",
+                                              ],
+                                              "type": "object",
                                             },
                                             "content": {
                                               "additionalProperties": false,
@@ -1238,7 +1427,34 @@ describe('Schema to JSON Schema conversion', () => {
                                               "type": "object",
                                             },
                                             "parentDocument": {
+                                              "additionalProperties": false,
                                               "description": "The parent document",
+                                              "properties": {
+                                                "datasource": {
+                                                  "description": "The app or other repository type from which the document was extracted",
+                                                  "type": "string",
+                                                },
+                                                "docType": {
+                                                  "description": "The datasource-specific type of the document",
+                                                  "type": "string",
+                                                },
+                                                "id": {
+                                                  "description": "The Glean Document ID",
+                                                  "type": "string",
+                                                },
+                                                "title": {
+                                                  "description": "The title of the document",
+                                                  "type": "string",
+                                                },
+                                                "url": {
+                                                  "description": "A permalink for the document",
+                                                  "type": "string",
+                                                },
+                                              },
+                                              "required": [
+                                                "id",
+                                              ],
+                                              "type": "object",
                                             },
                                             "sections": {
                                               "description": "A list of content sub-sections in the document",
@@ -1460,7 +1676,34 @@ describe('Schema to JSON Schema conversion', () => {
                                       "type": "string",
                                     },
                                     "containerDocument": {
+                                      "additionalProperties": false,
                                       "description": "The container document",
+                                      "properties": {
+                                        "datasource": {
+                                          "description": "The app or other repository type from which the document was extracted",
+                                          "type": "string",
+                                        },
+                                        "docType": {
+                                          "description": "The datasource-specific type of the document",
+                                          "type": "string",
+                                        },
+                                        "id": {
+                                          "description": "The Glean Document ID",
+                                          "type": "string",
+                                        },
+                                        "title": {
+                                          "description": "The title of the document",
+                                          "type": "string",
+                                        },
+                                        "url": {
+                                          "description": "A permalink for the document",
+                                          "type": "string",
+                                        },
+                                      },
+                                      "required": [
+                                        "id",
+                                      ],
+                                      "type": "object",
                                     },
                                     "content": {
                                       "additionalProperties": false,
@@ -1499,7 +1742,34 @@ describe('Schema to JSON Schema conversion', () => {
                                       "type": "object",
                                     },
                                     "parentDocument": {
+                                      "additionalProperties": false,
                                       "description": "The parent document",
+                                      "properties": {
+                                        "datasource": {
+                                          "description": "The app or other repository type from which the document was extracted",
+                                          "type": "string",
+                                        },
+                                        "docType": {
+                                          "description": "The datasource-specific type of the document",
+                                          "type": "string",
+                                        },
+                                        "id": {
+                                          "description": "The Glean Document ID",
+                                          "type": "string",
+                                        },
+                                        "title": {
+                                          "description": "The title of the document",
+                                          "type": "string",
+                                        },
+                                        "url": {
+                                          "description": "A permalink for the document",
+                                          "type": "string",
+                                        },
+                                      },
+                                      "required": [
+                                        "id",
+                                      ],
+                                      "type": "object",
                                     },
                                     "sections": {
                                       "description": "A list of content sub-sections in the document",
@@ -1582,7 +1852,34 @@ describe('Schema to JSON Schema conversion', () => {
                                                   "type": "string",
                                                 },
                                                 "containerDocument": {
+                                                  "additionalProperties": false,
                                                   "description": "The container document",
+                                                  "properties": {
+                                                    "datasource": {
+                                                      "description": "The app or other repository type from which the document was extracted",
+                                                      "type": "string",
+                                                    },
+                                                    "docType": {
+                                                      "description": "The datasource-specific type of the document",
+                                                      "type": "string",
+                                                    },
+                                                    "id": {
+                                                      "description": "The Glean Document ID",
+                                                      "type": "string",
+                                                    },
+                                                    "title": {
+                                                      "description": "The title of the document",
+                                                      "type": "string",
+                                                    },
+                                                    "url": {
+                                                      "description": "A permalink for the document",
+                                                      "type": "string",
+                                                    },
+                                                  },
+                                                  "required": [
+                                                    "id",
+                                                  ],
+                                                  "type": "object",
                                                 },
                                                 "content": {
                                                   "additionalProperties": false,
@@ -1621,7 +1918,34 @@ describe('Schema to JSON Schema conversion', () => {
                                                   "type": "object",
                                                 },
                                                 "parentDocument": {
+                                                  "additionalProperties": false,
                                                   "description": "The parent document",
+                                                  "properties": {
+                                                    "datasource": {
+                                                      "description": "The app or other repository type from which the document was extracted",
+                                                      "type": "string",
+                                                    },
+                                                    "docType": {
+                                                      "description": "The datasource-specific type of the document",
+                                                      "type": "string",
+                                                    },
+                                                    "id": {
+                                                      "description": "The Glean Document ID",
+                                                      "type": "string",
+                                                    },
+                                                    "title": {
+                                                      "description": "The title of the document",
+                                                      "type": "string",
+                                                    },
+                                                    "url": {
+                                                      "description": "A permalink for the document",
+                                                      "type": "string",
+                                                    },
+                                                  },
+                                                  "required": [
+                                                    "id",
+                                                  ],
+                                                  "type": "object",
                                                 },
                                                 "sections": {
                                                   "description": "A list of content sub-sections in the document",
