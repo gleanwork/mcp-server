@@ -23,6 +23,7 @@ import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import * as search from './tools/search.js';
 import * as chat from './tools/chat.js';
+import * as workflow from './tools/workflow.js';
 import {
   isGleanError,
   GleanError,
@@ -37,6 +38,9 @@ import {
 const TOOL_NAMES = {
   search: 'glean_search',
   chat: 'glean_chat',
+  callAgent: 'glean_call_agent',
+  getAgents: 'glean_get_agents',
+  getAgent: 'glean_get_agent',
 };
 
 /**
@@ -69,6 +73,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         name: TOOL_NAMES.chat,
         description: "Chat with Glean Assistant using Glean's RAG",
         inputSchema: zodToJsonSchema(chat.ChatSchema),
+      },
+      {
+        name: TOOL_NAMES.callAgent,
+        description: "Run a Glean Workflow with custom input fields",
+        inputSchema: zodToJsonSchema(workflow.RunWorkflowSchema),
+      },
+      {
+        name: TOOL_NAMES.getAgents,
+        description: "List all available Glean Agents",
+        inputSchema: zodToJsonSchema(workflow.ListWorkflowsSchema),
+      },
+      {
+        name: TOOL_NAMES.getAgent,
+        description: "Get details of a specific Glean Agent by ID",
+        inputSchema: zodToJsonSchema(workflow.GetWorkflowSchema),
       },
     ],
   };
@@ -108,6 +127,39 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const args = chat.ChatSchema.parse(request.params.arguments);
         const response = await chat.chat(args);
         const formattedResponse = chat.formatResponse(response);
+
+        return {
+          content: [{ type: 'text', text: formattedResponse }],
+          isError: false,
+        };
+      }
+
+      case TOOL_NAMES.callAgent: {
+        const args = workflow.RunWorkflowSchema.parse(request.params.arguments);
+        const response = await workflow.runWorkflow(args);
+        const formattedResponse = workflow.formatResponse(response);
+
+        return {
+          content: [{ type: 'text', text: formattedResponse }],
+          isError: false,
+        };
+      }
+
+      case TOOL_NAMES.getAgents: {
+        const args = workflow.ListWorkflowsSchema.parse({"namespaces":["PROMPT_TEMPLATE","STATIC_WORKFLOW","AGENT"]});
+        const response = await workflow.listWorkflows(args);
+        const formattedResponse = workflow.formatListWorkflowsResponse(response);
+
+        return {
+          content: [{ type: 'text', text: formattedResponse }],
+          isError: false,
+        };
+      }
+
+      case TOOL_NAMES.getAgent: {
+        const args = workflow.GetWorkflowSchema.parse(request.params.arguments);
+        const response = await workflow.getWorkflow(args);
+        const formattedResponse = workflow.formatGetWorkflowResponse(response);
 
         return {
           content: [{ type: 'text', text: formattedResponse }],

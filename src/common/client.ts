@@ -33,6 +33,9 @@ export interface GleanConfig {
 export interface GleanClient {
   search(params: unknown): Promise<unknown>;
   chat(params: unknown): Promise<unknown>;
+  runWorkflow(params: unknown): Promise<unknown>;
+  listWorkflows(params?: unknown): Promise<unknown>;
+  getWorkflow(workflowId: string): Promise<unknown>;
 }
 
 /**
@@ -40,6 +43,7 @@ export interface GleanClient {
  */
 class GleanClientImpl implements GleanClient {
   private readonly baseUrl: string;
+  private readonly internalBaseUrl: string;
   private readonly headers: Record<string, string>;
 
   /**
@@ -49,6 +53,7 @@ class GleanClientImpl implements GleanClient {
    */
   constructor(private readonly config: GleanConfig) {
     this.baseUrl = `https://${config.subdomain}-be.glean.com/rest/api/v1/`;
+    this.internalBaseUrl = `https://${config.subdomain}-be.glean.com/api/v1/`;
 
     // Set up headers based on token type and actAs parameter
     this.headers = {
@@ -67,11 +72,13 @@ class GleanClientImpl implements GleanClient {
    *
    * @param {string} endpoint - API endpoint to call
    * @param {unknown} body - Request body
+   * @param {boolean} internal - To call internal endpoints
    * @returns {Promise<unknown>} Response data
    * @throws {GleanError} If the API returns an error
    */
-  private async request(endpoint: string, body: unknown): Promise<unknown> {
-    const url = `${this.baseUrl}${endpoint}`;
+  private async request(endpoint: string, body: unknown, internal: boolean = false): Promise<unknown> {
+    const baseUrl = internal ? this.internalBaseUrl : this.baseUrl;
+    const url = `${baseUrl}${endpoint}`;
 
     try {
       const response: Response = await fetch(url, {
@@ -151,6 +158,36 @@ class GleanClientImpl implements GleanClient {
   async chat(params: unknown): Promise<unknown> {
     return this.request('chat', params);
   }
+
+  /**
+   * Runs a workflow using the Glean API.
+   *
+   * @param {unknown} params - Workflow parameters
+   * @returns {Promise<unknown>} Workflow execution response
+   */
+  async runWorkflow(params: unknown): Promise<unknown> {
+    return this.request('runworkflow', params, true);
+  }
+
+  /**
+   * Lists all workflows available to the user.
+   *
+   * @param {unknown} [params] - Optional parameters for filtering workflows
+   * @returns {Promise<unknown>} List of available workflows
+   */
+  async listWorkflows(params?: unknown): Promise<unknown> {
+    return this.request('listworkflows', {"namespaces":["PROMPT_TEMPLATE","STATIC_WORKFLOW","AGENT"]}, true);
+  }
+
+  /**
+   * Gets a specific workflow by ID.
+   *
+   * @param {string} workflowId - ID of the workflow to retrieve
+   * @returns {Promise<unknown>} Workflow details
+   */
+  async getWorkflow(workflowId: string): Promise<unknown> {
+    return this.request(`getworkflow`, {"id": workflowId}, true);
+  }
 }
 
 /**
@@ -159,17 +196,19 @@ class GleanClientImpl implements GleanClient {
  * @returns {GleanConfig} Configuration object for GleanClient
  * @throws {Error} If required environment variables are missing
  */
-function getConfig(): GleanConfig {
+function getConfig(internal: boolean = false): GleanConfig {
   const subdomain = process.env.GLEAN_SUBDOMAIN;
-  const token = process.env.GLEAN_API_TOKEN;
+  const apiToken = process.env.GLEAN_API_TOKEN;
+  const internalApiToken = process.env.GLEAN_API_INTERNAL_TOKEN;
   const actAs = process.env.GLEAN_ACT_AS;
 
+  const token = internal ? internalApiToken : apiToken;
   if (!subdomain) {
     throw new Error('GLEAN_SUBDOMAIN environment variable is required');
   }
 
   if (!token) {
-    throw new Error('GLEAN_API_TOKEN environment variable is required');
+    throw new Error('GLEAN_API_TOKEN or GLEAN_API_INTERNAL_TOKEN environment variable is required');
   }
 
   return {
@@ -190,9 +229,9 @@ let clientInstance: GleanClient | null = null;
  * @returns {GleanClient} The configured Glean client instance
  * @throws {Error} If required environment variables are missing
  */
-export function getClient(): GleanClient {
+export function getClient(internal: boolean = false): GleanClient {
   if (!clientInstance) {
-    const config = getConfig();
+    const config = getConfig(internal);
     clientInstance = new GleanClientImpl(config);
   }
 

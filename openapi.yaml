@@ -252,6 +252,112 @@ paths:
                 $ref: '#/components/schemas/ErrorInfo'
         '429':
           description: Too Many Requests
+  /runworkflow:
+    post:
+      tags:
+      - Workflow
+      summary: Runs a workflow
+      description: Trigger a workflow with a given ID.
+      operationId: runworkflow
+      x-visibility: Public
+      x-codegen-request-body-name: payload
+      parameters:
+      - $ref: '#/components/parameters/xScioActAsHeader'
+      - $ref: '#/components/parameters/xGleanAuthTypeHeader'
+      - $ref: '#/components/parameters/timezoneOffset'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunWorkflowRequest'
+        required: true
+        x-exportParamName: Request
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Invalid request
+        '401':
+          description: Not Authorized
+        '408':
+          description: Request Timeout
+        '429':
+          description: Too Many Requests
+  /listworkflows:
+    post:
+      tags:
+      - Workflow
+      summary: Lists available workflows
+      description: Get a list of all available workflows for the user.
+      operationId: listworkflows
+      x-visibility: Public
+      x-codegen-request-body-name: payload
+      parameters:
+      - $ref: '#/components/parameters/xScioActAsHeader'
+      - $ref: '#/components/parameters/xGleanAuthTypeHeader'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListWorkflowsRequest'
+        required: true
+        x-exportParamName: Request
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowListResponse'
+        '400':
+          description: Invalid request
+        '401':
+          description: Not Authorized
+        '429':
+          description: Too Many Requests
+  /workflow/{workflowId}:
+    post:
+      tags:
+      - Workflow
+      summary: Get workflow details
+      description: Get details of a specific workflow by ID.
+      operationId: getworkflow
+      x-visibility: Public
+      parameters:
+      - $ref: '#/components/parameters/xScioActAsHeader'
+      - $ref: '#/components/parameters/xGleanAuthTypeHeader'
+      - name: workflowId
+        in: path
+        description: ID of the workflow to retrieve
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetWorkflowRequest'
+        required: false
+        x-exportParamName: Request
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowResponse'
+        '400':
+          description: Invalid request
+        '401':
+          description: Not Authorized
+        '404':
+          description: Workflow not found
+        '429':
+          description: Too Many Requests
   /summarize:
     post:
       tags:
@@ -4170,6 +4276,240 @@ components:
           type: string
           description: An opaque token that represents this summary in this particular
             query. To be used for /feedback reporting.
+    RunWorkflowRequest:
+      properties:
+        workflowId:
+          type: string
+          description: The ID of the workflow to be triggered. Has precedence over the schema.
+        schema:
+          $ref: '#/components/schemas/WorkflowSchema'
+          description: The schema for an unsaved workflow with no associated ID.
+        fields:
+          type: object
+          additionalProperties:
+            type: string
+          description: Key-value mapping of string -> string where the key is the name of the field in the prompt.
+        stream:
+          type: boolean
+          description: Whether to stream responses as they become available. If false, the entire response will be returned at once.
+        timeoutMillis:
+          type: integer
+          description: Request timeout in milliseconds
+        
+    WorkflowSchema:
+      required:
+        - steps
+      description: The schema of a workflow, such as the goal and the steps.
+      properties:
+        goal:
+          type: string
+          description: The goal of the workflow. This is passed into each step.
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowStep'
+        fields:
+          type: array
+          description: Fields can be used in the goal, step instruction templates, and tool config input templates.
+          items:
+            $ref: '#/components/schemas/WorkflowInputField'
+
+    WorkflowInputField:
+      type: object
+      description: Input field argument of a workflow.
+      properties:
+        name:
+          type: string
+          description: The name of the input.
+        displayName:
+          type: string
+          description: Name of the field as displayed to the user.
+        description:
+          type: string
+          description: Description of the field.
+        defaultValue:
+          type: string
+          description: Default value for the field.
+        optional:
+          type: boolean
+          description: Whether this field is optional.
+        type:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - TEXT
+                - SELECT
+                - DOCUMENT
+              description: Type of the form field
+        options:
+          type: array
+          description: Options for SELECT field type.
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                description: Value of the field.
+              label:
+                type: string
+                description: The human readable label associated with the value.
+
+    WorkflowStep:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The id of this step in the workflow.
+        label:
+          type: string
+          description: A label associated with the step.
+        instructionTemplate:
+          type: string
+          description: The templatic input to the workflow step.
+        type:
+          type: string
+          description: The type of the action.
+          enum:
+            - TOOL
+            - AGENT
+            - BRANCH
+        stepDependencies:
+          type: array
+          description: The ids of steps that the execution of this step depends on.
+          items:
+            type: string
+        toolConfig:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowToolConfig'
+        memoryConfig:
+          type: string
+          description: Memory used to plan the tool's inputs.
+          enum:
+            - ALL_DEPENDENCIES
+            - IMMEDIATE_DEPENDENCIES
+            - NO_MEMORY
+            
+    WorkflowToolConfig:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The id of the action/tool being used.
+        name:
+          type: string
+          description: The name of the tool being used.
+        inputTemplate:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowToolParameter'
+            
+    WorkflowToolParameter:
+      required:
+        - template
+      properties:
+        template:
+          type: string
+          description: Templatic inputs to the tool where params can be either user input fields or step ids.
+        name:
+          type: string
+          description: tool input field name which is optional.
+    
+    ListWorkflowsRequest:
+      properties:
+        includeHidden:
+          type: boolean
+          description: Whether to include hidden workflows in the listing.
+        includeSchemas:
+          type: boolean
+          description: Whether to include full schemas in the response.
+        limit:
+          type: integer
+          description: Maximum number of workflows to return.
+        offset:
+          type: integer
+          description: Offset for pagination.
+    
+    GetWorkflowRequest:
+      properties:
+        includeSchema:
+          type: boolean
+          description: Whether to include the full workflow schema in the response.
+    
+    WorkflowListResponse:
+      properties:
+        workflows:
+          type: array
+          description: List of workflows
+          items:
+            $ref: '#/components/schemas/WorkflowSummary'
+        totalCount:
+          type: integer
+          description: Total number of workflows available
+    
+    WorkflowResponse:
+      properties:
+        id:
+          type: string
+          description: The ID of the workflow
+        name:
+          type: string
+          description: Name of the workflow
+        description:
+          type: string
+          description: Description of the workflow
+        hidden:
+          type: boolean
+          description: Whether the workflow is hidden
+        created:
+          type: string
+          format: date-time
+          description: When the workflow was created
+        updated:
+          type: string
+          format: date-time
+          description: When the workflow was last updated
+        schema:
+          $ref: '#/components/schemas/WorkflowSchema'
+          description: The full schema of the workflow
+        creator:
+          type: object
+          properties:
+            email:
+              type: string
+              description: Email of the workflow creator
+    
+    WorkflowSummary:
+      properties:
+        id:
+          type: string
+          description: The ID of the workflow
+        name:
+          type: string
+          description: Name of the workflow
+        description:
+          type: string
+          description: Description of the workflow
+        hidden:
+          type: boolean
+          description: Whether the workflow is hidden
+        created:
+          type: string
+          format: date-time
+          description: When the workflow was created
+        updated:
+          type: string
+          format: date-time
+          description: When the workflow was last updated
+        creator:
+          type: object
+          properties:
+            email:
+              type: string
+              description: Email of the workflow creator
+
 x-tagGroups:
 - name: Search & Generative AI
   tags:
