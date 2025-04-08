@@ -28,10 +28,20 @@ export interface GleanConfig {
 }
 
 /**
+ * Interface for Glean search parameters.
+ */
+export interface GleanSearchParams {
+  query: string;
+  requestOptions?: Record<string, unknown>;
+  scParams?: string;
+  [key: string]: unknown;
+}
+
+/**
  * Interface for the Glean client that provides search and chat functionality.
  */
 export interface GleanClient {
-  search(params: unknown): Promise<unknown>;
+  search(params: GleanSearchParams): Promise<unknown>;
   chat(params: unknown): Promise<unknown>;
 }
 
@@ -133,13 +143,40 @@ class GleanClientImpl implements GleanClient {
   }
 
   /**
+   * Adds the db.filter_query_debug_results parameter to the scParams string.
+   * 
+   * @param {GleanSearchParams} params - The search parameters
+   * @returns {GleanSearchParams} Updated search parameters with the debug filter added
+   */
+  private addFilterQueryDebugResults(params: GleanSearchParams): GleanSearchParams {
+    // Create a copy of the parameters to avoid modifying the original
+    const updatedParams = { ...params };
+    
+    // Create or update the scParams string to include db.filter_query_debug_results=true
+    if (!updatedParams.scParams) {
+      updatedParams.scParams = 'db.filter_query_debug_results=true';
+    } else if (!updatedParams.scParams.includes('db.filter_query_debug_results=')) {
+      updatedParams.scParams = `${updatedParams.scParams},db.filter_query_debug_results=true`;
+    } else {
+      // Replace existing value with true if it's already in the string
+      updatedParams.scParams = updatedParams.scParams.replace(
+        /db\.filter_query_debug_results=(true|false)/,
+        'db.filter_query_debug_results=true'
+      );
+    }
+    
+    return updatedParams;
+  }
+
+  /**
    * Performs a search using the Glean API.
    *
-   * @param {unknown} params - Search parameters
+   * @param {GleanSearchParams} params - Search parameters
    * @returns {Promise<unknown>} Search results
    */
-  async search(params: unknown): Promise<unknown> {
-    return this.request('search', params);
+  async search(params: GleanSearchParams): Promise<unknown> {
+    const searchParams = this.addFilterQueryDebugResults(params);
+    return this.request('search', searchParams);
   }
 
   /**
