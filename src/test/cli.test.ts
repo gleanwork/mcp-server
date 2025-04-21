@@ -9,7 +9,17 @@ import { claudeConfigPath } from '../configure/client/claude.js';
 import { windsurfConfigPath } from '../configure/client/windsurf.js';
 
 function normalizeOutput(output: string, baseDir: string): string {
+  let normalized = normalizeBaseDirOutput(output, baseDir);
+  normalized = normalizeVersionOutput(normalized);
+  return normalized;
+}
+
+function normalizeBaseDirOutput(output: string, baseDir: string): string {
   return output.replace(new RegExp(baseDir, 'g'), '<TMP_DIR>');
+}
+
+function normalizeVersionOutput(output: string): string {
+  return output.replace(/Version: v\d+\.\d+\.\d+/g, 'Version: v9.9.9');
 }
 
 function createConfigFile(configFilePath: string, config: Record<string, any>) {
@@ -38,37 +48,38 @@ describe('CLI', () => {
 
     expect(result.exitCode).toEqual(0);
     expect(result.stderr).toMatchInlineSnapshot(`""`);
-    expect(result.stdout).toMatchInlineSnapshot(`
-      "
-        MCP server for Glean API integration
+    expect(normalizeOutput(result.stdout, project.baseDir))
+      .toMatchInlineSnapshot(`
+        "
+          MCP server for Glean API integration
 
-        Usage
-          Typically this package is configured in an MCP client configuration file.
-          However, you can also run it directly with the following commands, which help you set up the server configuration in an MCP client:
+          Usage
+            Typically this package is configured in an MCP client configuration file.
+            However, you can also run it directly with the following commands, which help you set up the server configuration in an MCP client:
 
-          $ npx @gleanwork/mcp-server configure --client <client-name> [options]
+            $ npx @gleanwork/mcp-server configure --client <client-name> [options]
 
-        Commands
-          configure   Configure MCP settings for a specific client/host
-          help        Show this help message
+          Commands
+            configure   Configure MCP settings for a specific client/host
+            help        Show this help message
 
-        Options for configure
-          --client, -c   MCP client to configure for (claude, cursor, windsurf)
-          --token, -t    Glean API token
-          --domain, -d   Glean instance domain/subdomain
-          --env, -e      Path to .env file containing GLEAN_API_TOKEN and GLEAN_SUBDOMAIN
+          Options for configure
+            --client, -c   MCP client to configure for (claude, cursor, windsurf)
+            --token, -t    Glean API token
+            --domain, -d   Glean instance domain/subdomain
+            --env, -e      Path to .env file containing GLEAN_API_TOKEN and GLEAN_SUBDOMAIN
 
-        Examples
-          $ npx @gleanwork/mcp-server
-          $ npx @gleanwork/mcp-server configure --client cursor --token glean_api_xyz --domain my-company
-          $ npx @gleanwork/mcp-server configure --client claude --env ~/.env.glean
+          Examples
+            $ npx @gleanwork/mcp-server
+            $ npx @gleanwork/mcp-server configure --client cursor --token glean_api_xyz --domain my-company
+            $ npx @gleanwork/mcp-server configure --client claude --env ~/.env.glean
 
-        Run 'npx @gleanwork/mcp-server help' for more details on supported clients
+          Run 'npx @gleanwork/mcp-server help' for more details on supported clients
 
-        Version: v0.2.0
-        
-      "
-    `);
+          Version: v9.9.9
+          
+        "
+      `);
   });
 
   it('handles invalid commands', async () => {
