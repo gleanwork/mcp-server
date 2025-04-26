@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { ChatResponse, Author } from '@gleanwork/api-client/models/components';
 import { ChatSchema, chat } from '../../tools/chat';
 import '../mocks/setup';
 
@@ -18,7 +19,7 @@ describe('Chat Tool', () => {
       const validRequest = {
         messages: [
           {
-            author: 'USER',
+            author: Author.User,
             fragments: [
               {
                 text: 'Hello',
@@ -36,7 +37,7 @@ describe('Chat Tool', () => {
       const validRequest = {
         messages: [
           {
-            author: 'USER',
+            author: Author.User,
             fragments: [
               {
                 text: 'Hello',
@@ -84,31 +85,36 @@ describe('Chat Tool', () => {
       const params = {
         messages: [
           {
-            author: 'USER',
+            author: Author.User,
             fragments: [
               {
-                text: 'Hello',
+                text: 'What are the company holidays this year?',
               },
             ],
           },
         ],
       };
 
-      const response = await chat(params as any);
+      const response = await chat(params);
 
-      // Verify response structure
-      const typedResponse = response as { messages: Array<{ author: string; fragments: Array<{ text: string }>; messageId: string; messageType: string }> };
+      let typedResponse: ChatResponse;
+      if (typeof response === 'string') {
+        typedResponse = JSON.parse(response) as ChatResponse;
+      } else {
+        typedResponse = response as ChatResponse;
+      }
+
       expect(typedResponse).toHaveProperty('messages');
       expect(typedResponse.messages).toBeInstanceOf(Array);
-      expect(typedResponse.messages[0]).toMatchObject({
-        author: 'GLEAN_AI',
+      expect(typedResponse.messages?.[0]).toMatchObject({
+        author: Author.GleanAi,
         fragments: [
           {
-            text: 'Search company knowledge'
-          }
+            text: 'Search company knowledge',
+          },
         ],
         messageId: expect.any(String),
-        messageType: 'UPDATE'
+        messageType: 'UPDATE',
       });
     });
   });

@@ -32,7 +32,7 @@ import {
 } from './common/errors.js';
 import { VERSION } from './common/version.js';
 
-const TOOL_NAMES = {
+export const TOOL_NAMES = {
   search: 'glean_search',
   chat: 'glean_chat',
 };

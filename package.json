@@ -29,19 +29,22 @@
     "!build/vitest.config.*"
   ],
   "scripts": {
-    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
-    "format": "prettier src/**/*.ts -w",
+    "start": "ts-node --esm src/server.ts",
+    "dev": "nodemon --exec ts-node --esm src/server.ts",
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\" --fix",
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
-    "lint": "eslint --ext ts,js --fix src",
     "lint:ts": "tsc --noEmit",
     "prepare": "pnpm run build",
     "release": "release-it",
-    "test": "vitest run",
+    "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest run",
     "test:all": "pnpm lint && pnpm lint:ts && pnpm test",
     "test:watch": "vitest",
     "watch": "tsc -w"
   },
   "dependencies": {
+    "@gleanwork/api-client": "0.1.0-beta.2",
     "@modelcontextprotocol/sdk": "^1.7.0",
     "dotenv": "^16.3.1",
     "meow": "^13.2.0",

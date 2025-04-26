@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { SearchResponse } from '@gleanwork/api-client/models/components';
 import { SearchSchema, search } from '../../tools/search';
 import '../mocks/setup';
 
@@ -64,9 +65,8 @@ describe('Search Tool', () => {
       };
 
       const response = await search(params);
+      const typedResponse = response as SearchResponse;
 
-      // Verify response structure
-      const typedResponse = response as { results: unknown[]; trackingToken: string; sessionInfo: unknown };
       expect(typedResponse).toHaveProperty('results');
       expect(typedResponse.results).toBeInstanceOf(Array);
       expect(typedResponse).toHaveProperty('trackingToken');
