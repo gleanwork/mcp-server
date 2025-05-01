@@ -30,15 +30,13 @@
   ],
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon --exec ts-node --esm src/server.ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
-    "lint": "eslint \"src/**/*.ts\" --fix",
+    "lint": "eslint --ext ts,js --fix src",
     "lint:ts": "tsc --noEmit",
     "prepare": "pnpm run build",
     "release": "release-it",
-    "start": "ts-node --esm src/server.ts",
-    "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest run",
+    "test": "vitest run",
     "test:all": "pnpm lint && pnpm lint:ts && pnpm test",
     "test:watch": "vitest",
     "watch": "tsc -w"
