@@ -29,7 +29,7 @@
     "!build/vitest.config.*"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
     "format": "prettier --write \"src/**/*.ts\"",
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
     "lint": "eslint --ext ts,js --fix src",
