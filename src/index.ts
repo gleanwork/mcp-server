@@ -16,6 +16,13 @@ import { runServer } from './server.js';
 import { configure, listSupportedClients } from './configure.js';
 import { availableClients, ensureClientsLoaded } from './configure/index.js';
 import { VERSION } from './common/version.js';
+import { getClient } from './common/client.js';
+import { Logger, trace, LogLevel, error } from './log/logger.js';
+import {
+  discoverOAuthConfig,
+  forceAuthorize,
+  forceRefreshTokens,
+} from './auth/auth.js';
 
 /**
  * Validates client and credential parameters
@@ -125,9 +132,19 @@ async function main() {
           type: 'boolean',
           shortFlag: 'h',
         },
+        trace: {
+          type: 'boolean',
+        },
       },
     },
   );
+
+  if (!cli.flags.trace) {
+    Logger.getInstance().setLogLevel(LogLevel.INFO);
+  }
+
+  trace(process.title, `ppid/pid: [${process.ppid} / ${process.pid}]`);
+  trace(process.execPath, process.execArgv, process.argv);
 
   // If no input is provided, run the MCP server
   if (cli.input.length === 0) {
@@ -160,6 +177,60 @@ async function main() {
     case 'help': {
       console.log(cli.help);
       await listSupportedClients();
+      break;
+    }
+
+    // unlisted commands
+
+    case 'auth': {
+      try {
+        await forceAuthorize();
+        console.log('Authorized successfully.');
+      } catch (err: any) {
+        error("Authorization error", err);
+        console.error(`Authorization failed: ${err.message}`);
+        process.exit(1);
+      }
+      break;
+    }
+
+    case 'auth-discover': {
+      try {
+        const config = await discoverOAuthConfig();
+        trace('auth-discover', config);
+      } catch (error: any) {
+        console.error(`Authorization discovery failed: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+    }
+
+    case 'auth-refresh': {
+      try {
+        await forceRefreshTokens();
+        console.log('Refreshed authorization token.');
+      } catch (error: any) {
+        console.error(`Refreshing access token failed: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+    }
+
+    case 'auth-test': {
+      try {
+        const client = getClient();
+        const searchResponse = await client.search({
+          query: 'doc',
+          pageSize: 10,
+        });
+        trace('auth-test search', searchResponse);
+        console.log('Access token accepted.');
+      } catch (error: any) {
+        console.error(
+          `Failed to validate access token with server: ${error.message}`,
+        );
+        process.exit(1);
+      }
       break;
     }
 

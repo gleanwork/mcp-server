@@ -4,6 +4,8 @@ import '../mocks/setup';
 
 describe('Search Tool', () => {
   beforeEach(() => {
+    // delete BASE_URL because it takes precedence over SUBDOMAIN
+    delete process.env.GLEAN_BASE_URL;
     process.env.GLEAN_SUBDOMAIN = 'test';
     process.env.GLEAN_API_TOKEN = 'test-token';
   });
