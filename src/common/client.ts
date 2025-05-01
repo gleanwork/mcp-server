@@ -24,7 +24,7 @@ let clientInstance: Client | null = null;
 /**
  * Gets the singleton instance of the Glean client, creating it if necessary.
  *
- * @returns {GleanClient} The configured Glean client instance
+ * @returns {Client} The configured Glean client instance
  * @throws {Error} If required environment variables are missing
  */
 export function getClient(): Client {
