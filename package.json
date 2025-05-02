@@ -42,7 +42,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@gleanwork/api-client": "0.1.0-beta.2",
+    "@gleanwork/api-client": "0.1.0-beta.3",
     "@modelcontextprotocol/sdk": "^1.7.0",
     "dotenv": "^16.3.1",
     "meow": "^13.2.0",

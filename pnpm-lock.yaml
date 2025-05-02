@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@gleanwork/api-client':
-        specifier: 0.1.0-beta.2
-        version: 0.1.0-beta.2(zod@3.24.2)
+        specifier: 0.1.0-beta.3
+        version: 0.1.0-beta.3(zod@3.24.2)
       '@modelcontextprotocol/sdk':
         specifier: ^1.7.0
         version: 1.10.1
@@ -302,8 +302,8 @@ packages:
   '@gar/promisify@1.1.3':
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
 
-  '@gleanwork/api-client@0.1.0-beta.2':
-    resolution: {integrity: sha512-Mb/bkzbYr5w9PIf7pRTazWEk28w+X2bOvytokF3Nd+R18/0GZg8oNGeUNitRtSLLfeOTN9WZN3o4oOiWC/G4xQ==}
+  '@gleanwork/api-client@0.1.0-beta.3':
+    resolution: {integrity: sha512-2YVpWbd7HSmXPPG2sXhoC9echWgQh8geaWBMdsWcdNtiQJv0yCzk8dJmWdho27mhAhMTK4XQ7thP7LrBRgSp9w==}
     peerDependencies:
       '@tanstack/react-query': ^5
       react: ^18 || ^19
@@ -3074,7 +3074,7 @@ snapshots:
 
   '@gar/promisify@1.1.3': {}
 
-  '@gleanwork/api-client@0.1.0-beta.2(zod@3.24.2)':
+  '@gleanwork/api-client@0.1.0-beta.3(zod@3.24.2)':
     dependencies:
       zod: 3.24.2
 
