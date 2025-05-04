@@ -14,7 +14,7 @@ export async function chat(params: z.infer<typeof ChatRequestSchema>) {
   const parsedParams = ChatRequestSchema.parse(params);
   const client = getClient();
 
-  return await client.chat.start(parsedParams);
+  return await client.chat.create(parsedParams);
 }
 
 /**
