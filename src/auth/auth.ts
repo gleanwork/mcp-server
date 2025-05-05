@@ -329,6 +329,13 @@ async function fetchTokenViaRefresh(tokens: Tokens, config: GleanOAuthConfig) {
 async function authorize(config: GleanOAuthConfig): Promise<Tokens | null> {
   trace('Starting OAuth authorization flow');
 
+  if (!process.stdin.isTTY) {
+    throw new AuthError(
+      'OAuth device authorization flow requires an interactive terminal.',
+      { code: AuthErrorCode.NoInteractiveTerminal },
+    );
+  }
+
   try {
     const authResponse = await fetchDeviceAuthorization(config);
     const tokenPoller = pollForToken(authResponse, config);
