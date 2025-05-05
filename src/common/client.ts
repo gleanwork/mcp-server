@@ -17,15 +17,8 @@
 
 import fetch, { Response } from 'node-fetch';
 import { GleanError, createGleanError } from './errors.js';
-
-/**
- * Configuration interface for Glean client initialization.
- */
-export interface GleanConfig {
-  subdomain: string;
-  token: string;
-  actAs?: string;
-}
+import { loadTokens } from '../auth/token-store.js';
+import { getConfig, GleanConfig, isBasicConfig, isOAuthConfig } from '../config/config.js';
 
 /**
  * Interface for the Glean client that provides search and chat functionality.
@@ -48,17 +41,33 @@ class GleanClientImpl implements GleanClient {
    * @param {GleanConfig} config - Configuration for the client
    */
   constructor(private readonly config: GleanConfig) {
-    this.baseUrl = `https://${config.subdomain}-be.glean.com/rest/api/v1/`;
+    this.baseUrl = config.baseUrl;
 
-    // Set up headers based on token type and actAs parameter
-    this.headers = {
-      Authorization: `Bearer ${config.token}`,
-      'Content-Type': 'application/json',
-    };
+    // FIXME: this is a hack for now; we'll use the generated client soon.
+    if (isBasicConfig(config)) {
+      throw new Error(`[internal error]: Basic configuration with no token.  Upgrade to OAuth config before building a client.`);
+    } else if (isOAuthConfig(config)) {
+      const tokens = loadTokens();
+      if (tokens === null) {
+        throw new Error(`[internal error]: No tokens.  Authenticate before building a client.`);
+      }
 
-    // Add X-Scio-Actas header if actAs is provided (for global tokens)
-    if (config.actAs) {
-      this.headers['X-Scio-Actas'] = config.actAs;
+      this.headers = {
+        Authorization: `Bearer ${tokens.accessToken}`,
+        'Content-Type': 'application/json',
+        'X-Glean-Auth-Type': 'OAUTH',
+      };
+    } else {
+      // Set up headers based on token type and actAs parameter
+      this.headers = {
+        Authorization: `Bearer ${config.token}`,
+        'Content-Type': 'application/json',
+      };
+
+      // Add X-Scio-Actas header if actAs is provided (for global tokens)
+      if (config.actAs) {
+        this.headers['X-Scio-Actas'] = config.actAs;
+      }
     }
   }
 
@@ -151,32 +160,6 @@ class GleanClientImpl implements GleanClient {
   async chat(params: unknown): Promise<unknown> {
     return this.request('chat', params);
   }
-}
-
-/**
- * Validates required environment variables and returns client configuration.
- *
- * @returns {GleanConfig} Configuration object for GleanClient
- * @throws {Error} If required environment variables are missing
- */
-function getConfig(): GleanConfig {
-  const subdomain = process.env.GLEAN_SUBDOMAIN;
-  const token = process.env.GLEAN_API_TOKEN;
-  const actAs = process.env.GLEAN_ACT_AS;
-
-  if (!subdomain) {
-    throw new Error('GLEAN_SUBDOMAIN environment variable is required');
-  }
-
-  if (!token) {
-    throw new Error('GLEAN_API_TOKEN environment variable is required');
-  }
-
-  return {
-    subdomain,
-    token,
-    ...(actAs ? { actAs } : {}),
-  };
 }
 
 /**
