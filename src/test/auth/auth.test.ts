@@ -236,7 +236,7 @@ describe('forceRefreshTokens', () => {
     loadTokensSpy.mockReturnValue(null);
     const { forceRefreshTokens } = authModule;
     await expect(forceRefreshTokens()).rejects.toThrow(
-      'Cannot refresh: unable to locate refresh token.',
+      'ERR_A_12: Cannot refresh: unable to locate refresh token.',
     );
   });
 
@@ -244,7 +244,7 @@ describe('forceRefreshTokens', () => {
     loadTokensSpy.mockReturnValue({ ...validTokens, refreshToken: undefined });
     const { forceRefreshTokens } = authModule;
     await expect(forceRefreshTokens()).rejects.toThrow(
-      'Cannot refresh: no refresh token provided.',
+      'ERR_A_13: Cannot refresh: no refresh token provided.',
     );
   });
 
@@ -257,7 +257,7 @@ describe('forceRefreshTokens', () => {
     );
     const { forceRefreshTokens } = authModule;
     await expect(forceRefreshTokens()).rejects.toThrow(
-      /Unable to fetch token. {2}Server responded 400: invalid_grant/,
+      /ERR_A_15: Unable to fetch token/,
     );
   });
 
@@ -269,7 +269,7 @@ describe('forceRefreshTokens', () => {
     });
     const { forceRefreshTokens } = authModule;
     await expect(forceRefreshTokens()).rejects.toThrow(
-      /Cannot refresh OAuth access token when using glean-token configuration/,
+      /ERR_A_11: Cannot refresh OAuth access token when using glean-token configuration/,
     );
   });
 });
@@ -360,7 +360,7 @@ describe('validateAuthorization', () => {
     loadTokensSpy.mockReturnValue(expiredTokensNoRefresh);
     const { ensureAuthTokenPresence: validateAuthorization } = authModule;
     await expect(validateAuthorization()).rejects.toThrow(
-      'Cannot refresh: no refresh token provided.',
+      'ERR_A_13: Cannot refresh: no refresh token provided.',
     );
   });
 });
