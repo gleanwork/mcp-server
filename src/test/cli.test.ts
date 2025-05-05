@@ -2,6 +2,7 @@ import { describe, it, expect, afterEach, beforeEach } from 'vitest';
 import { BinTesterProject, createBinTester } from '@scalvert/bin-tester';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
 import { cursorConfigPath } from '../configure/client/cursor.js';
@@ -704,5 +705,28 @@ describe('CLI', () => {
         - Configuration is at: <TMP_DIR>/.cursor/mcp.json
         "
       `);
+  });
+
+  describe('unlisted OAuth commands', () => {
+    it('Prints user-friendly error messages on failures', async () => {
+      // Set up a temp XDG_STATE_HOME
+      const tempStateDir = fs.mkdtempSync(
+        path.join(os.tmpdir(), 'cli-oauth-test-'),
+      );
+      // Only set GLEAN_BASE_URL to a value that will fail
+      const env = {
+        GLEAN_BASE_URL: 'https://glean-be.example.com',
+        XDG_STATE_HOME: tempStateDir,
+      };
+
+      const result = await runBin('auth', { env });
+
+      expect(result.exitCode).toBe(1);
+      expect(
+        normalizeOutput(result.stdout, project.baseDir),
+      ).toMatchInlineSnapshot(`""`);
+      expect(normalizeOutput(result.stderr, project.baseDir))
+        .toMatchInlineSnapshot(`"Authorization failed: Unable to fetch OAuth protected resource metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly."`);
+    });
   });
 });
