@@ -32,6 +32,7 @@ export async function validateFlags(
   client: string | undefined,
   token: string | undefined,
   domain: string | undefined,
+  url: string | undefined,
   env: string | undefined,
 ): Promise<boolean> {
   if (!client) {
@@ -41,28 +42,51 @@ export async function validateFlags(
     return false;
   }
 
-  const hasCredentialParams = Boolean(token || domain);
+  const hasDeployment = Boolean(domain || url);
+  const hasToken = Boolean(token);
+  const hasCredential = Boolean(hasDeployment || hasToken);
   const hasEnvParam = Boolean(env);
 
-  if (hasCredentialParams && hasEnvParam) {
+  if (hasCredential && hasEnvParam) {
     console.error(
-      'Error: You must provide either --token and --domain OR --env, not both.',
+      'Error: You must provide either --domain OR --env, not both.',
     );
     console.error('Run with --help for usage information');
     return false;
   }
 
-  if ((!token || !domain) && !env) {
-    console.error('Warning: Configuring without complete credentials.');
-    console.error('You must provide either:');
-    console.error('  1. Both --token and --domain, or');
+  if(hasToken && !hasDeployment){
+    console.error(`
+"Warning: Configuring without complete credentials.
+You must provide either:
+  1. Both --token and --domain, or
+  2. --env pointing to a .env file containing GLEAN_API_TOKEN and GLEAN_SUBDOMAIN
+
+Continuing with configuration, but you will need to set credentials manually later."
+`);
+    return true;
+  }
+
+  if (domain && url) {
+    // --url is unlisted.  It's only for dev so you can specify a local server.
     console.error(
-      '  2. --env pointing to a .env file containing GLEAN_API_TOKEN and GLEAN_SUBDOMAIN',
+      'Error: Specify your Glean instance with either --url or --domain but not both.',
     );
-    console.error('');
+    console.error('Run with --help for usage information');
+    return false;
+  }
+
+  if (!hasToken && !hasDeployment && !hasEnvParam) {
+    console.error('Error: You must provide either:');
+    console.error('  1. --domain for OAuth device flow, or');
     console.error(
-      'Continuing with configuration, but you will need to set credentials manually later.',
+      '  2. Both --token and --domain for Glean token auth, or',
     );
+    console.error(
+      '  3. --env pointing to a .env file containing GLEAN_SUBDOMAIN and optionally GLEAN_API_TOKEN',
+    );
+    console.error('Run with --help for usage information');
+    return false;
   }
 
   return true;
@@ -96,14 +120,15 @@ async function main() {
 
     Options for configure
       --client, -c   MCP client to configure for (${clientList || 'loading available clients...'})
-      --token, -t    Glean API token
+      --token, -t    Glean API token (if not provided, OAuth device flow will be used)
       --domain, -d   Glean instance domain/subdomain
-      --env, -e      Path to .env file containing GLEAN_API_TOKEN and GLEAN_SUBDOMAIN
+      --env, -e      Path to .env file containing GLEAN_SUBDOMAIN and optionally GLEAN_API_TOKEN
 
     Examples
       $ npx @gleanwork/mcp-server
       $ npx @gleanwork/mcp-server configure --client cursor --token glean_api_xyz --domain my-company
-      $ npx @gleanwork/mcp-server configure --client claude --env ~/.env.glean
+      $ npx @gleanwork/mcp-server configure --client claude --domain my-company
+      $ npx @gleanwork/mcp-server configure --client windsurf --env ~/.glean.env
 
     Run 'npx @gleanwork/mcp-server help' for more details on supported clients
     
@@ -123,6 +148,12 @@ async function main() {
         domain: {
           type: 'string',
           shortFlag: 'd',
+        },
+        // Omit url from help output.  This flag is only useful for dev, when
+        // you're running a local server and need to specify a port.
+        url: {
+          type: 'string',
+          shortFlag: 'u',
         },
         env: {
           type: 'string',
@@ -159,14 +190,14 @@ async function main() {
 
   switch (command) {
     case 'configure': {
-      const { client, token, domain, env } = cli.flags;
+      const { client, token, domain, url, env } = cli.flags;
 
-      if (!(await validateFlags(client, token, domain, env))) {
+      if (!(await validateFlags(client, token, domain, url, env))) {
         process.exit(1);
       }
 
       try {
-        await configure(client as string, { token, domain, envPath: env });
+        await configure(client as string, { token, domain, url, envPath: env });
       } catch (error: any) {
         console.error(`Configuration failed: ${error.message}`);
         process.exit(1);

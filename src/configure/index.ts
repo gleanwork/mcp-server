@@ -30,7 +30,7 @@ export interface MCPClientConfig {
   configFilePath: (homedir: string) => string;
 
   /** Function to generate the config JSON for this client */
-  configTemplate: (subdomain?: string, apiToken?: string) => any;
+  configTemplate: (subdomainOrUrl?: string, apiToken?: string) => any;
 
   /** Instructions displayed after successful configuration */
   successMessage: (configPath: string) => string;
@@ -40,18 +40,35 @@ export interface MCPClientConfig {
  * Creates a standard MCP server configuration template
  */
 export function createConfigTemplate(
-  subdomain = '<glean instance subdomain>',
-  apiToken = '<glean api token>',
+  subdomainOrUrl = '<glean instance subdomain>',
+  apiToken?: string,
 ) {
+  const env: Record<string, string> = {};
+
+  // If it looks like a URL, use GLEAN_BASE_URL
+  if (
+    subdomainOrUrl.startsWith('http://') ||
+    subdomainOrUrl.startsWith('https://')
+  ) {
+    const baseUrl = subdomainOrUrl.endsWith('/rest/api/v1')
+      ? subdomainOrUrl
+      : `${subdomainOrUrl}/rest/api/v1`;
+    env.GLEAN_BASE_URL = baseUrl;
+  } else {
+    env.GLEAN_SUBDOMAIN = subdomainOrUrl;
+  }
+
+  // Only include GLEAN_API_TOKEN if a token is provided
+  if (apiToken) {
+    env.GLEAN_API_TOKEN = apiToken;
+  }
+
   return {
     mcpServers: {
       glean: {
         command: 'npx',
         args: ['-y', '@gleanwork/mcp-server'],
-        env: {
-          GLEAN_SUBDOMAIN: subdomain,
-          GLEAN_API_TOKEN: apiToken,
-        },
+        env,
       },
     },
   };

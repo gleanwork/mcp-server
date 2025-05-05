@@ -66,14 +66,15 @@ describe('CLI', () => {
 
           Options for configure
             --client, -c   MCP client to configure for (claude, cursor, windsurf)
-            --token, -t    Glean API token
+            --token, -t    Glean API token (if not provided, OAuth device flow will be used)
             --domain, -d   Glean instance domain/subdomain
-            --env, -e      Path to .env file containing GLEAN_API_TOKEN and GLEAN_SUBDOMAIN
+            --env, -e      Path to .env file containing GLEAN_SUBDOMAIN and optionally GLEAN_API_TOKEN
 
           Examples
             $ npx @gleanwork/mcp-server
             $ npx @gleanwork/mcp-server configure --client cursor --token glean_api_xyz --domain my-company
-            $ npx @gleanwork/mcp-server configure --client claude --env ~/.env.glean
+            $ npx @gleanwork/mcp-server configure --client claude --domain my-company
+            $ npx @gleanwork/mcp-server configure --client windsurf --env ~/.glean.env
 
           Run 'npx @gleanwork/mcp-server help' for more details on supported clients
 
@@ -95,17 +96,11 @@ describe('CLI', () => {
   });
 
   it('handles invalid clients', async () => {
-    const result = await runBin('configure', '--client', 'invalid-client');
+    const result = await runBin('configure', '--client', 'invalid-client', '--domain', 'my-company');
 
     expect(result.exitCode).toEqual(1);
     expect(result.stderr).toMatchInlineSnapshot(`
-      "Warning: Configuring without complete credentials.
-      You must provide either:
-        1. Both --token and --domain, or
-        2. --env pointing to a .env file containing GLEAN_API_TOKEN and GLEAN_SUBDOMAIN
-
-      Continuing with configuration, but you will need to set credentials manually later.
-      Unsupported MCP client: invalid-client
+      "Unsupported MCP client: invalid-client
       Supported clients: claude, cursor, windsurf"
     `);
     expect(result.stdout).toMatchInlineSnapshot(`""`);
