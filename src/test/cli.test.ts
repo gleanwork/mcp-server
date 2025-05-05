@@ -725,8 +725,11 @@ describe('CLI', () => {
       expect(
         normalizeOutput(result.stdout, project.baseDir),
       ).toMatchInlineSnapshot(`""`);
-      expect(normalizeOutput(result.stderr, project.baseDir))
-        .toMatchInlineSnapshot(`"Authorization failed: ERR_A_06: Unable to fetch OAuth protected resource metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly."`);
+      expect(
+        normalizeOutput(result.stderr, project.baseDir),
+      ).toMatchInlineSnapshot(
+        `"Authorization failed: ERR_A_06: Unable to fetch OAuth protected resource metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly."`,
+      );
     });
   });
 });

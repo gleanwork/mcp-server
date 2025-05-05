@@ -51,6 +51,7 @@ describe('authorize (device flow)', () => {
   let originalXdgState: string | undefined;
   let originalXdgConfig: string | undefined;
   let originalBaseUrl: string | undefined;
+  let originalIsTTY: boolean | undefined;
 
   beforeAll(() => server.listen());
   afterAll(() => server.close());
@@ -63,6 +64,15 @@ describe('authorize (device flow)', () => {
     originalBaseUrl = process.env.GLEAN_BASE_URL;
     tmpDir = setupXdgTemp();
     process.env.GLEAN_BASE_URL = 'https://glean.example.com';
+    // Mock process.stdin.isTTY to true for all tests by default
+    originalIsTTY = Object.getOwnPropertyDescriptor(
+      process.stdin,
+      'isTTY',
+    )?.value;
+    Object.defineProperty(process.stdin, 'isTTY', {
+      value: true,
+      configurable: true,
+    });
   });
 
   afterEach(() => {
@@ -80,6 +90,15 @@ describe('authorize (device flow)', () => {
     server.resetHandlers();
     Logger.reset();
     vi.clearAllMocks();
+    // Restore process.stdin.isTTY
+    if (originalIsTTY === undefined) {
+      delete (process.stdin as any).isTTY;
+    } else {
+      Object.defineProperty(process.stdin, 'isTTY', {
+        value: originalIsTTY,
+        configurable: true,
+      });
+    }
   });
 
   it('should complete the device flow and save tokens (happy path)', async () => {
@@ -442,5 +461,57 @@ describe('authorize (device flow)', () => {
     });
     // Advance by another polling interval (5 seconds = 5,000 ms) to cross 10 minutes
     await vi.advanceTimersByTimeAsync(5_000);
+  });
+
+  it('throws a clear error if no interactive terminal is available for OAuth device flow', async () => {
+    // Mock process.stdin.isTTY to false for this test
+    const prevIsTTY = Object.getOwnPropertyDescriptor(
+      process.stdin,
+      'isTTY',
+    )?.value;
+    Object.defineProperty(process.stdin, 'isTTY', {
+      value: false,
+      configurable: true,
+    });
+    // Mock protected resource and authorization server metadata endpoints
+    const baseUrl = 'https://glean.example.com';
+    const issuer = 'https://auth.example.com';
+    const clientId = 'client-123';
+    const deviceAuthorizationEndpoint = 'https://auth.example.com/device';
+    const tokenEndpoint = 'https://auth.example.com/token';
+    server.use(
+      http.get(`${baseUrl}/.well-known/oauth-protected-resource`, () =>
+        HttpResponse.json({
+          authorization_servers: [issuer],
+          glean_device_flow_client_id: clientId,
+        }),
+      ),
+      http.get(`${issuer}/.well-known/oauth-authorization-server`, () =>
+        HttpResponse.json({
+          device_authorization_endpoint: deviceAuthorizationEndpoint,
+          token_endpoint: tokenEndpoint,
+        }),
+      ),
+    );
+    // Remove any saved tokens to force OAuth
+    const stateDir = process.env.XDG_STATE_HOME;
+    if (stateDir) {
+      const gleanDir = path.join(stateDir, 'glean');
+      if (fs.existsSync(gleanDir)) {
+        fs.rmSync(gleanDir, { recursive: true, force: true });
+      }
+    }
+    await expect(forceAuthorize()).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[AuthError: ERR_A_18: OAuth device authorization flow requires an interactive terminal.]`,
+    );
+    // Restore isTTY after test
+    if (prevIsTTY === undefined) {
+      delete (process.stdin as any).isTTY;
+    } else {
+      Object.defineProperty(process.stdin, 'isTTY', {
+        value: prevIsTTY,
+        configurable: true,
+      });
+    }
   });
 });

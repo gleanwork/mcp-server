@@ -35,6 +35,8 @@ export enum AuthErrorCode {
   UnexpectedAuthGrantError = 'ERR_A_16',
   /** Timed out waiting for OAuth device flow polling */
   OAuthPollingTimeout = 'ERR_A_17',
+  /** No interactive terminal for OAuth device authorization flow */
+  NoInteractiveTerminal = 'ERR_A_18',
 }
 
 /**
