@@ -19,6 +19,7 @@ import {
 } from './types.js';
 import { saveOAuthMetadata } from './oauth-cache.js';
 import { AuthError } from './error.js';
+import { AuthErrorCode } from './error.js';
 
 /**
  * Validate that the configuration can plausibly access the resource.  This
@@ -82,6 +83,7 @@ export async function forceAuthorize() {
   if (isGleanTokenConfig(config)) {
     throw new AuthError(
       `Cannot get OAuth access token when using glean-token configuration.  Specify GLEAN_OAUTH_ISSUER and GLEAN_OAUTH_CLIENT_ID and not GLEAN_API_TOKEN to use OAuth.`,
+      { code: AuthErrorCode.GleanTokenConfigUsedForOAuth },
     );
   }
   const tokens = await authorize(config);
@@ -143,9 +145,7 @@ export async function fetchAuthorizationServerMetadata(
     error(cause);
     throw new AuthError(
       'Unable to fetch OAuth authorization server metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly.',
-      {
-        cause,
-      },
+      { code: AuthErrorCode.AuthServerMetadataNetwork, cause },
     );
   }
 
@@ -156,7 +156,7 @@ export async function fetchAuthorizationServerMetadata(
   } catch (cause: any) {
     throw new AuthError(
       'Unable to fetch OAuth authorization server metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly.',
-      { cause },
+      { code: AuthErrorCode.AuthServerMetadataParse, cause },
     );
   }
 
@@ -167,12 +167,14 @@ export async function fetchAuthorizationServerMetadata(
   if (typeof tokenEndpoint !== 'string') {
     throw new AuthError(
       'OAuth authorization server metadata did not include a token endpoint: please contact your Glean administrator and ensure device flow authorization is configured correctly.',
+      { code: AuthErrorCode.AuthServerMetadataMissingTokenEndpoint },
     );
   }
 
   if (typeof deviceAuthorizationEndpoint !== 'string') {
     throw new AuthError(
       'OAuth authorization server metadata did not include a device authorization endpoint: please contact your Glean administrator and ensure device flow authorization is configured correctly.',
+      { code: AuthErrorCode.AuthServerMetadataMissingDeviceEndpoint },
     );
   }
 
@@ -196,13 +198,14 @@ export async function fetchProtectedResourceMetadata(
     error(cause);
     throw new AuthError(
       'Unable to fetch OAuth protected resource metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly.',
-      { cause },
+      { code: AuthErrorCode.ProtectedResourceMetadataNetwork, cause },
     );
   }
 
   if (!response.ok) {
     throw new AuthError(
       'Unable to fetch OAuth protected resource metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly.',
+      { code: AuthErrorCode.ProtectedResourceMetadataNotOk },
     );
   }
 
@@ -213,7 +216,7 @@ export async function fetchProtectedResourceMetadata(
   } catch (cause: any) {
     throw new AuthError(
       'Unexpected OAuth protected resource metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly.',
-      { cause },
+      { code: AuthErrorCode.ProtectedResourceMetadataParse, cause },
     );
   }
 
@@ -228,11 +231,13 @@ export async function fetchProtectedResourceMetadata(
   if (typeof issuer !== 'string') {
     throw new AuthError(
       'OAuth protected resource metadata did not include any authorization servers: please contact your Glean administrator and ensure device flow authorization is configured correctly.',
+      { code: AuthErrorCode.ProtectedResourceMetadataMissingAuthServers },
     );
   }
   if (typeof clientId !== 'string') {
     throw new AuthError(
       'OAuth protected resource metadata did not include a device flow client id: please contact your Glean administrator and ensure device flow authorization is configured correctly.',
+      { code: AuthErrorCode.ProtectedResourceMetadataMissingClientId },
     );
   }
 
@@ -250,12 +255,15 @@ export async function forceRefreshTokens() {
   if (isGleanTokenConfig(config)) {
     throw new AuthError(
       `Cannot refresh OAuth access token when using glean-token configuration.  Specify GLEAN_OAUTH_ISSUER and GLEAN_OAUTH_CLIENT_ID and not GLEAN_API_TOKEN to use OAuth.`,
+      { code: AuthErrorCode.GleanTokenConfigUsedForOAuthRefresh },
     );
   }
 
   let tokens = loadTokens();
   if (tokens === null) {
-    throw new AuthError(`Cannot refresh: unable to locate refresh token.`);
+    throw new AuthError(`Cannot refresh: unable to locate refresh token.`, {
+      code: AuthErrorCode.RefreshTokenNotFound,
+    });
   }
 
   tokens = await fetchTokenViaRefresh(tokens, config);
@@ -268,7 +276,9 @@ export async function forceRefreshTokens() {
 async function fetchTokenViaRefresh(tokens: Tokens, config: GleanOAuthConfig) {
   const { refreshToken } = tokens;
   if (refreshToken === undefined) {
-    throw new AuthError(`Cannot refresh: no refresh token provided.`);
+    throw new AuthError(`Cannot refresh: no refresh token provided.`, {
+      code: AuthErrorCode.RefreshTokenMissing,
+    });
   }
 
   trace('Starting refresh flow');
@@ -297,6 +307,7 @@ async function fetchTokenViaRefresh(tokens: Tokens, config: GleanOAuthConfig) {
     response = await responseRaw.json();
   } catch (cause: any) {
     throw new AuthError('Unexpected response fetching access token.', {
+      code: AuthErrorCode.UnexpectedAccessTokenResponse,
       cause,
     });
   }
@@ -310,7 +321,7 @@ async function fetchTokenViaRefresh(tokens: Tokens, config: GleanOAuthConfig) {
     trace('/token', errorResponse?.error);
     throw new AuthError(
       `Unable to fetch token.  Server responded ${responseRaw.status}: ${errorResponse?.error}`,
-      { cause: errorResponse },
+      { code: AuthErrorCode.FetchTokenServerError, cause: errorResponse },
     );
   }
 }
@@ -395,6 +406,7 @@ async function pollForToken(
         } else {
           reject(
             new AuthError('Unexpected error requesting authorization grant', {
+              code: AuthErrorCode.UnexpectedAuthGrantError,
               cause: errorResponse,
             }),
           );
