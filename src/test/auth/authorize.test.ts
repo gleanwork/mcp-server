@@ -26,8 +26,7 @@ vi.mock('node:readline', () => ({
   default: {
     createInterface: () => ({
       once: (_event: string, cb: () => void) => cb(),
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      close: () => {}, // intentionally empty for mock
+      close: () => {},
     }),
   },
 }));

@@ -71,7 +71,7 @@ export default [
       'no-empty': 'off',
       'no-empty-function': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-empty-function': 'error',
+      '@typescript-eslint/no-empty-function': 'off',
       '@typescript-eslint/no-empty-interface': 'error',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-inferrable-types': 'error',
