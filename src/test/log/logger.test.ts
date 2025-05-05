@@ -4,6 +4,21 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
+// Helper to sanitize timestamps and stack traces in log output for snapshotting
+function sanitizeLogOutput(log: string): string {
+  // Replace ISO timestamps in brackets with [<TIMESTAMP>]
+  let sanitized = log.replace(
+    /\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]/g,
+    '[<TIMESTAMP>]',
+  );
+  // Replace stack traces (Error: ... and following indented lines) with <STACK_TRACE>
+  sanitized = sanitized.replace(
+    /(Error: [^\n]+\n)([ ]+at [^\n]+\n?)+/g,
+    'Error: <STACK_TRACE>\n',
+  );
+  return sanitized;
+}
+
 // Helper to get the log file path in the temp XDG state dir
 function getLogFilePath(tmpDir: string, appName = 'glean') {
   return path.join(tmpDir, appName, 'mcp.log');
@@ -40,9 +55,12 @@ describe('Logger (file output, XDG, fixturify)', () => {
 
     const logFilePath = getLogFilePath(tmpDir);
     const logContent = fs.readFileSync(logFilePath, 'utf8');
-    expect(logContent).toMatch(/\[DEBUG\] debug message/);
-    expect(logContent).toMatch(/\[TRACE\] trace message/);
-    expect(logContent).toMatch(/\[ERROR\] error message/);
+    expect(sanitizeLogOutput(logContent)).toMatchInlineSnapshot(`
+      "[<TIMESTAMP>] [DEBUG] debug message
+      [<TIMESTAMP>] [TRACE] trace message
+      [<TIMESTAMP>] [ERROR] error message
+      "
+    `);
   });
 
   it('does not write debug or trace at ERROR level, but writes error', () => {
@@ -54,9 +72,10 @@ describe('Logger (file output, XDG, fixturify)', () => {
 
     const logFilePath = getLogFilePath(tmpDir);
     const logContent = fs.readFileSync(logFilePath, 'utf8');
-    expect(logContent).not.toMatch(/\[DEBUG\] debug message/);
-    expect(logContent).not.toMatch(/\[TRACE\] trace message/);
-    expect(logContent).toMatch(/\[ERROR\] error message/);
+    expect(sanitizeLogOutput(logContent)).toMatchInlineSnapshot(`
+      "[<TIMESTAMP>] [ERROR] error message
+      "
+    `);
   });
 
   it('writes debug but not trace at DEBUG level', () => {
@@ -68,9 +87,11 @@ describe('Logger (file output, XDG, fixturify)', () => {
 
     const logFilePath = getLogFilePath(tmpDir);
     const logContent = fs.readFileSync(logFilePath, 'utf8');
-    expect(logContent).toMatch(/\[DEBUG\] debug message/);
-    expect(logContent).not.toMatch(/\[TRACE\] trace message/);
-    expect(logContent).toMatch(/\[ERROR\] error message/);
+    expect(sanitizeLogOutput(logContent)).toMatchInlineSnapshot(`
+      "[<TIMESTAMP>] [DEBUG] debug message
+      [<TIMESTAMP>] [ERROR] error message
+      "
+    `);
   });
 
   it('writes only error at ERROR level', () => {
@@ -82,9 +103,10 @@ describe('Logger (file output, XDG, fixturify)', () => {
 
     const logFilePath = getLogFilePath(tmpDir);
     const logContent = fs.readFileSync(logFilePath, 'utf8');
-    expect(logContent).not.toMatch(/\[DEBUG\] debug message/);
-    expect(logContent).not.toMatch(/\[TRACE\] trace message/);
-    expect(logContent).toMatch(/\[ERROR\] error message/);
+    expect(sanitizeLogOutput(logContent)).toMatchInlineSnapshot(`
+      "[<TIMESTAMP>] [ERROR] error message
+      "
+    `);
   });
 
   it('logs Error objects with name, message, and stack trace', () => {
@@ -95,12 +117,11 @@ describe('Logger (file output, XDG, fixturify)', () => {
 
     const logFilePath = getLogFilePath(tmpDir);
     const logContent = fs.readFileSync(logFilePath, 'utf8');
-    // Should include the error name and message
-    expect(logContent).toMatch(
-      /\[ERROR\] an error occurred \[Error: something went wrong\]/,
-    );
-    // Should include the stack trace
-    expect(logContent).toMatch(/Error: something went wrong\n\s+at /);
+    expect(sanitizeLogOutput(logContent)).toMatchInlineSnapshot(`
+      "[<TIMESTAMP>] [ERROR] an error occurred [Error: something went wrong]
+      Error: <STACK_TRACE>
+      "
+    `);
   });
 
   it('logs non-Error objects as JSON', () => {
@@ -110,8 +131,10 @@ describe('Logger (file output, XDG, fixturify)', () => {
 
     const logFilePath = getLogFilePath(tmpDir);
     const logContent = fs.readFileSync(logFilePath, 'utf8');
-    expect(logContent).toMatch(/\[DEBUG\] object log/);
-    expect(logContent).toMatch(/\{"foo":"bar","baz":42\}/);
+    expect(sanitizeLogOutput(logContent)).toMatchInlineSnapshot(`
+      "[<TIMESTAMP>] [DEBUG] object log {"foo":"bar","baz":42}
+      "
+    `);
   });
 
   it('logs Error objects with nested causes', () => {
@@ -126,13 +149,12 @@ describe('Logger (file output, XDG, fixturify)', () => {
 
     const logFilePath = getLogFilePath(tmpDir);
     const logContent = fs.readFileSync(logFilePath, 'utf8');
-    // Should include all error messages in order
-    expect(logContent).toMatch(
-      /\[ERROR\] error with causes \[Error: top level\]/,
-    );
-    expect(logContent).toMatch(/Caused by: {3}\[Error: mid cause\]/);
-    expect(logContent).toMatch(/Caused by: {5}\[Error: root cause\]/);
-    // Should include the stack trace for the top error
-    expect(logContent).toMatch(/Error: top level\n\s+at /);
+    expect(sanitizeLogOutput(logContent)).toMatchInlineSnapshot(`
+      "[<TIMESTAMP>] [ERROR] error with causes [Error: top level]
+      Error: <STACK_TRACE>
+      Caused by:   [Error: mid cause]
+        Caused by:     [Error: root cause]
+      "
+    `);
   });
 });
