@@ -374,7 +374,20 @@ async function pollForToken(
   config: GleanOAuthConfig,
 ): Promise<TokenResponse> {
   return new Promise((resolve, reject) => {
+    const timeoutMs = 10 * 60 * 1000; // 10 minutes
+    const startTime = Date.now();
+
     const poll = async () => {
+      const now = Date.now();
+      if (now - startTime >= timeoutMs) {
+        reject(
+          new AuthError(
+            'OAuth device flow timed out after 10 minutes. Please try again.',
+            { code: AuthErrorCode.OAuthPollingTimeout },
+          ),
+        );
+        return;
+      }
       // e.g. https://authorization-server/token
       const url = config.tokenEndpoint;
       const params = new URLSearchParams();
