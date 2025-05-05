@@ -4,7 +4,7 @@ export interface TokenError {
 }
 
 export interface TokenResponse {
-  token_type: "Bearer";
+  token_type: 'Bearer';
   access_token: string;
   scope?: string;
   /**
@@ -41,9 +41,22 @@ export interface AuthResponse {
 
 export function isTokenSuccess(json: any): json is TokenResponse {
   // TODO:: here we go
-  return json !== undefined && typeof (json) === 'object' && json?.token_type == "Bearer" && 'access_token' in json;
+  return (
+    json !== undefined &&
+    typeof json === 'object' &&
+    json?.token_type == 'Bearer' &&
+    'access_token' in json
+  );
 }
 
 export function isAuthResponse(json: any): json is AuthResponse {
-  return json !== undefined && typeof (json) === 'object' && 'device_code' in json && 'user_code' in json && 'verification_uri' in json && 'expires_in' in json && 'interval' in json;
+  return (
+    json !== undefined &&
+    typeof json === 'object' &&
+    'device_code' in json &&
+    'user_code' in json &&
+    'verification_uri' in json &&
+    'expires_in' in json &&
+    'interval' in json
+  );
 }
