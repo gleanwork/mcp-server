@@ -33,6 +33,8 @@ export enum AuthErrorCode {
   FetchTokenServerError = 'ERR_A_15',
   /** Unexpected error requesting authorization grant */
   UnexpectedAuthGrantError = 'ERR_A_16',
+  /** Timed out waiting for OAuth device flow polling */
+  OAuthPollingTimeout = 'ERR_A_17',
 }
 
 /**
