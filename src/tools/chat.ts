@@ -12,7 +12,7 @@ export const ChatSchema = ChatRequestSchema;
  */
 export async function chat(params: z.infer<typeof ChatRequestSchema>) {
   const parsedParams = ChatRequestSchema.parse(params);
-  const client = getClient();
+  const client = await getClient();
 
   return await client.chat.create(parsedParams);
 }

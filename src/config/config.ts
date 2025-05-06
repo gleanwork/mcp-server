@@ -134,6 +134,27 @@ export function getConfig(): GleanConfig {
   return config;
 }
 
+// SafeConfig is a partial record of all possible non-sensitive keys from GleanConfig, except 'token'.
+type SafeConfig = Partial<
+  Record<
+    Exclude<
+      keyof GleanBasicConfig | keyof GleanTokenConfig | keyof GleanOAuthConfig,
+      'token'
+    >,
+    unknown
+  >
+>;
+
+export function sanitizeConfig(config: GleanConfig): SafeConfig {
+  const result = { ...config } as any;
+
+  if ('token' in result) {
+    delete result.token;
+  }
+
+  return result;
+}
+
 function buildGleanBaseUrl({
   baseUrl,
   subdomain,
@@ -145,7 +166,7 @@ function buildGleanBaseUrl({
     if (!subdomain) {
       throw new Error('GLEAN_SUBDOMAIN environment variable is required');
     }
-    return `https://${subdomain}-be.glean.com/rest/api/v1/`;
+    return `https://${subdomain}-be.glean.com/`;
   }
 
   return baseUrl;

@@ -23,7 +23,7 @@ export const SearchSchema = SearchRequestSchema;
  */
 export async function search(params: z.infer<typeof SearchRequestSchema>) {
   const parsedParams = SearchRequestSchema.parse(params);
-  const client = getClient();
+  const client = await getClient();
 
   return await client.search.query(parsedParams);
 }

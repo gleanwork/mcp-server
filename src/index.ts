@@ -218,7 +218,7 @@ async function main() {
 
     case 'auth-test': {
       try {
-        const client = getClient();
+        const client = await getClient();
         const searchResponse = await client.search.query({
           query: 'doc',
           pageSize: 10,
