@@ -37,6 +37,8 @@ export enum AuthErrorCode {
   OAuthPollingTimeout = 'ERR_A_17',
   /** No interactive terminal for OAuth device authorization flow */
   NoInteractiveTerminal = 'ERR_A_18',
+  /** Invalid or missing Glean configuration */
+  InvalidConfig = 'ERR_A_19',
 }
 
 /**
