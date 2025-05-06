@@ -1,0 +1,9 @@
+---
+description: 
+globs: *.ts
+alwaysApply: false
+---
+### Function Organization
+
+Put all publicly exported functions and types at the top of the file, below imports.
+Put private, non-exported functions below all the publicly exported functions.
