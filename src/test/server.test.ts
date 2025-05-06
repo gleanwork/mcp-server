@@ -1,9 +1,8 @@
+import { TOOL_NAMES } from '../server.js';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Since TOOL_NAMES is not exported from index.ts, we'll test for consistency differently
 const mockHandlers: Record<string, any> = {};
 
-// Mock the server module
 vi.mock('../index.ts', async () => {
   const mockServer = {
     setRequestHandler: vi.fn((schema: any, handler: any) => {
@@ -41,9 +40,8 @@ describe('MCP Server', () => {
 
     Object.keys(mockHandlers).forEach((key) => delete mockHandlers[key]);
 
-    // Define the expected tool names that should be consistent across the codebase
-    const expectedToolNames = ['glean_search', 'glean_chat'];
-    
+    const expectedToolNames = TOOL_NAMES;
+
     mockHandlers['list_tools'] = async () => ({
       tools: [
         {
@@ -62,7 +60,7 @@ describe('MCP Server', () => {
     mockHandlers['call_tool'] = async (request: {
       params: { name: string; arguments: any };
     }) => {
-      if (!expectedToolNames.includes(request.params.name)) {
+      if (!Object.values(expectedToolNames).includes(request.params.name)) {
         throw new Error(`Unknown tool: ${request.params.name}`);
       }
       return { content: [], isError: false };
@@ -73,7 +71,7 @@ describe('MCP Server', () => {
     it('should use the same tool names in ListTools and CallTool handlers', async () => {
       // Get the expected tool names from the beforeEach scope
       const expectedToolNames = ['glean_search', 'glean_chat'];
-      
+
       const listToolsResponse = await mockHandlers['list_tools']();
       const definedToolNames = listToolsResponse.tools.map(
         (tool: { name: string }) => tool.name,

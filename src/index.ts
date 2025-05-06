@@ -187,7 +187,7 @@ async function main() {
         await forceAuthorize();
         console.log('Authorized successfully.');
       } catch (err: any) {
-        error("Authorization error", err);
+        error('Authorization error', err);
         console.error(`Authorization failed: ${err.message}`);
         process.exit(1);
       }
@@ -219,7 +219,7 @@ async function main() {
     case 'auth-test': {
       try {
         const client = getClient();
-        const searchResponse = await client.search({
+        const searchResponse = await client.search.query({
           query: 'doc',
           pageSize: 10,
         });

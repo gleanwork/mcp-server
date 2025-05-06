@@ -32,7 +32,7 @@ import {
 } from './common/errors.js';
 import { VERSION } from './common/version.js';
 
-const TOOL_NAMES = {
+export const TOOL_NAMES = {
   search: 'glean_search',
   chat: 'glean_chat',
 };
@@ -60,12 +60,37 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: TOOL_NAMES.search,
-        description: 'Search Glean Enterprise Knowledge',
+        description: `Search Glean Enterprise Knowledge
+        
+        Example request:
+
+        {
+            "query": "What are the company holidays this year?",
+            "pageSize": 10
+        }
+        `,
         inputSchema: zodToJsonSchema(search.SearchSchema),
       },
       {
         name: TOOL_NAMES.chat,
-        description: "Chat with Glean Assistant using Glean's RAG",
+        description: `Chat with Glean Assistant using Glean's RAG
+
+        Example request:
+
+        {
+            "messages": [
+                {
+                    "author": "USER",
+                    "messageType": "CONTENT",
+                    "fragments": [
+                        {
+                            "text": "What are the company holidays this year?"
+                        }
+                    ]
+                }
+            ]
+        }
+        `,
         inputSchema: zodToJsonSchema(chat.ChatSchema),
       },
     ],
