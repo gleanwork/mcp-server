@@ -9,9 +9,19 @@ alwaysApply: false
 
 - use vitest
 
+### Expectations
+
+Always prefer inline snapshot matching whenever possible.  If necessary, have local normalization/sanitization functions to replace things that are noisy or unstable, like timestamps or error stacks.
+
+Always prefer `toThrowMatchingInlineSnapshot()` over naked `toThrow()` or `toThrow()` with a regex.
+
 ### Test Organization
 
 Tests are in `src/test`
+
+### Mocking HTTP Requests
+
+We use `msw`. We use v2 so don't use the v1 api.
 
 ### File I/O
 
@@ -70,7 +80,4 @@ fixturify.readSync('testdir', { ignoreEmptyDirs: true })
 
 Keep in mind that we always use ESM and always write in TypeScript, so convert the usage appropriately.
 
-## Inline Snapshots
-
-Always prefer inline snapshot matching whenever possible.  If necessary, have local normalization/sanitization functions to replace things that are noisy or unstable, like timestamps or error stacks.
 
