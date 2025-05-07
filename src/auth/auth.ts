@@ -368,8 +368,11 @@ async function waitForUserEnter() {
 
 async function promptUserAndOpenVerificationPage(authResponse: AuthResponse) {
   console.log(`
+Authorizing Glean MCP-server.  Please log in to Glean.
+
 ! First copy your one-time code: ${authResponse.user_code}
-Press Enter to log in to Glean.
+
+Press Enter continue.
 `);
 
   await waitForUserEnter();
