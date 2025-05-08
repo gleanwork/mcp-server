@@ -125,7 +125,7 @@ describe('authorize (device flow)', () => {
         }),
       ),
       // 2. Mock authorization server metadata
-      http.get(`${issuer}/.well-known/oauth-authorization-server`, () =>
+      http.get(`${issuer}/.well-known/openid-configuration`, () =>
         HttpResponse.json({
           device_authorization_endpoint: deviceAuthorizationEndpoint,
           token_endpoint: tokenEndpoint,
@@ -215,7 +215,7 @@ describe('authorize (device flow)', () => {
         }),
       ),
       // Mock authorization server metadata to fail
-      http.get(`${issuer}/.well-known/oauth-authorization-server`, () =>
+      http.get(`${issuer}/.well-known/openid-configuration`, () =>
         HttpResponse.error(),
       ),
     );
@@ -240,7 +240,7 @@ describe('authorize (device flow)', () => {
         }),
       ),
       // Mock authorization server metadata to succeed
-      http.get(`${issuer}/.well-known/oauth-authorization-server`, () =>
+      http.get(`${issuer}/.well-known/openid-configuration`, () =>
         HttpResponse.json({
           device_authorization_endpoint: deviceAuthorizationEndpoint,
           token_endpoint: tokenEndpoint,
@@ -274,7 +274,7 @@ describe('authorize (device flow)', () => {
         }),
       ),
       // Mock authorization server metadata to succeed
-      http.get(`${issuer}/.well-known/oauth-authorization-server`, () =>
+      http.get(`${issuer}/.well-known/openid-configuration`, () =>
         HttpResponse.json({
           device_authorization_endpoint: deviceAuthorizationEndpoint,
           token_endpoint: tokenEndpoint,
@@ -335,7 +335,7 @@ describe('authorize (device flow)', () => {
         }),
       ),
       // Mock authorization server metadata to succeed
-      http.get(`${issuer}/.well-known/oauth-authorization-server`, () =>
+      http.get(`${issuer}/.well-known/openid-configuration`, () =>
         HttpResponse.json({
           device_authorization_endpoint: deviceAuthorizationEndpoint,
           token_endpoint: tokenEndpoint,
@@ -413,7 +413,7 @@ describe('authorize (device flow)', () => {
         }),
       ),
       // Mock authorization server metadata to succeed
-      http.get(`${issuer}/.well-known/oauth-authorization-server`, () =>
+      http.get(`${issuer}/.well-known/openid-configuration`, () =>
         HttpResponse.json({
           device_authorization_endpoint: deviceAuthorizationEndpoint,
           token_endpoint: tokenEndpoint,
@@ -486,7 +486,7 @@ describe('authorize (device flow)', () => {
           glean_device_flow_client_id: clientId,
         }),
       ),
-      http.get(`${issuer}/.well-known/oauth-authorization-server`, () =>
+      http.get(`${issuer}/.well-known/openid-configuration`, () =>
         HttpResponse.json({
           device_authorization_endpoint: deviceAuthorizationEndpoint,
           token_endpoint: tokenEndpoint,

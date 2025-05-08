@@ -132,21 +132,60 @@ export async function discoverOAuthConfig(): Promise<GleanOAuthConfig> {
   return oauthConfig;
 }
 
+function failAuthorizationServerMetadataFetch(cause: any): never {
+  throw new AuthError(
+    'Unable to fetch OAuth authorization server metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly.',
+    { code: AuthErrorCode.AuthServerMetadataNetwork, cause },
+  );
+}
+
+async function fetchOpenIdConfiguration(issuer: string): Promise<Response> {
+  const url = `${issuer}/.well-known/openid-configuration`;
+  let response;
+  try {
+    response = await fetch(url);
+    trace('GET', url, response.status);
+  } catch (cause: any) {
+    error(cause);
+    failAuthorizationServerMetadataFetch(cause);
+  }
+  if (!response.ok) {
+    failAuthorizationServerMetadataFetch(undefined);
+  }
+  return response;
+}
+
+async function fetchOauthAuthorizationServerConfig(
+  issuer: string,
+): Promise<Response> {
+  const url = `${issuer}/.well-known/oauth-authorization-server`;
+  let response;
+  try {
+    response = await fetch(url);
+    trace('GET', url, response.status);
+  } catch (cause: any) {
+    error(cause);
+    failAuthorizationServerMetadataFetch(cause);
+  }
+  if (!response.ok) {
+    failAuthorizationServerMetadataFetch(undefined);
+  }
+  return response;
+}
+
 export async function fetchAuthorizationServerMetadata(
   issuer: string,
 ): Promise<{ deviceAuthorizationEndpoint: string; tokenEndpoint: string }> {
-  const authorizationServerMetadataUrl = `${issuer}/.well-known/oauth-authorization-server`;
-
   let response;
   try {
-    response = await fetch(authorizationServerMetadataUrl);
-    trace('GET', authorizationServerMetadataUrl, response.status);
+    response = await fetchOpenIdConfiguration(issuer);
   } catch (cause: any) {
-    error(cause);
-    throw new AuthError(
-      'Unable to fetch OAuth authorization server metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly.',
-      { code: AuthErrorCode.AuthServerMetadataNetwork, cause },
+    trace(
+      'Falling back to',
+      `${issuer}/.well-known/oauth-authorization-server`,
+      cause,
     );
+    response = await fetchOauthAuthorizationServerConfig(issuer);
   }
 
   let responseJson;

@@ -55,11 +55,12 @@ describe('OAuth metadata fetchers', () => {
 
   describe('fetchAuthorizationServerMetadata', () => {
     const issuer = 'https://auth.example.com';
-    const url = `${issuer}/.well-known/oauth-authorization-server`;
+    const openidUrl = `${issuer}/.well-known/openid-configuration`;
+    const oauthUrl = `${issuer}/.well-known/oauth-authorization-server`;
 
-    it('returns endpoints on success', async () => {
+    it('returns endpoints on success from openid-configuration', async () => {
       server.use(
-        http.get(url, () =>
+        http.get(openidUrl, () =>
           HttpResponse.json({
             device_authorization_endpoint: 'https://auth.example.com/device',
             token_endpoint: 'https://auth.example.com/token',
@@ -67,49 +68,154 @@ describe('OAuth metadata fetchers', () => {
         ),
       );
       const result = await fetchAuthorizationServerMetadata(issuer);
-      expect(result).toEqual({
-        deviceAuthorizationEndpoint: 'https://auth.example.com/device',
-        tokenEndpoint: 'https://auth.example.com/token',
-      });
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "deviceAuthorizationEndpoint": "https://auth.example.com/device",
+          "tokenEndpoint": "https://auth.example.com/token",
+        }
+      `);
     });
 
-    it('throws with actionable error if fetch fails', async () => {
-      server.use(http.get(url, () => HttpResponse.error()));
-      await expect(fetchAuthorizationServerMetadata(issuer)).rejects.toThrow(
-        /please contact your Glean administrator and ensure device flow authorization is configured correctly/,
+    it('falls back to oauth-authorization-server on network error from openid-configuration', async () => {
+      server.use(
+        http.get(openidUrl, () => {
+          return HttpResponse.error();
+        }),
+        http.get(oauthUrl, () =>
+          HttpResponse.json({
+            device_authorization_endpoint: 'https://auth.example.com/device',
+            token_endpoint: 'https://auth.example.com/token',
+          }),
+        ),
+      );
+      const result = await fetchAuthorizationServerMetadata(issuer);
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "deviceAuthorizationEndpoint": "https://auth.example.com/device",
+          "tokenEndpoint": "https://auth.example.com/token",
+        }
+      `);
+    });
+
+    it('falls back to oauth-authorization-server on non-ok response from openid-configuration', async () => {
+      server.use(
+        http.get(openidUrl, () => new HttpResponse(null, { status: 500 })),
+        http.get(oauthUrl, () =>
+          HttpResponse.json({
+            device_authorization_endpoint: 'https://auth.example.com/device',
+            token_endpoint: 'https://auth.example.com/token',
+          }),
+        ),
+      );
+      const result = await fetchAuthorizationServerMetadata(issuer);
+      expect(result).toMatchInlineSnapshot(`
+        {
+          "deviceAuthorizationEndpoint": "https://auth.example.com/device",
+          "tokenEndpoint": "https://auth.example.com/token",
+        }
+      `);
+    });
+
+    it('throws with actionable error if both endpoints fail', async () => {
+      server.use(
+        http.get(openidUrl, () => HttpResponse.error()),
+        http.get(oauthUrl, () => HttpResponse.error()),
+      );
+      await expect(
+        fetchAuthorizationServerMetadata(issuer),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[AuthError: ERR_A_02: Unable to fetch OAuth authorization server metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly.]`,
       );
     });
 
-    it('throws with actionable error if token endpoint missing', async () => {
+    it('does not fall back if openid-configuration returns ok but is not JSON (parse error)', async () => {
       server.use(
-        http.get(url, () =>
+        http.get(openidUrl, () => HttpResponse.text('not json')),
+        http.get(oauthUrl, () =>
+          HttpResponse.json({
+            device_authorization_endpoint: 'https://auth.example.com/device',
+            token_endpoint: 'https://auth.example.com/token',
+          }),
+        ),
+      );
+      await expect(
+        fetchAuthorizationServerMetadata(issuer),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[AuthError: ERR_A_03: Unable to fetch OAuth authorization server metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly.]`,
+      );
+    });
+
+    it('throws with actionable error if openid-configuration is missing token endpoint (no fallback)', async () => {
+      server.use(
+        http.get(openidUrl, () =>
+          HttpResponse.json({
+            device_authorization_endpoint: 'https://auth.example.com/device',
+          }),
+        ),
+        http.get(oauthUrl, () =>
+          HttpResponse.json({
+            device_authorization_endpoint: 'https://auth.example.com/device',
+            token_endpoint: 'https://auth.example.com/token',
+          }),
+        ),
+      );
+      await expect(
+        fetchAuthorizationServerMetadata(issuer),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[AuthError: ERR_A_04: OAuth authorization server metadata did not include a token endpoint: please contact your Glean administrator and ensure device flow authorization is configured correctly.]`,
+      );
+    });
+
+    it('throws with actionable error if openid-configuration is missing device endpoint (no fallback)', async () => {
+      server.use(
+        http.get(openidUrl, () =>
+          HttpResponse.json({
+            token_endpoint: 'https://auth.example.com/token',
+          }),
+        ),
+        http.get(oauthUrl, () =>
+          HttpResponse.json({
+            device_authorization_endpoint: 'https://auth.example.com/device',
+            token_endpoint: 'https://auth.example.com/token',
+          }),
+        ),
+      );
+      await expect(
+        fetchAuthorizationServerMetadata(issuer),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[AuthError: ERR_A_05: OAuth authorization server metadata did not include a device authorization endpoint: please contact your Glean administrator and ensure device flow authorization is configured correctly.]`,
+      );
+    });
+
+    it('throws with actionable error if oauth-authorization-server is missing token endpoint', async () => {
+      server.use(
+        http.get(openidUrl, () => HttpResponse.error()),
+        http.get(oauthUrl, () =>
           HttpResponse.json({
             device_authorization_endpoint: 'https://auth.example.com/device',
           }),
         ),
       );
-      await expect(fetchAuthorizationServerMetadata(issuer)).rejects.toThrow(
-        /token endpoint.*please contact your Glean administrator and ensure device flow authorization is configured correctly/,
+      await expect(
+        fetchAuthorizationServerMetadata(issuer),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[AuthError: ERR_A_04: OAuth authorization server metadata did not include a token endpoint: please contact your Glean administrator and ensure device flow authorization is configured correctly.]`,
       );
     });
 
-    it('throws with actionable error if device endpoint missing', async () => {
+    it('throws with actionable error if oauth-authorization-server is missing device endpoint', async () => {
       server.use(
-        http.get(url, () =>
+        http.get(openidUrl, () => HttpResponse.error()),
+        http.get(oauthUrl, () =>
           HttpResponse.json({
             token_endpoint: 'https://auth.example.com/token',
           }),
         ),
       );
-      await expect(fetchAuthorizationServerMetadata(issuer)).rejects.toThrow(
-        /device authorization endpoint.*please contact your Glean administrator and ensure device flow authorization is configured correctly/,
-      );
-    });
-
-    it('throws with actionable error if response is not JSON', async () => {
-      server.use(http.get(url, () => HttpResponse.text('not json')));
-      await expect(fetchAuthorizationServerMetadata(issuer)).rejects.toThrow(
-        /please contact your Glean administrator and ensure device flow authorization is configured correctly/,
+      await expect(
+        fetchAuthorizationServerMetadata(issuer),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[AuthError: ERR_A_05: OAuth authorization server metadata did not include a device authorization endpoint: please contact your Glean administrator and ensure device flow authorization is configured correctly.]`,
       );
     });
   });
