@@ -12,6 +12,7 @@ import {
 import * as tokenStore from '../../auth/token-store.js';
 import * as authModule from '../../auth/auth.js';
 import * as configModule from '../../config/config.js';
+import { fetchDeviceAuthorization } from '../../auth/auth.js';
 
 // Mock getConfig rather than mock the network for these tests (see
 // authorize.test.ts for those) but we don't want to mock the type guards from
@@ -362,5 +363,72 @@ describe('validateAuthorization', () => {
     await expect(validateAuthorization()).rejects.toThrow(
       'ERR_A_13: Cannot refresh: no refresh token provided.',
     );
+  });
+});
+
+describe('fetchDeviceAuthorization', () => {
+  const authorizationEndpoint = 'https://auth.example.com/device';
+  const config = {
+    clientId: 'client-123',
+    authorizationEndpoint,
+    tokenEndpoint: 'https://auth.example.com/token',
+    authType: 'oauth',
+    baseUrl: 'https://api.example.com',
+    issuer: 'https://auth.example.com',
+  };
+
+  afterEach(() => {
+    server.resetHandlers();
+    Logger.reset();
+  });
+
+  it('returns AuthResponse as-is when verification_uri is present', async () => {
+    server.use(
+      http.post(authorizationEndpoint, async () =>
+        HttpResponse.json({
+          device_code: 'dev-123',
+          expires_in: 600,
+          interval: 5,
+          user_code: 'user-abc',
+          // Okta uses verification_uri
+          verification_uri: 'https://verify.example.com',
+        }),
+      ),
+    );
+    const result = await fetchDeviceAuthorization(config as any);
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "device_code": "dev-123",
+        "expires_in": 600,
+        "interval": 5,
+        "user_code": "user-abc",
+        "verification_uri": "https://verify.example.com",
+      }
+    `);
+  });
+
+  it('normalizes verification_url to verification_uri when present', async () => {
+    server.use(
+      http.post(authorizationEndpoint, async () =>
+        HttpResponse.json({
+          device_code: 'dev-456',
+          expires_in: 900,
+          interval: 7,
+          user_code: 'user-def',
+          // Google uses verification_url
+          verification_url: 'https://verify-url.example.com',
+        }),
+      ),
+    );
+    const result = await fetchDeviceAuthorization(config as any);
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "device_code": "dev-456",
+        "expires_in": 900,
+        "interval": 7,
+        "user_code": "user-def",
+        "verification_uri": "https://verify-url.example.com",
+      }
+    `);
   });
 });
