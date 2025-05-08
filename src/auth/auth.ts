@@ -336,12 +336,18 @@ async function authorize(config: GleanOAuthConfig): Promise<Tokens | null> {
     );
   }
 
+  let cause: any = undefined;
   try {
     const authResponse = await fetchDeviceAuthorization(config);
-    const tokenPoller = pollForToken(authResponse, config);
+    const tokenPoller = pollForToken(authResponse, config).catch((e) => {
+      cause = e;
+    });
     await promptUserAndOpenVerificationPage(authResponse);
     const tokenResponse = await tokenPoller;
-    return Tokens.buildFromTokenResponse(tokenResponse);
+    if (cause !== undefined) {
+      throw cause;
+    }
+    return Tokens.buildFromTokenResponse(tokenResponse as TokenResponse);
   } catch (cause: any) {
     if (cause instanceof AuthError) {
       throw cause;

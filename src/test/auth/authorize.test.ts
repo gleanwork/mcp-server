@@ -514,4 +514,66 @@ describe('authorize (device flow)', () => {
       });
     }
   });
+
+  it('should throw with correct message if token poller rejects immediately', async () => {
+    const baseUrl = 'https://glean.example.com';
+    const issuer = 'https://auth.example.com';
+    const clientId = 'client-123';
+    const deviceAuthorizationEndpoint = 'https://auth.example.com/device';
+    const tokenEndpoint = 'https://auth.example.com/token';
+    const deviceCode = 'device-code-abc';
+    const userCode = 'user-code-xyz';
+    const verificationUri = 'https://auth.example.com/verify';
+    const interval = 5;
+    // Mock protected resource metadata to succeed
+    server.use(
+      http.get(`${baseUrl}/.well-known/oauth-protected-resource`, () =>
+        HttpResponse.json({
+          authorization_servers: [issuer],
+          glean_device_flow_client_id: clientId,
+        }),
+      ),
+      // Mock authorization server metadata to succeed
+      http.get(`${issuer}/.well-known/oauth-authorization-server`, () =>
+        HttpResponse.json({
+          device_authorization_endpoint: deviceAuthorizationEndpoint,
+          token_endpoint: tokenEndpoint,
+        }),
+      ),
+      // Mock device authorization endpoint to succeed
+      http.post(deviceAuthorizationEndpoint, () =>
+        HttpResponse.json({
+          device_code: deviceCode,
+          user_code: userCode,
+          verification_uri: verificationUri,
+          expires_in: 600,
+          interval,
+        }),
+      ),
+      // Mock token polling endpoint to immediately return an error
+      http.post(tokenEndpoint, async ({ request }) => {
+        const body = await request.text();
+        if (body.includes(`device_code=${deviceCode}`)) {
+          // Ensure we error on the very first request from the poller, so that
+          // the promise rejects before we `await tokenPoller`.  Verifying that
+          // this errors correctly is the whole point of this test.
+          return HttpResponse.json(
+            {
+              error: 'invalid_grant',
+              error_description: 'The device code is invalid',
+            },
+            { status: 400 },
+          );
+        }
+        return HttpResponse.json({
+          error: 'authorization_pending',
+          error_description: 'pending',
+        });
+      }),
+    );
+    // Act & Assert
+    await expect(forceAuthorize()).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[AuthError: ERR_A_16: Unexpected error requesting authorization grant]`,
+    );
+  });
 });
