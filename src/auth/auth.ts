@@ -5,6 +5,7 @@ import {
   GleanTokenConfig,
   isBasicConfig,
   isGleanTokenConfig,
+  isOAuthConfig,
 } from '../config/config.js';
 import open from 'open';
 import { debug, error, trace } from '../log/logger.js';
@@ -115,7 +116,25 @@ export async function discoverOAuthConfig(): Promise<GleanOAuthConfig> {
   debug('discovering OAuth config');
 
   const config = getConfig();
-  const { issuer, clientId } = await fetchProtectedResourceMetadata(config);
+  if (isGleanTokenConfig(config)) {
+    throw new AuthError(
+      '[internal error] attempting OAuth flow with a Glean-issued non-OAuth token',
+      { code: AuthErrorCode.InvalidConfig },
+    );
+  } else if (isOAuthConfig(config)) {
+    return config;
+  }
+
+  let { issuer, clientId, clientSecret } = config;
+  if (typeof issuer !== 'string' || typeof clientId !== 'string') {
+    trace('request protected resource metadata');
+    const resourceMetadata = await fetchProtectedResourceMetadata(config);
+    issuer = resourceMetadata.issuer;
+    clientId = resourceMetadata.clientId;
+    clientSecret = resourceMetadata?.clientSecret;
+  } else {
+    trace('using environment variables for issuer and client id');
+  }
 
   const { deviceAuthorizationEndpoint, tokenEndpoint } =
     await fetchAuthorizationServerMetadata(issuer);
@@ -124,6 +143,7 @@ export async function discoverOAuthConfig(): Promise<GleanOAuthConfig> {
     baseUrl: config.baseUrl,
     issuer,
     clientId,
+    clientSecret,
     authorizationEndpoint: deviceAuthorizationEndpoint,
     tokenEndpoint,
     authType: 'oauth',
@@ -225,9 +245,14 @@ export async function fetchAuthorizationServerMetadata(
   };
 }
 
+interface ProtectedResourceMetadata {
+  issuer: string;
+  clientId: string;
+  clientSecret?: string;
+}
 export async function fetchProtectedResourceMetadata(
   config: GleanConfig,
-): Promise<{ issuer: string; clientId: string }> {
+): Promise<ProtectedResourceMetadata> {
   const origin = new URL(config.baseUrl).origin;
   const protectedResourceUrl = `${origin}/.well-known/oauth-protected-resource`;
 
@@ -263,6 +288,7 @@ export async function fetchProtectedResourceMetadata(
 
   const authServers = responseJson['authorization_servers'];
   const clientId = responseJson['glean_device_flow_client_id'];
+  const clientSecret = responseJson['glean_device_flow_client_sec'];
 
   let issuer;
   if (Array.isArray(authServers) && authServers.length > 0) {
@@ -282,10 +308,16 @@ export async function fetchProtectedResourceMetadata(
     );
   }
 
-  return {
+  const result: ProtectedResourceMetadata = {
     issuer,
     clientId,
   };
+
+  if (clientSecret !== undefined) {
+    result.clientSecret = clientSecret;
+  }
+
+  return result;
 }
 
 export async function forceRefreshTokens() {
@@ -328,6 +360,14 @@ async function fetchTokenViaRefresh(tokens: Tokens, config: GleanOAuthConfig) {
   const url = config.tokenEndpoint;
   const params = new URLSearchParams();
   params.set('client_id', config.clientId);
+  if (typeof config.clientSecret === 'string') {
+    // These "secrets" are obviously not secure since public OAuth clients by
+    // definition cannot keep secrets.
+    //
+    // However, some OAuth providers insist on generating and requiring client
+    // secrets even for public OAuth clients.
+    params.set('client_secret', config.clientSecret);
+  }
   params.set('grant_type', 'refresh_token');
   params.set('refresh_token', refreshToken);
 
@@ -449,6 +489,14 @@ async function pollForToken(
       const url = config.tokenEndpoint;
       const params = new URLSearchParams();
       params.set('client_id', config.clientId);
+      if (typeof config.clientSecret === 'string') {
+        // These "secrets" are obviously not secure since public OAuth clients by
+        // definition cannot keep secrets.
+        //
+        // However, some OAuth providers insist on generating and requiring client
+        // secrets even for public OAuth clients.
+        params.set('client_secret', config.clientSecret);
+      }
       params.set('grant_type', 'urn:ietf:params:oauth:grant-type:device_code');
       params.set('device_code', authResponse.device_code);
 
@@ -534,7 +582,12 @@ export async function fetchDeviceAuthorization(
     body: params,
   };
 
-  trace(options.method ?? 'GET', url, options);
+  trace(
+    options.method ?? 'GET',
+    url,
+    options.headers,
+    Object.fromEntries(params.entries()),
+  );
 
   const response = await fetch(url, options);
   const responseJson = await response.json();

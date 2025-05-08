@@ -11,6 +11,17 @@ export interface GleanConfigOAuthAccess {
   authType: 'oauth';
   issuer: string;
   clientId: string;
+  /**
+   * Client secret for the device flow OAuth client.
+   *
+   * Note this is not actually a secret and does not secure anything.  It
+   * should be thought of as an extension of the client identifier.
+   *
+   * It's not recommended to even use client secrets for public OAuth clients,
+   * but some providers require its use even for clients that cannot keep
+   * secrets.
+   */
+  clientSecret?: string;
   authorizationEndpoint: string;
   tokenEndpoint: string;
 }
@@ -24,6 +35,17 @@ export interface GleanBasicConfigNoToken {
   authType: 'unknown';
   issuer?: string;
   clientId?: string;
+  /**
+   * Client secret for the device flow OAuth client.
+   *
+   * Note this is not actually a secret and does not secure anything.  It
+   * should be thought of as an extension of the client identifier.
+   *
+   * It's not recommended to even use client secrets for public OAuth clients,
+   * but some providers require its use even for clients that cannot keep
+   * secrets.
+   */
+  clientSecret?: string;
   authorizationEndpoint?: string;
   tokenEndpoint?: string;
 }
@@ -84,6 +106,7 @@ export function getConfig(): GleanConfig {
   const actAs = process.env.GLEAN_ACT_AS;
   const issuer = process.env.GLEAN_OAUTH_ISSUER;
   const clientId = process.env.GLEAN_OAUTH_CLIENT_ID;
+  const clientSecret = process.env.GLEAN_OAUTH_CLIENT_SECRET;
   const authorizationEndpoint = process.env.GLEAN_OAUTH_AUTHORIZATION_ENDPOINT;
   const tokenEndpoint = process.env.GLEAN_OAUTH_TOKEN_ENDPOINT;
 
@@ -107,6 +130,7 @@ export function getConfig(): GleanConfig {
     baseUrl,
     issuer,
     clientId,
+    clientSecret,
     authorizationEndpoint,
     tokenEndpoint,
   });
@@ -177,6 +201,7 @@ function buildBasicConfig({
   baseUrl,
   issuer,
   clientId,
+  clientSecret,
   authorizationEndpoint,
   tokenEndpoint,
 }: {
@@ -184,6 +209,7 @@ function buildBasicConfig({
   baseUrl?: string;
   issuer?: string;
   clientId?: string;
+  clientSecret?: string;
   authorizationEndpoint?: string;
   tokenEndpoint?: string;
 }): GleanBasicConfig {
@@ -192,6 +218,7 @@ function buildBasicConfig({
     baseUrl: buildGleanBaseUrl({ subdomain, baseUrl }),
     issuer,
     clientId,
+    clientSecret,
     authorizationEndpoint,
     tokenEndpoint,
   };
