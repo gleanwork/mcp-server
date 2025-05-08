@@ -21,6 +21,7 @@ import {
 import { saveOAuthMetadata } from './oauth-cache.js';
 import { AuthError } from './error.js';
 import { AuthErrorCode } from './error.js';
+import { parse as parseDomain } from 'tldts';
 
 /**
  * Validate that the configuration can plausibly access the resource.  This
@@ -499,12 +500,28 @@ async function getConfigAndUpgradeToOAuth(): Promise<
   return config;
 }
 
+export function getOAuthScopes(config: GleanOAuthConfig): string {
+  const { issuer: issuer } = config;
+  const domain = parseDomain(issuer).domain ?? '';
+
+  trace(`computing scopes for issuer: '${issuer}', domain: '${domain}'`);
+
+  switch (domain) {
+    case 'google.com':
+      return 'openid profile https://www.googleapis.com/auth/userinfo.email';
+    case 'okta.com':
+      return 'openid profile offline_access';
+    default:
+      return 'openid profile';
+  }
+}
+
 export async function fetchDeviceAuthorization(
   config: GleanOAuthConfig,
 ): Promise<AuthResponse> {
   const params = new URLSearchParams();
   params.set('client_id', config.clientId);
-  params.set('scope', 'openid profile offline_access');
+  params.set('scope', getOAuthScopes(config));
 
   // e.g. https://some-authorization-server/authorize
   const url = config.authorizationEndpoint;

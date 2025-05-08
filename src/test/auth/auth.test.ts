@@ -13,6 +13,7 @@ import * as tokenStore from '../../auth/token-store.js';
 import * as authModule from '../../auth/auth.js';
 import * as configModule from '../../config/config.js';
 import { fetchDeviceAuthorization } from '../../auth/auth.js';
+import { getOAuthScopes } from '../../auth/auth.js';
 
 // Mock getConfig rather than mock the network for these tests (see
 // authorize.test.ts for those) but we don't want to mock the type guards from
@@ -536,5 +537,47 @@ describe('fetchDeviceAuthorization', () => {
         "verification_uri": "https://verify-url.example.com",
       }
     `);
+  });
+});
+
+describe('getOAuthScopes', () => {
+  it('returns Google scopes for google.com issuer', () => {
+    const config = {
+      issuer: 'https://accounts.google.com',
+      clientId: 'client-123',
+      authorizationEndpoint: 'https://accounts.google.com/device',
+      tokenEndpoint: 'https://accounts.google.com/token',
+      authType: 'oauth' as const,
+      baseUrl: 'https://api.example.com',
+    };
+    expect(getOAuthScopes(config)).toMatchInlineSnapshot(
+      `"openid profile https://www.googleapis.com/auth/userinfo.email"`,
+    );
+  });
+
+  it('returns Okta scopes for okta.com issuer', () => {
+    const config = {
+      issuer: 'https://dev-123456.okta.com',
+      clientId: 'client-123',
+      authorizationEndpoint: 'https://dev-123456.okta.com/device',
+      tokenEndpoint: 'https://dev-123456.okta.com/token',
+      authType: 'oauth' as const,
+      baseUrl: 'https://api.example.com',
+    };
+    expect(getOAuthScopes(config)).toMatchInlineSnapshot(
+      `"openid profile offline_access"`,
+    );
+  });
+
+  it('returns default scopes for unknown issuer', () => {
+    const config = {
+      issuer: 'https://login.microsoftonline.com',
+      clientId: 'client-123',
+      authorizationEndpoint: 'https://login.microsoftonline.com/device',
+      tokenEndpoint: 'https://login.microsoftonline.com/token',
+      authType: 'oauth' as const,
+      baseUrl: 'https://api.example.com',
+    };
+    expect(getOAuthScopes(config)).toMatchInlineSnapshot(`"openid profile"`);
   });
 });
