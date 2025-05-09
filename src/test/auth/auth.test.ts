@@ -581,3 +581,125 @@ describe('getOAuthScopes', () => {
     expect(getOAuthScopes(config)).toMatchInlineSnapshot(`"openid profile"`);
   });
 });
+
+describe('forceRefreshTokens with clientSecret', () => {
+  const tokenEndpoint = 'https://auth.example.com/token';
+  const validTokens = {
+    accessToken: 'old-access',
+    refreshToken: 'refresh-123',
+    expiresAt: Date.now() + 10000,
+  };
+  const refreshedResponse = {
+    access_token: 'new-access',
+    refresh_token: 'refresh-456',
+    expires_in: 3600,
+    token_type: 'Bearer',
+  };
+  let loadTokensSpy: ReturnType<typeof vi.spyOn>;
+  let saveTokensSpy: ReturnType<typeof vi.spyOn>;
+  let getConfig: any;
+
+  beforeEach(() => {
+    loadTokensSpy = vi.spyOn(tokenStore, 'loadTokens');
+    saveTokensSpy = vi.spyOn(tokenStore, 'saveTokens');
+    getConfig = (configModule as any).getConfig;
+    getConfig.mockReturnValue({
+      clientId: 'client-123',
+      clientSecret: 'secret-xyz',
+      tokenEndpoint,
+      authType: 'oauth',
+      baseUrl: 'https://api.example.com',
+      issuer: 'https://auth.example.com',
+      authorizationEndpoint: 'https://auth.example.com/device',
+    });
+    saveTokensSpy.mockReset();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    server.resetHandlers();
+  });
+
+  it('includes client_secret in refresh token request body if present', async () => {
+    loadTokensSpy.mockReturnValue(validTokens);
+    let requestBody: string | undefined;
+    server.use(
+      http.post(tokenEndpoint, async ({ request }) => {
+        requestBody = await request.text();
+        return HttpResponse.json(refreshedResponse);
+      }),
+    );
+    const { forceRefreshTokens } = authModule;
+    await forceRefreshTokens();
+    expect(requestBody).toContain('client_secret=secret-xyz');
+  });
+
+  it('does not include client_secret if not present', async () => {
+    getConfig.mockReturnValue({
+      clientId: 'client-123',
+      tokenEndpoint,
+      authType: 'oauth',
+      baseUrl: 'https://api.example.com',
+      issuer: 'https://auth.example.com',
+      authorizationEndpoint: 'https://auth.example.com/device',
+    });
+    loadTokensSpy.mockReturnValue(validTokens);
+    let requestBody: string | undefined;
+    server.use(
+      http.post(tokenEndpoint, async ({ request }) => {
+        requestBody = await request.text();
+        return HttpResponse.json(refreshedResponse);
+      }),
+    );
+    const { forceRefreshTokens } = authModule;
+    await forceRefreshTokens();
+    expect(requestBody).not.toContain('client_secret=');
+  });
+});
+
+describe('fetchDeviceAuthorization with clientSecret', () => {
+  const authorizationEndpoint = 'https://auth.example.com/device';
+  const configWithSecret = {
+    clientId: 'client-123',
+    clientSecret: 'secret-xyz',
+    authorizationEndpoint,
+    tokenEndpoint: 'https://auth.example.com/token',
+    authType: 'oauth',
+    baseUrl: 'https://api.example.com',
+    issuer: 'https://auth.example.com',
+  };
+
+  afterEach(() => {
+    server.resetHandlers();
+    Logger.reset();
+  });
+
+  it('does not include client_secret in device authorization request body even if present', async () => {
+    let requestBody: string | undefined;
+    server.use(
+      http.post(authorizationEndpoint, async ({ request }) => {
+        requestBody = await request.text();
+        return HttpResponse.json({
+          device_code: 'dev-789',
+          expires_in: 600,
+          interval: 5,
+          user_code: 'user-ghi',
+          verification_uri: 'https://verify.example.com',
+        });
+      }),
+    );
+    const result = await fetchDeviceAuthorization(configWithSecret as any);
+    // /token needs the client secret
+    // but not /device/code
+    expect(requestBody).not.toContain('client_secret=secret-xyz');
+    expect(result).toMatchInlineSnapshot(`
+      {
+        "device_code": "dev-789",
+        "expires_in": 600,
+        "interval": 5,
+        "user_code": "user-ghi",
+        "verification_uri": "https://verify.example.com",
+      }
+    `);
+  });
+});
