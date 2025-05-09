@@ -13,6 +13,7 @@ import { loadTokens, saveTokens, Tokens } from './token-store.js';
 import {
   AuthResponse,
   isAuthResponse,
+  isAuthResponseWithURL,
   isTokenSuccess,
   TokenError,
   TokenResponse,
@@ -453,7 +454,7 @@ async function getConfigAndUpgradeToOAuth(): Promise<
   return config;
 }
 
-async function fetchDeviceAuthorization(
+export async function fetchDeviceAuthorization(
   config: GleanOAuthConfig,
 ): Promise<AuthResponse> {
   const params = new URLSearchParams();
@@ -476,9 +477,32 @@ async function fetchDeviceAuthorization(
   const response = await fetch(url, options);
   const responseJson = await response.json();
 
-  if (!isAuthResponse(responseJson)) {
-    throw [response, responseJson];
+  if (
+    !(
+      response.ok &&
+      responseJson !== undefined &&
+      typeof responseJson === 'object'
+    )
+  ) {
+    throw new AuthError('Error obtaining auth grant', {
+      code: AuthErrorCode.UnexpectedAuthGrantError,
+      cause: new Error(
+        JSON.stringify({ status: response.status, body: responseJson }),
+      ),
+    });
   }
 
-  return responseJson;
+  const result = { ...responseJson } as any;
+
+  if (isAuthResponseWithURL(responseJson)) {
+    result['verification_uri'] = result['verification_url'];
+    delete result['verification_url'];
+  } else if (!isAuthResponse(responseJson)) {
+    throw new AuthError('Unexpected auth grant response', {
+      code: AuthErrorCode.UnexpectedAuthGrantResponse,
+      cause: new Error(JSON.stringify(responseJson)),
+    });
+  }
+
+  return result;
 }

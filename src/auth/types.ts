@@ -39,8 +39,11 @@ export interface AuthResponse {
   interval: number;
 }
 
+export type AuthResponseWithURL = Omit<AuthResponse, 'verification_uri'> & {
+  verification_url: string;
+};
+
 export function isTokenSuccess(json: any): json is TokenResponse {
-  // TODO:: here we go
   return (
     json !== undefined &&
     typeof json === 'object' &&
@@ -50,12 +53,18 @@ export function isTokenSuccess(json: any): json is TokenResponse {
 }
 
 export function isAuthResponse(json: any): json is AuthResponse {
+  return hasCommonAuthResponseFields(json) && 'verification_uri' in json;
+}
+export function isAuthResponseWithURL(json: any): json is AuthResponseWithURL {
+  return hasCommonAuthResponseFields(json) && 'verification_url' in json;
+}
+
+function hasCommonAuthResponseFields(json: any): boolean {
   return (
     json !== undefined &&
     typeof json === 'object' &&
     'device_code' in json &&
     'user_code' in json &&
-    'verification_uri' in json &&
     'expires_in' in json &&
     'interval' in json
   );

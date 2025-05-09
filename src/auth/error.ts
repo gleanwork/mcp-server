@@ -39,6 +39,8 @@ export enum AuthErrorCode {
   NoInteractiveTerminal = 'ERR_A_18',
   /** Invalid or missing Glean configuration */
   InvalidConfig = 'ERR_A_19',
+  /** Unexpected response fetching access token */
+  UnexpectedAuthGrantResponse = 'ERR_A_20',
 }
 
 /**
