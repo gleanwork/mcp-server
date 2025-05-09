@@ -500,6 +500,13 @@ async function getConfigAndUpgradeToOAuth(): Promise<
   return config;
 }
 
+/**
+ * Returns the OAuth scopes we need for the issuer.
+ *
+ * This will always include "openid profile" but some providers may need other
+ * scopes to make the user email available.  We require the user email for the
+ * token to be valid.
+ */
 export function getOAuthScopes(config: GleanOAuthConfig): string {
   const { issuer: issuer } = config;
   const domain = parseDomain(issuer).domain ?? '';
