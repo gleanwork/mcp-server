@@ -1,8 +1,12 @@
 ---
 description: 
-globs: *.ts
+globs: *.ts,package.json
 alwaysApply: false
 ---
+### Dependencies
+
+- use pnpm
+
 ### Function Organization
 
 Put all publicly exported functions and types at the top of the file, below imports.
