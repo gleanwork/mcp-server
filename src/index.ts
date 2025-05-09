@@ -256,9 +256,10 @@ async function main() {
         });
         trace('auth-test search', searchResponse);
         console.log('Access token accepted.');
-      } catch (error: any) {
+      } catch (err: any) {
+        error('auth-test error', err);
         console.error(
-          `Failed to validate access token with server: ${error.message}`,
+          `Failed to validate access token with server: ${err.message}`,
         );
         process.exit(1);
       }
