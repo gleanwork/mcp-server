@@ -12,19 +12,65 @@ import { z } from 'zod';
 import { getClient } from '../common/client.js';
 import { SearchRequest$inboundSchema as SearchRequestSchema } from '@gleanwork/api-client/models/components';
 
-export const SearchSchema = SearchRequestSchema;
+/**
+ * Simplified schema for Glean search requests designed for LLM interaction
+ */
+export const ToolSearchSchema = z.object({
+  query: z
+    .string()
+    .describe('The search query. This is what you want to search for.'),
+
+  datasources: z
+    .array(z.string())
+    .describe(
+      'Optional list of data sources to search in. Examples: "github", "gdrive", "confluence", "jira".',
+    )
+    .optional(),
+});
+
+export type ToolSearchRequest = z.infer<typeof ToolSearchSchema>;
+
+/**
+ * Maps a simplified search request to the format expected by the Glean API.
+ *
+ * @param input Simplified search request parameters
+ * @returns Glean API compatible search request
+ */
+function convertToAPISearchRequest(input: ToolSearchRequest) {
+  const { query, datasources } = input;
+
+  // Initialize request object with fixed page size
+  const searchRequest: any = {
+    query,
+    pageSize: 10, // Fixed default page size
+  };
+
+  // Map datasources to datasourcesFilter if provided
+  if (datasources && datasources.length > 0) {
+    searchRequest.requestOptions = {
+      datasourcesFilter: datasources,
+    };
+  }
+
+  return searchRequest;
+}
 
 /**
  * Executes a search query against Glean's content index.
  *
- * @param params The search parameters
+ * @param params The search parameters using the simplified schema
  * @returns The search results
  * @throws If the search request fails
  */
-export async function search(params: z.infer<typeof SearchRequestSchema>) {
-  const parsedParams = SearchRequestSchema.parse(params);
-  const client = await getClient();
+export async function search(params: ToolSearchRequest) {
+  // Map simplified params to the format expected by the Glean API
+  const mappedParams = convertToAPISearchRequest(params);
 
+  // Validate with the original schema to ensure compatibility
+  const parsedParams = SearchRequestSchema.parse(mappedParams);
+
+  // Get client and execute request
+  const client = await getClient();
   return await client.search.query(parsedParams);
 }
 

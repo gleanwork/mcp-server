@@ -1,17 +1,66 @@
 import { z } from 'zod';
 import { getClient } from '../common/client.js';
 import { ChatRequest$inboundSchema as ChatRequestSchema } from '@gleanwork/api-client/models/components';
+import { Author } from '@gleanwork/api-client/models/components';
 
-export const ChatSchema = ChatRequestSchema;
+/**
+ * Simplified schema for Glean chat requests designed for LLM interaction
+ */
+export const ToolChatSchema = z.object({
+  message: z
+    .string()
+    .describe('The user question or message to send to Glean Assistant.'),
+
+  context: z
+    .array(z.string())
+    .describe(
+      'Optional previous messages for context. Will be included in order before the current message.',
+    )
+    .optional(),
+});
+
+export type ToolChatRequest = z.infer<typeof ToolChatSchema>;
+
+/**
+ * Maps a simplified chat request to the format expected by the Glean API.
+ *
+ * @param input Simplified chat request parameters
+ * @returns Glean API compatible chat request
+ */
+function convertToAPIChatRequest(input: ToolChatRequest) {
+  const { message, context = [] } = input;
+
+  const messages = [
+    ...context.map((text) => ({
+      author: Author.User,
+      messageType: 'CONTENT',
+      fragments: [{ text }],
+    })),
+
+    {
+      author: Author.User,
+      messageType: 'CONTENT',
+      fragments: [{ text: message }],
+    },
+  ];
+
+  const chatRequest = {
+    messages,
+  };
+
+  return chatRequest;
+}
+
 /**
  * Initiates or continues a chat conversation with Glean's AI.
  *
- * @param params The chat parameters
+ * @param params The chat parameters using the simplified schema
  * @returns The chat response
  * @throws If the chat request fails
  */
-export async function chat(params: z.infer<typeof ChatRequestSchema>) {
-  const parsedParams = ChatRequestSchema.parse(params);
+export async function chat(params: ToolChatRequest) {
+  const mappedParams = convertToAPIChatRequest(params);
+  const parsedParams = ChatRequestSchema.parse(mappedParams);
   const client = await getClient();
 
   return await client.chat.create(parsedParams);

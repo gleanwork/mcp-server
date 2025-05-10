@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ChatResponse, Author } from '@gleanwork/api-client/models/components';
-import { ChatSchema, chat } from '../../tools/chat';
+import { chat, ToolChatSchema } from '../../tools/chat';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import '../mocks/setup';
 
 describe('Chat Tool', () => {
@@ -16,68 +17,70 @@ describe('Chat Tool', () => {
     delete process.env.GLEAN_API_TOKEN;
   });
 
+  describe('JSON Schema Generation', () => {
+    it('generates correct JSON schema', () => {
+      expect(zodToJsonSchema(ToolChatSchema, 'GleanChat'))
+        .toMatchInlineSnapshot(`
+        {
+          "$ref": "#/definitions/GleanChat",
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "definitions": {
+            "GleanChat": {
+              "additionalProperties": false,
+              "properties": {
+                "context": {
+                  "description": "Optional previous messages for context. Will be included in order before the current message.",
+                  "items": {
+                    "type": "string",
+                  },
+                  "type": "array",
+                },
+                "message": {
+                  "description": "The user question or message to send to Glean Assistant.",
+                  "type": "string",
+                },
+              },
+              "required": [
+                "message",
+              ],
+              "type": "object",
+            },
+          },
+        }
+      `);
+    });
+  });
+
   describe('Schema Validation', () => {
     it('should validate a valid chat request', () => {
       const validRequest = {
-        messages: [
-          {
-            author: Author.User,
-            fragments: [
-              {
-                text: 'Hello',
-              },
-            ],
-          },
-        ],
+        message: 'Hello',
       };
 
-      const result = ChatSchema.safeParse(validRequest);
+      const result = ToolChatSchema.safeParse(validRequest);
       expect(result.success).toBe(true);
     });
 
-    it('should validate complex message structure', () => {
+    it('should validate with context messages', () => {
       const validRequest = {
-        messages: [
-          {
-            author: Author.User,
-            fragments: [
-              {
-                text: 'Hello',
-                action: {
-                  parameters: {
-                    param1: {
-                      type: 'STRING',
-                      value: 'test',
-                      description: 'Test parameter',
-                    },
-                  },
-                },
-              },
-            ],
-            messageType: 'CONTENT',
-          },
+        message: 'How do I solve this problem?',
+        context: [
+          'I need help with an integration issue',
+          'I tried following the documentation',
         ],
-        agentConfig: {
-          agent: 'GPT',
-          mode: 'DEFAULT',
-        },
       };
 
-      const result = ChatSchema.safeParse(validRequest);
+      const result = ToolChatSchema.safeParse(validRequest);
       expect(result.success).toBe(true);
     });
 
     it('should reject invalid message structure', () => {
       const invalidRequest = {
-        messages: [
-          {
-            author: 'INVALID_AUTHOR', // Should be USER or GLEAN_AI
-            fragments: 'not an array', // Should be an array
-          },
-        ],
+        message: 123, // Should be string
+        context: 'not an array', // Should be an array of strings
       };
 
-      const result = ChatSchema.safeParse(invalidRequest);
+      const result = ToolChatSchema.safeParse(invalidRequest);
       expect(result.success).toBe(false);
     });
   });
@@ -85,16 +88,7 @@ describe('Chat Tool', () => {
   describe('Tool Implementation', () => {
     it('should call Glean client with validated params', async () => {
       const params = {
-        messages: [
-          {
-            author: Author.User,
-            fragments: [
-              {
-                text: 'What are the company holidays this year?',
-              },
-            ],
-          },
-        ],
+        message: 'What are the company holidays this year?',
       };
 
       const response = await chat(params);
