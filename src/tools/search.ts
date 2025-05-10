@@ -36,7 +36,7 @@ export type ToolSearchRequest = z.infer<typeof ToolSearchSchema>;
  * @param input Simplified search request parameters
  * @returns Glean API compatible search request
  */
-function mapSearchRequest(input: ToolSearchRequest) {
+function convertToAPISearchRequest(input: ToolSearchRequest) {
   const { query, datasources } = input;
 
   // Initialize request object with fixed page size
@@ -64,7 +64,7 @@ function mapSearchRequest(input: ToolSearchRequest) {
  */
 export async function search(params: ToolSearchRequest) {
   // Map simplified params to the format expected by the Glean API
-  const mappedParams = mapSearchRequest(params);
+  const mappedParams = convertToAPISearchRequest(params);
 
   // Validate with the original schema to ensure compatibility
   const parsedParams = SearchRequestSchema.parse(mappedParams);

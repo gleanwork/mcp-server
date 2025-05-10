@@ -27,7 +27,7 @@ export type ToolChatRequest = z.infer<typeof ToolChatSchema>;
  * @param input Simplified chat request parameters
  * @returns Glean API compatible chat request
  */
-function mapChatRequest(input: ToolChatRequest) {
+function convertToAPIChatRequest(input: ToolChatRequest) {
   const { message, context = [] } = input;
 
   const messages = [
@@ -59,7 +59,7 @@ function mapChatRequest(input: ToolChatRequest) {
  * @throws If the chat request fails
  */
 export async function chat(params: ToolChatRequest) {
-  const mappedParams = mapChatRequest(params);
+  const mappedParams = convertToAPIChatRequest(params);
   const parsedParams = ChatRequestSchema.parse(mappedParams);
   const client = await getClient();
 
