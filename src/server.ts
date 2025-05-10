@@ -66,10 +66,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 
         {
             "query": "What are the company holidays this year?",
-            "pageSize": 10
+            "datasources": ["drive", "confluence"]
         }
         `,
-        inputSchema: zodToJsonSchema(search.SearchSchema),
+        inputSchema: zodToJsonSchema(search.ToolSearchSchema),
       },
       {
         name: TOOL_NAMES.chat,
@@ -78,20 +78,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         Example request:
 
         {
-            "messages": [
-                {
-                    "author": "USER",
-                    "messageType": "CONTENT",
-                    "fragments": [
-                        {
-                            "text": "What are the company holidays this year?"
-                        }
-                    ]
-                }
+            "message": "What are the company holidays this year?",
+            "context": [
+                "Hello, I need some information about time off.",
+                "I'm planning my vacation for next year."
             ]
         }
         `,
-        inputSchema: zodToJsonSchema(chat.ChatSchema),
+        inputSchema: zodToJsonSchema(chat.ToolChatSchema),
       },
     ],
   };
@@ -117,7 +111,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
     switch (request.params.name) {
       case TOOL_NAMES.search: {
-        const args = search.SearchSchema.parse(request.params.arguments);
+        const args = search.ToolSearchSchema.parse(request.params.arguments);
         const result = await search.search(args);
         const formattedResults = search.formatResponse(result);
 
@@ -128,7 +122,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
 
       case TOOL_NAMES.chat: {
-        const args = chat.ChatSchema.parse(request.params.arguments);
+        const args = chat.ToolChatSchema.parse(request.params.arguments);
         const response = await chat.chat(args);
         const formattedResponse = chat.formatResponse(response);
 

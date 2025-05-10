@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SearchResponse } from '@gleanwork/api-client/models/components';
-import { SearchSchema, search } from '../../tools/search';
+import { ToolSearchSchema, search } from '../../tools/search';
+import { zodToJsonSchema } from 'zod-to-json-schema';
 import '../mocks/setup';
 
 describe('Search Tool', () => {
@@ -16,45 +17,67 @@ describe('Search Tool', () => {
     delete process.env.GLEAN_API_TOKEN;
   });
 
+  describe('JSON Schema Generation', () => {
+    it('generates correct JSON schema', () => {
+      expect(zodToJsonSchema(ToolSearchSchema, 'GleanSearch'))
+        .toMatchInlineSnapshot(`
+          {
+            "$ref": "#/definitions/GleanSearch",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "definitions": {
+              "GleanSearch": {
+                "additionalProperties": false,
+                "properties": {
+                  "datasources": {
+                    "description": "Optional list of data sources to search in. Examples: "github", "gdrive", "confluence", "jira".",
+                    "items": {
+                      "type": "string",
+                    },
+                    "type": "array",
+                  },
+                  "query": {
+                    "description": "The search query. This is what you want to search for.",
+                    "type": "string",
+                  },
+                },
+                "required": [
+                  "query",
+                ],
+                "type": "object",
+              },
+            },
+          }
+        `);
+    });
+  });
+
   describe('Schema Validation', () => {
     it('should validate a valid search request', () => {
       const validRequest = {
         query: 'test query',
-        pageSize: 10,
-        disableSpellcheck: false,
       };
 
-      const result = SearchSchema.safeParse(validRequest);
+      const result = ToolSearchSchema.safeParse(validRequest);
       expect(result.success).toBe(true);
     });
 
-    it('should validate optional fields', () => {
+    it('should validate with datasources', () => {
       const validRequest = {
         query: 'test query',
-        people: [
-          {
-            name: 'Test User',
-            obfuscatedId: '123',
-            email: 'test@example.com',
-            metadata: {
-              title: 'Software Engineer',
-              department: 'Engineering',
-            },
-          },
-        ],
+        datasources: ['github', 'drive'],
       };
 
-      const result = SearchSchema.safeParse(validRequest);
+      const result = ToolSearchSchema.safeParse(validRequest);
       expect(result.success).toBe(true);
     });
 
     it('should reject invalid types', () => {
       const invalidRequest = {
         query: 123, // Should be string
-        pageSize: 'large', // Should be number
+        datasources: 'github', // Should be an array
       };
 
-      const result = SearchSchema.safeParse(invalidRequest);
+      const result = ToolSearchSchema.safeParse(invalidRequest);
       expect(result.success).toBe(false);
     });
   });
@@ -63,7 +86,6 @@ describe('Search Tool', () => {
     it('should call Glean client with validated params', async () => {
       const params = {
         query: 'test query',
-        pageSize: 10,
       };
 
       const response = await search(params);
