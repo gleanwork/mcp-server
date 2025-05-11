@@ -188,9 +188,7 @@ function buildGleanBaseUrl({
 }): string {
   if (!baseUrl) {
     if (!instance) {
-      throw new Error(
-        'GLEAN_INSTANCE or GLEAN_SUBDOMAIN environment variable is required',
-      );
+      throw new Error('GLEAN_INSTANCE environment variable is required');
     }
     return `https://${instance}-be.glean.com/`;
   }

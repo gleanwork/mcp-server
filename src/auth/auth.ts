@@ -557,11 +557,11 @@ async function getConfigAndUpgradeToOAuth(): Promise<
  */
 export function getOAuthScopes(config: GleanOAuthConfig): string {
   const { issuer: issuer } = config;
-  const instance = parseDomain(issuer).domain ?? '';
+  const domain = parseDomain(issuer).domain ?? '';
 
-  trace(`computing scopes for issuer: '${issuer}', instance: '${instance}'`);
+  trace(`computing scopes for issuer: '${issuer}', instance: '${domain}'`);
 
-  switch (instance) {
+  switch (domain) {
     case 'google.com':
       return 'openid profile https://www.googleapis.com/auth/userinfo.email';
     case 'okta.com':
