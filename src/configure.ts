@@ -137,12 +137,9 @@ export async function configure(client: string, options: ConfigureOptions) {
     }
 
     // For non-token auth flow (requires GLEAN_OAUTH_ENABLED)
- 	const { instanceOrUrl } = loadCredentials(options);
-    	if (!instanceOrUrl) {
-      		throw new Error('Instance or URL is required for OAuth configuration');
-
-
-
+    const { instanceOrUrl } = loadCredentials(options);
+    if (!instanceOrUrl) {
+      throw new Error('Instance or URL is required for OAuth configuration');
     }
 
     // Set environment variables for OAuth flow

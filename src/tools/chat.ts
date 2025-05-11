@@ -1,6 +1,10 @@
 import { z } from 'zod';
 import { getClient } from '../common/client.js';
-import { ChatRequest$inboundSchema as ChatRequestSchema } from '@gleanwork/api-client/models/components';
+import {
+  ChatRequest,
+  ChatRequest$inboundSchema as ChatRequestSchema,
+  MessageType,
+} from '@gleanwork/api-client/models/components';
 import { Author } from '@gleanwork/api-client/models/components';
 
 /**
@@ -33,18 +37,18 @@ function convertToAPIChatRequest(input: ToolChatRequest) {
   const messages = [
     ...context.map((text) => ({
       author: Author.User,
-      messageType: 'CONTENT',
+      messageType: MessageType.Content,
       fragments: [{ text }],
     })),
 
     {
       author: Author.User,
-      messageType: 'CONTENT',
+      messageType: MessageType.Content,
       fragments: [{ text: message }],
     },
   ];
 
-  const chatRequest = {
+  const chatRequest: ChatRequest = {
     messages,
   };
 

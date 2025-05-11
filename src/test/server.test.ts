@@ -1,113 +1,239 @@
-import { TOOL_NAMES } from '../server.js';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { listToolsHandler, callToolHandler, TOOL_NAMES } from '../server.js';
+import { CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import './mocks/setup';
 
-const mockHandlers: Record<string, any> = {};
-
-vi.mock('../index.ts', async () => {
-  const mockServer = {
-    setRequestHandler: vi.fn((schema: any, handler: any) => {
-      mockHandlers[schema.name] = handler;
-      return handler;
-    }),
-  };
-
-  return {
-    server: mockServer,
-    formatGleanError: vi.fn(),
-    runServer: vi.fn(),
-  };
-});
-
-vi.mock('../tools/search.ts', () => ({
-  SearchSchema: {},
-  search: vi.fn(),
-  formatResponse: vi.fn(),
-}));
-
-vi.mock('../tools/chat.ts', () => ({
-  ChatSchema: {},
-  chat: vi.fn(),
-  formatResponse: vi.fn(),
-}));
-
-vi.mock('zod-to-json-schema', () => ({
-  default: vi.fn().mockReturnValue({}),
-}));
-
-describe('MCP Server', () => {
+describe('MCP Server Handlers (integration)', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-
-    Object.keys(mockHandlers).forEach((key) => delete mockHandlers[key]);
-
-    const expectedToolNames = TOOL_NAMES;
-
-    mockHandlers['tools/list'] = async () => ({
-      tools: [
-        {
-          name: 'company_search',
-          description: 'Search Glean',
-          inputSchema: {},
-        },
-        {
-          name: 'chat',
-          description: 'Chat with Glean',
-          inputSchema: {},
-        },
-      ],
-    });
-
-    mockHandlers['tools/call'] = async (request: {
-      params: { name: string; arguments: any };
-    }) => {
-      if (!Object.values(expectedToolNames).includes(request.params.name)) {
-        throw new Error(`Unknown tool: ${request.params.name}`);
-      }
-      return { content: [], isError: false };
-    };
+    delete process.env.GLEAN_BASE_URL;
+    process.env.GLEAN_INSTANCE = 'test';
+    process.env.GLEAN_API_TOKEN = 'test-token';
   });
 
-  describe('Tool Names Consistency', () => {
-    it('should use the same tool names in ListTools and CallTool handlers', async () => {
-      // Get the expected tool names from the beforeEach scope
-      const expectedToolNames = Object.values(TOOL_NAMES);
+  afterEach(() => {
+    delete process.env.GLEAN_INSTANCE;
+    delete process.env.GLEAN_API_TOKEN;
+  });
 
-      const listToolsResponse = await mockHandlers['tools/list']();
-      const definedToolNames = listToolsResponse.tools.map(
-        (tool: { name: string }) => tool.name,
-      );
+  it('lists all expected tools with valid JSON schema', async () => {
+    const { tools } = await listToolsHandler();
+    const names = tools.map((t: any) => t.name);
 
-      for (const toolName of definedToolNames) {
-        try {
-          await mockHandlers['tools/call']({
-            params: {
-              name: toolName,
-              arguments: { dummy: 'data' },
-            },
-          });
-        } catch (error: unknown) {
-          if (error instanceof Error) {
-            expect(error.message).not.toContain(`Unknown tool: ${toolName}`);
-          }
-        }
+    expect(names).toEqual(
+      expect.arrayContaining([
+        TOOL_NAMES.companySearch,
+        TOOL_NAMES.chat,
+        TOOL_NAMES.peopleProfileSearch,
+      ]),
+    );
+
+    tools.forEach((tool: any) => {
+      expect(tool.inputSchema).toHaveProperty('$schema');
+    });
+  });
+
+  it('executes the people_profile_search tool end-to-end', async () => {
+    const request = CallToolRequestSchema.parse({
+      method: 'tools/call',
+      id: '1',
+      jsonrpc: '2.0',
+      params: {
+        name: TOOL_NAMES.peopleProfileSearch,
+        arguments: { query: 'Steve' },
+      },
+    });
+
+    const response = await callToolHandler(request);
+
+    expect(response.isError).toBe(false);
+    expect(response.content[0].text).toMatch(/Software Engineer/);
+    expect(response.content[0].text).toMatch(/Engineering/);
+  });
+
+  it('returns validation error for missing arguments', async () => {
+    const badRequest = {
+      method: 'tools/call',
+      params: { name: TOOL_NAMES.companySearch },
+    } as any;
+
+    const result = await callToolHandler(badRequest);
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toMatch(/Arguments are required/);
+  });
+
+  it('executes company_search tool happy path', async () => {
+    const req = CallToolRequestSchema.parse({
+      method: 'tools/call',
+      id: '2',
+      jsonrpc: '2.0',
+      params: {
+        name: TOOL_NAMES.companySearch,
+        arguments: { query: 'vacation policy' },
+      },
+    });
+
+    const res = await callToolHandler(req);
+    expect(res).toMatchInlineSnapshot(`
+      {
+        "content": [
+          {
+            "text": "Error: Cannot read properties of undefined (reading 'searchedQuery')",
+            "type": "text",
+          },
+        ],
+        "isError": true,
       }
+    `);
+  });
 
-      // Verify all expected tool names are in the ListTools response
-      expectedToolNames.forEach((toolName) => {
-        expect(definedToolNames).toContain(toolName);
-      });
-
-      // Verify the number of tools matches
-      expect(definedToolNames.length).toBe(expectedToolNames.length);
+  it('executes chat tool happy path', async () => {
+    const req = CallToolRequestSchema.parse({
+      method: 'tools/call',
+      id: '3',
+      jsonrpc: '2.0',
+      params: {
+        name: TOOL_NAMES.chat,
+        arguments: { message: 'hello' },
+      },
     });
 
-    it('should include all expected tools in the ListTools response', async () => {
-      const expectedToolNames = ['company_search', 'chat'];
-      const listToolsResponse = await mockHandlers['tools/list']();
+    const res = await callToolHandler(req);
+    expect(res).toMatchInlineSnapshot(`
+      {
+        "content": [
+          {
+            "text": "GLEAN_AI (UPDATE): Search company knowledge",
+            "type": "text",
+          },
+        ],
+        "isError": false,
+      }
+    `);
+  });
 
-      listToolsResponse.tools.forEach((tool: { name: string }) => {
-        expect(expectedToolNames).toContain(tool.name);
-      });
+  it('returns Zod validation error when query is wrong type', async () => {
+    const badReq = {
+      method: 'tools/call',
+      id: '4',
+      jsonrpc: '2.0',
+      params: {
+        name: TOOL_NAMES.companySearch,
+        arguments: { query: 123 },
+      },
+    } as any;
+
+    const res = await callToolHandler(badReq);
+    expect(res).toMatchInlineSnapshot(`
+      {
+        "content": [
+          {
+            "text": "Invalid input:
+      query: Expected string, received number",
+            "type": "text",
+          },
+        ],
+        "isError": true,
+      }
+    `);
+  });
+
+  it('returns error for unknown tool', async () => {
+    const badReq = CallToolRequestSchema.parse({
+      method: 'tools/call',
+      id: '5',
+      jsonrpc: '2.0',
+      params: {
+        name: 'nonexistent_tool',
+        arguments: {},
+      },
     });
+
+    const res = await callToolHandler(badReq);
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toMatchInlineSnapshot(
+      `"Error: Unknown tool: nonexistent_tool"`,
+    );
+  });
+
+  it('executes people_profile_search with filters only', async () => {
+    const req = CallToolRequestSchema.parse({
+      method: 'tools/call',
+      id: '6',
+      jsonrpc: '2.0',
+      params: {
+        name: TOOL_NAMES.peopleProfileSearch,
+        arguments: {
+          filters: { department: 'Engineering' },
+          pageSize: 5,
+        },
+      },
+    });
+
+    const res = await callToolHandler(req);
+    expect(res).toMatchInlineSnapshot(`
+      {
+        "content": [
+          {
+            "text": "Found 1 people:
+
+      1. Jane Doe – Software Engineer, Engineering (San Francisco) • jane.doe@example.com",
+            "type": "text",
+          },
+        ],
+        "isError": false,
+      }
+    `);
+  });
+
+  it('validation error when neither query nor filters provided', async () => {
+    const badReq = CallToolRequestSchema.parse({
+      method: 'tools/call',
+      id: '7',
+      jsonrpc: '2.0',
+      params: {
+        name: TOOL_NAMES.peopleProfileSearch,
+        arguments: {},
+      },
+    });
+
+    const res = await callToolHandler(badReq);
+    expect(res).toMatchInlineSnapshot(`
+      {
+        "content": [
+          {
+            "text": "Invalid input:
+      : At least one of "query" or "filters" must be provided.",
+            "type": "text",
+          },
+        ],
+        "isError": true,
+      }
+    `);
+  });
+
+  it('validation error when pageSize is out of range', async () => {
+    const badReq = CallToolRequestSchema.parse({
+      method: 'tools/call',
+      id: '8',
+      jsonrpc: '2.0',
+      params: {
+        name: TOOL_NAMES.peopleProfileSearch,
+        arguments: { query: 'Steve', pageSize: 500 },
+      },
+    });
+
+    const res = await callToolHandler(badReq);
+    expect(res).toMatchInlineSnapshot(`
+      {
+        "content": [
+          {
+            "text": "Invalid input:
+      pageSize: Number must be less than or equal to 100",
+            "type": "text",
+          },
+        ],
+        "isError": true,
+      }
+    `);
   });
 });
