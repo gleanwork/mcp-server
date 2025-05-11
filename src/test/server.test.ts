@@ -70,7 +70,7 @@ describe('MCP Server', () => {
   describe('Tool Names Consistency', () => {
     it('should use the same tool names in ListTools and CallTool handlers', async () => {
       // Get the expected tool names from the beforeEach scope
-      const expectedToolNames = ['company_search', 'chat'];
+      const expectedToolNames = Object.values(TOOL_NAMES);
 
       const listToolsResponse = await mockHandlers['tools/list']();
       const definedToolNames = listToolsResponse.tools.map(
