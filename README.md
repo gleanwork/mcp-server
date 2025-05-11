@@ -15,13 +15,13 @@ A Model Context Protocol (MCP) server implementation for Glean's search and chat
 
 ## Tools
 
-- ### glean_search
+- ### company_search
 
   Search Glean's content index using the Glean Search API. This tool allows you to query Glean's content index with various filtering and configuration options.
 
   For complete parameter details, see [Search API Documentation](https://developers.glean.com/client/operation/search/)
 
-- ### glean_chat
+- ### chat
 
   Interact with Glean's AI assistant using the Glean Chat API. This tool allows you to have conversational interactions with Glean's AI, including support for message history, citations, and various configuration options.
 

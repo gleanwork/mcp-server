@@ -33,8 +33,8 @@ import {
 import { VERSION } from './common/version.js';
 
 export const TOOL_NAMES = {
-  search: 'glean_search',
-  chat: 'glean_chat',
+  companySearch: 'company_search',
+  chat: 'chat',
 };
 
 /**
@@ -59,8 +59,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
-        name: TOOL_NAMES.search,
-        description: `Search Glean Enterprise Knowledge
+        name: TOOL_NAMES.companySearch,
+        description: `Find relevant company documents and data
         
         Example request:
 
@@ -110,7 +110,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
 
     switch (request.params.name) {
-      case TOOL_NAMES.search: {
+      case TOOL_NAMES.companySearch: {
         const args = search.ToolSearchSchema.parse(request.params.arguments);
         const result = await search.search(args);
         const formattedResults = search.formatResponse(result);

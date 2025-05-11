@@ -42,22 +42,22 @@ describe('MCP Server', () => {
 
     const expectedToolNames = TOOL_NAMES;
 
-    mockHandlers['list_tools'] = async () => ({
+    mockHandlers['tools/list'] = async () => ({
       tools: [
         {
-          name: 'glean_search',
+          name: 'company_search',
           description: 'Search Glean',
           inputSchema: {},
         },
         {
-          name: 'glean_chat',
+          name: 'chat',
           description: 'Chat with Glean',
           inputSchema: {},
         },
       ],
     });
 
-    mockHandlers['call_tool'] = async (request: {
+    mockHandlers['tools/call'] = async (request: {
       params: { name: string; arguments: any };
     }) => {
       if (!Object.values(expectedToolNames).includes(request.params.name)) {
@@ -70,16 +70,16 @@ describe('MCP Server', () => {
   describe('Tool Names Consistency', () => {
     it('should use the same tool names in ListTools and CallTool handlers', async () => {
       // Get the expected tool names from the beforeEach scope
-      const expectedToolNames = ['glean_search', 'glean_chat'];
+      const expectedToolNames = Object.values(TOOL_NAMES);
 
-      const listToolsResponse = await mockHandlers['list_tools']();
+      const listToolsResponse = await mockHandlers['tools/list']();
       const definedToolNames = listToolsResponse.tools.map(
         (tool: { name: string }) => tool.name,
       );
 
       for (const toolName of definedToolNames) {
         try {
-          await mockHandlers['call_tool']({
+          await mockHandlers['tools/call']({
             params: {
               name: toolName,
               arguments: { dummy: 'data' },
@@ -102,8 +102,8 @@ describe('MCP Server', () => {
     });
 
     it('should include all expected tools in the ListTools response', async () => {
-      const expectedToolNames = ['glean_search', 'glean_chat'];
-      const listToolsResponse = await mockHandlers['list_tools']();
+      const expectedToolNames = ['company_search', 'chat'];
+      const listToolsResponse = await mockHandlers['tools/list']();
 
       listToolsResponse.tools.forEach((tool: { name: string }) => {
         expect(expectedToolNames).toContain(tool.name);
