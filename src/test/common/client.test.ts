@@ -33,6 +33,7 @@ describe('getSDKOptions (integration, msw)', () => {
   let origEnv: NodeJS.ProcessEnv;
   const ENV_VARS = [
     'GLEAN_API_TOKEN',
+    'GLEAN_INSTANCE',
     'GLEAN_SUBDOMAIN',
     'GLEAN_BASE_URL',
     'GLEAN_ACT_AS',
@@ -173,12 +174,12 @@ describe('getSDKOptions (integration, msw)', () => {
   });
 
   it('should throw AuthError for invalid config (neither token nor OAuth)', async () => {
-    process.env.GLEAN_SUBDOMAIN = 'awesome-co';
+    process.env.GLEAN_INSTANCE = 'awesome-co';
     // No env vars, no config files
     await expect(
       async () => await getAPIClientOptions(),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[AuthError: ERR_A_19: Missing or invalid Glean configuration. Please check that your environment variables are set correctly (e.g. GLEAN_SUBDOMAIN).]`,
+      `[AuthError: ERR_A_19: Missing or invalid Glean configuration. Please check that your environment variables are set correctly (e.g. GLEAN_INSTANCE or GLEAN_SUBDOMAIN).]`,
     );
   });
 

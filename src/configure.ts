@@ -21,7 +21,7 @@ import { trace } from './log/logger.js';
  */
 interface ConfigureOptions {
   token?: string;
-  domain?: string;
+  instance?: string;
   url?: string;
   envPath?: string;
 }
@@ -30,11 +30,11 @@ interface ConfigureOptions {
  * Load environment variables from .env file or existing environment
  */
 function loadCredentials(options: ConfigureOptions): {
-  subdomainOrUrl?: string;
+  instanceOrUrl?: string;
   apiToken?: string;
 } {
-  const result: { subdomainOrUrl?: string; apiToken?: string } = {
-    subdomainOrUrl: undefined,
+  const result: { instanceOrUrl?: string; apiToken?: string } = {
+    instanceOrUrl: undefined,
     apiToken: undefined,
   };
 
@@ -55,8 +55,10 @@ function loadCredentials(options: ConfigureOptions): {
           );
         }
 
-        result.subdomainOrUrl =
-          envConfig.parsed?.GLEAN_SUBDOMAIN || envConfig.parsed?.GLEAN_BASE_URL;
+        result.instanceOrUrl =
+          envConfig.parsed?.GLEAN_INSTANCE ||
+          envConfig.parsed?.GLEAN_SUBDOMAIN ||
+          envConfig.parsed?.GLEAN_BASE_URL;
         result.apiToken = envConfig.parsed?.GLEAN_API_TOKEN;
       }
     } catch (error: any) {
@@ -64,21 +66,23 @@ function loadCredentials(options: ConfigureOptions): {
     }
   }
 
-  if (options.domain) {
-    result.subdomainOrUrl = options.domain;
+  if (options.instance) {
+    result.instanceOrUrl = options.instance;
   }
 
   if (options.url) {
-    result.subdomainOrUrl = options.url;
+    result.instanceOrUrl = options.url;
   }
 
   if (options.token) {
     result.apiToken = options.token;
   }
 
-  if (!result.subdomainOrUrl) {
-    result.subdomainOrUrl =
-      process.env.GLEAN_SUBDOMAIN || process.env.GLEAN_BASE_URL;
+  if (!result.instanceOrUrl) {
+    result.instanceOrUrl =
+      process.env.GLEAN_INSTANCE ||
+      process.env.GLEAN_SUBDOMAIN ||
+      process.env.GLEAN_BASE_URL;
   }
 
   if (!result.apiToken) {
@@ -92,7 +96,7 @@ function loadCredentials(options: ConfigureOptions): {
  * Handles the configuration process for the specified MCP client
  *
  * @param client - The MCP client to configure for (cursor, claude, windsurf)
- * @param options - Configuration options including token, domain, url, and envPath
+ * @param options - Configuration options including token, instance, url, and envPath
  */
 export async function configure(client: string, options: ConfigureOptions) {
   trace('configuring ', client);
@@ -118,8 +122,8 @@ export async function configure(client: string, options: ConfigureOptions) {
     // If token is provided, use token auth
     if (options.token) {
       trace('configuring Glean token auth');
-      const { subdomainOrUrl, apiToken } = loadCredentials(options);
-      const newConfig = clientConfig.configTemplate(subdomainOrUrl, apiToken);
+      const { instanceOrUrl, apiToken } = loadCredentials(options);
+      const newConfig = clientConfig.configTemplate(instanceOrUrl, apiToken);
       writeConfigFile(configFilePath, newConfig, clientConfig);
       return;
     }
@@ -133,21 +137,24 @@ export async function configure(client: string, options: ConfigureOptions) {
     }
 
     // For non-token auth flow (requires GLEAN_OAUTH_ENABLED)
-    const { subdomainOrUrl } = loadCredentials(options);
-    if (!subdomainOrUrl) {
-      throw new Error('Domain/subdomain or URL is required for configuration');
+ 	const { instanceOrUrl } = loadCredentials(options);
+    	if (!instanceOrUrl) {
+      		throw new Error('Instance or URL is required for OAuth configuration');
+
+
+
     }
 
     // Set environment variables for OAuth flow
     if (
-      subdomainOrUrl.startsWith('http://') ||
-      subdomainOrUrl.startsWith('https://')
+      instanceOrUrl.startsWith('http://') ||
+      instanceOrUrl.startsWith('https://')
     ) {
-      process.env.GLEAN_BASE_URL = subdomainOrUrl.endsWith('/rest/api/v1')
-        ? subdomainOrUrl
-        : `${subdomainOrUrl}/rest/api/v1`;
+      process.env.GLEAN_BASE_URL = instanceOrUrl.endsWith('/rest/api/v1')
+        ? instanceOrUrl
+        : `${instanceOrUrl}/rest/api/v1`;
     } else {
-      process.env.GLEAN_SUBDOMAIN = subdomainOrUrl;
+      process.env.GLEAN_INSTANCE = instanceOrUrl;
     }
 
     const authSuccess = await ensureAuthTokenPresence();
@@ -155,7 +162,7 @@ export async function configure(client: string, options: ConfigureOptions) {
       throw new Error('OAuth authorization failed');
     }
 
-    const newConfig = clientConfig.configTemplate(subdomainOrUrl);
+    const newConfig = clientConfig.configTemplate(instanceOrUrl);
     writeConfigFile(configFilePath, newConfig, clientConfig);
   } catch (error: any) {
     console.error(`Error configuring client: ${error.message}`);
@@ -253,7 +260,7 @@ export async function listSupportedClients() {
 
   console.log('\nUsage:');
   console.log(
-    '  npx @gleanwork/mcp-server configure --client <client> [--token <token>] [--domain <domain>]',
+    '  npx @gleanwork/mcp-server configure --client <client> [--token <token>] [--instance <instance>]',
   );
   console.log(
     '  npx @gleanwork/mcp-server configure --client <client> --env <path-to-env-file>',
@@ -263,7 +270,7 @@ export async function listSupportedClients() {
   if (clients.length > 0) {
     const exampleClient = clients[0][0];
     console.log(
-      `  npx @gleanwork/mcp-server configure --client ${exampleClient} --token your-token --domain your-domain`,
+      `  npx @gleanwork/mcp-server configure --client ${exampleClient} --token your-token --instance your-instance`,
     );
     console.log(
       `  npx @gleanwork/mcp-server configure --client ${exampleClient} --env ~/.glean.env`,

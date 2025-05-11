@@ -38,9 +38,11 @@ You'll need Glean [API credentials](https://developers.glean.com/client/authenti
 1. Set up your Glean API credentials:
 
    ```bash
-   export GLEAN_SUBDOMAIN=your_subdomain
+   export GLEAN_INSTANCE=instance_name
    export GLEAN_API_TOKEN=your_api_token
    ```
+
+   Note: For backward compatibility, `GLEAN_SUBDOMAIN` is still supported, but `GLEAN_INSTANCE` is preferred.
 
 1. (Optional) For [global tokens](https://developers.glean.com/indexing/authentication/permissions#global-tokens) that support impersonation:
 
@@ -54,13 +56,13 @@ You can use the built-in configuration tool to automatically set up Glean for yo
 
 ```bash
 # Configure for Cursor
-npx @gleanwork/mcp-server configure --client cursor --token your_api_token --domain your_subdomain
+npx @gleanwork/mcp-server configure --client cursor --token your_api_token --instance instance_name
 
 # Configure for Claude Desktop
-npx @gleanwork/mcp-server configure --client claude --token your_api_token --domain your_subdomain
+npx @gleanwork/mcp-server configure --client claude --token your_api_token --instance instance_name
 
 # Configure for Windsurf
-npx @gleanwork/mcp-server configure --client windsurf --token your_api_token --domain your_subdomain
+npx @gleanwork/mcp-server configure --client windsurf --token your_api_token --instance instance_name
 ```
 
 Alternatively, you can use an environment file:
@@ -71,8 +73,8 @@ npx @gleanwork/mcp-server configure --client cursor --env path/to/.env.glean
 
 The environment file should contain:
 
-```
-GLEAN_SUBDOMAIN=your_subdomain
+```bash
+GLEAN_INSTANCE=instance_name
 GLEAN_API_TOKEN=your_api_token
 ```
 
@@ -93,7 +95,7 @@ To configure this MCP server in your MCP client (such as Claude Desktop, Windsur
       "command": "npx",
       "args": ["-y", "@gleanwork/mcp-server"],
       "env": {
-        "GLEAN_SUBDOMAIN": "<glean instance subdomain>",
+        "GLEAN_INSTANCE": "<glean instance name>",
         "GLEAN_API_TOKEN": "<glean api token>"
       }
     }

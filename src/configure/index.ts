@@ -40,22 +40,22 @@ export interface MCPClientConfig {
  * Creates a standard MCP server configuration template
  */
 export function createConfigTemplate(
-  subdomainOrUrl = '<glean instance subdomain>',
+  instanceOrUrl = '<glean instance name>',
   apiToken?: string,
 ) {
   const env: Record<string, string> = {};
 
   // If it looks like a URL, use GLEAN_BASE_URL
   if (
-    subdomainOrUrl.startsWith('http://') ||
-    subdomainOrUrl.startsWith('https://')
+    instanceOrUrl.startsWith('http://') ||
+    instanceOrUrl.startsWith('https://')
   ) {
-    const baseUrl = subdomainOrUrl.endsWith('/rest/api/v1')
-      ? subdomainOrUrl
-      : `${subdomainOrUrl}/rest/api/v1`;
+    const baseUrl = instanceOrUrl.endsWith('/rest/api/v1')
+      ? instanceOrUrl
+      : `${instanceOrUrl}/rest/api/v1`;
     env.GLEAN_BASE_URL = baseUrl;
   } else {
-    env.GLEAN_SUBDOMAIN = subdomainOrUrl;
+    env.GLEAN_INSTANCE = instanceOrUrl;
   }
 
   // Only include GLEAN_API_TOKEN if a token is provided
@@ -99,7 +99,7 @@ To use it:
 ${instructions.map((instr, i) => `${i + 1}. ${instr}`).join('\n')}
 
 Notes:
-- You may need to set your Glean subdomain and API token if they weren't provided during configuration
+- You may need to set your Glean instance and API token if they weren't provided during configuration
 - Configuration is at: ${configPath}
 `;
 }
