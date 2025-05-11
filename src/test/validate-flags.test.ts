@@ -48,7 +48,7 @@ describe('validateFlags', () => {
 
   it('should return false when neither domain nor url is provided', async () => {
     const result = await validateFlags(
-      'client',
+      'cursor',
       undefined,
       undefined,
       undefined,
@@ -58,9 +58,8 @@ describe('validateFlags', () => {
     expect(result).toBe(false);
     expect(consoleState.getState('error')).toMatchInlineSnapshot(`
       "Error: You must provide either:
-        1. --domain for OAuth device flow, or
-        2. Both --token and --domain for Glean token auth, or
-        3. --env pointing to a .env file containing GLEAN_SUBDOMAIN and optionally GLEAN_API_TOKEN
+        1. Both --token and --domain for authentication, or
+        2. --env pointing to a .env file containing GLEAN_SUBDOMAIN and GLEAN_API_TOKEN
       Run with --help for usage information"
     `);
   });
