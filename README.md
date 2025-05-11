@@ -5,12 +5,13 @@
 [![npm version](https://badge.fury.io/js/@gleanwork%2Fmcp-server.svg)](https://badge.fury.io/js/@gleanwork%2Fmcp-server)
 [![License](https://img.shields.io/npm/l/@gleanwork%2Fmcp-server.svg)](https://github.com/gleanwork/mcp-server/blob/main/LICENSE)
 
-A Model Context Protocol (MCP) server implementation for Glean's search and chat capabilities. This server provides a standardized interface for AI models to interact with Glean's content search and conversational AI features.
+The Glean MCP Server is a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) server that provides seamless integration with Glean's enterprise knowledge.
 
 ## Features
 
-- **Search Integration**: Access Glean's powerful content search capabilities
-- **Chat Interface**: Interact with Glean's AI assistant
+- **Company Search**: Access Glean's powerful content search capabilities
+- **People Profile Search**: Access Glean's people directory
+- **Chat**: Interact with Glean's AI assistant
 - **MCP Compliant**: Implements the Model Context Protocol specification
 
 ## Tools
@@ -19,13 +20,13 @@ A Model Context Protocol (MCP) server implementation for Glean's search and chat
 
   Search Glean's content index using the Glean Search API. This tool allows you to query Glean's content index with various filtering and configuration options.
 
-  For complete parameter details, see [Search API Documentation](https://developers.glean.com/client/operation/search/)
-
 - ### chat
 
   Interact with Glean's AI assistant using the Glean Chat API. This tool allows you to have conversational interactions with Glean's AI, including support for message history, citations, and various configuration options.
 
-  For complete parameter details, see [Chat API Documentation](https://developers.glean.com/client/operation/chat/)
+- ### people_profile_search
+
+  Search Glean's People directory to find employee information.
 
 ## Configuration
 
