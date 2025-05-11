@@ -58,9 +58,8 @@ describe('validateFlags', () => {
     expect(result).toBe(false);
     expect(consoleState.getState('error')).toMatchInlineSnapshot(`
       "Error: You must provide either:
-        1. --instance for OAuth device flow, or
-        2. Both --token and --instance for Glean token auth, or
-        3. --env pointing to a .env file containing GLEAN_INSTANCE and optionally GLEAN_API_TOKEN
+        1. Both --token and --instance for authentication, or
+        2. --env pointing to a .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
       Run with --help for usage information"
     `);
   });

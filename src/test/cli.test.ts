@@ -66,14 +66,14 @@ describe('CLI', () => {
 
           Options for configure
             --client, -c   MCP client to configure for (claude, cursor, windsurf)
-            --token, -t    Glean API token (if not provided, OAuth device flow will be used)
-            --instance, -d   Glean instance name
-            --env, -e      Path to .env file containing GLEAN_INSTANCE and optionally GLEAN_API_TOKEN
+            --token, -t    Glean API token (required)
+            --domain, -d   Glean instance name
+            --env, -e      Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
 
           Examples
             $ npx @gleanwork/mcp-server
             $ npx @gleanwork/mcp-server configure --client cursor --token glean_api_xyz --instance my-company
-            $ npx @gleanwork/mcp-server configure --client claude --instance my-company
+            $ npx @gleanwork/mcp-server configure --client claude --token glean_api_xyz --instance my-company
             $ npx @gleanwork/mcp-server configure --client windsurf --env ~/.glean.env
 
           Run 'npx @gleanwork/mcp-server help' for more details on supported clients
@@ -674,13 +674,15 @@ describe('CLI', () => {
     });
   });
 
-  it('can configure with custom instance', async () => {
+  it('can configure with custom instance and token', async () => {
     const result = await runBin(
       'configure',
       '--client',
       'cursor',
       '--instance',
-      'custom-domain',
+      'custom-instance',
+      '--token',
+      'test-token',
       {
         env: {
           GLEAN_MCP_CONFIG_DIR: project.baseDir,
