@@ -20,6 +20,7 @@ import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import * as search from './tools/search.js';
 import * as chat from './tools/chat.js';
+import * as peopleProfileSearch from './tools/people_profile_search.js';
 import {
   isGleanError,
   GleanError,
@@ -34,6 +35,7 @@ import { VERSION } from './common/version.js';
 
 export const TOOL_NAMES = {
   companySearch: 'company_search',
+  peopleProfileSearch: 'people_profile_search',
   chat: 'chat',
 };
 
@@ -50,18 +52,15 @@ const server = new Server(
 );
 
 /**
- * Handles tool discovery requests by providing a list of available tools.
- * Each tool includes its name, description, and input schema in JSON Schema format.
- *
- * @returns {Promise<{tools: Array<{name: string, description: string, inputSchema: object}>}>}
+ * Returns the list of available tools with descriptions & JSON Schemas.
  */
-server.setRequestHandler(ListToolsRequestSchema, async () => {
+export async function listToolsHandler() {
   return {
     tools: [
       {
         name: TOOL_NAMES.companySearch,
         description: `Find relevant company documents and data
-        
+
         Example request:
 
         {
@@ -87,23 +86,36 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
         `,
         inputSchema: zodToJsonSchema(chat.ToolChatSchema),
       },
+      {
+        name: TOOL_NAMES.peopleProfileSearch,
+        description: `Search for people profiles in the company
+
+        Example request:
+
+        {
+            "query": "Find people named John Doe",
+            "filters": {
+                "department": "Engineering",
+                "city": "San Francisco"
+            },
+            "pageSize": 10
+        }
+
+        `,
+        inputSchema: zodToJsonSchema(
+          peopleProfileSearch.ToolPeopleProfileSearchSchema,
+        ),
+      },
     ],
   };
-});
+}
 
 /**
- * Handles tool execution requests by validating input and dispatching to the appropriate tool.
- * Supports the following tools:
- * - search: Executes a search query against Glean's index
- * - chat: Initiates or continues a conversation with Glean's AI
- *
- * @param {object} request - The tool execution request
- * @param {string} request.params.name - The name of the tool to execute
- * @param {object} request.params.arguments - The arguments to pass to the tool
- * @returns {Promise<{content: Array<{type: string, text: string}>}>}
- * @throws {Error} If arguments are missing, tool is unknown, or validation fails
+ * Executes a tool based on the MCP callTool request.
  */
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
+export async function callToolHandler(
+  request: z.infer<typeof CallToolRequestSchema>,
+) {
   try {
     if (!request.params.arguments) {
       throw new Error('Arguments are required');
@@ -123,11 +135,24 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
       case TOOL_NAMES.chat: {
         const args = chat.ToolChatSchema.parse(request.params.arguments);
-        const response = await chat.chat(args);
-        const formattedResponse = chat.formatResponse(response);
+        const result = await chat.chat(args);
+        const formattedResults = chat.formatResponse(result);
 
         return {
-          content: [{ type: 'text', text: formattedResponse }],
+          content: [{ type: 'text', text: formattedResults }],
+          isError: false,
+        };
+      }
+
+      case TOOL_NAMES.peopleProfileSearch: {
+        const args = peopleProfileSearch.ToolPeopleProfileSearchSchema.parse(
+          request.params.arguments,
+        );
+        const result = await peopleProfileSearch.peopleProfileSearch(args);
+        const formattedResults = peopleProfileSearch.formatResponse(result);
+
+        return {
+          content: [{ type: 'text', text: formattedResults }],
           isError: false,
         };
       }
@@ -173,7 +198,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       isError: true,
     };
   }
-});
+}
+
+server.setRequestHandler(ListToolsRequestSchema, listToolsHandler);
+server.setRequestHandler(CallToolRequestSchema, callToolHandler);
 
 /**
  * Formats a GleanError into a human-readable error message.

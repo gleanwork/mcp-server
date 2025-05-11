@@ -122,4 +122,67 @@ export const handlers = [
       });
     },
   ),
+
+  // Handler for people profile search (listentities)
+  http.post(
+    'https://:instance-be.glean.com/rest/api/v1/listentities',
+    async ({ request }) => {
+      const authHeader = request.headers.get('Authorization');
+
+      if (!authHeader || authHeader === 'Bearer invalid_token') {
+        return new HttpResponse('Invalid Secret\nNot allowed', {
+          status: 401,
+          statusText: 'Unauthorized',
+          headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+          },
+        });
+      }
+
+      if (authHeader === 'Bearer expired_token') {
+        return new HttpResponse('Token has expired\nNot allowed', {
+          status: 401,
+          statusText: 'Unauthorized',
+          headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+          },
+        });
+      }
+
+      if (authHeader === 'Bearer network_error') {
+        const error = new Error('Network error');
+        error.name = 'FetchError';
+        throw error;
+      }
+
+      if (authHeader === 'Bearer server_error') {
+        return new HttpResponse('Something went wrong', {
+          status: 500,
+          statusText: 'Internal Server Error',
+          headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+          },
+        });
+      }
+
+      const responseData = {
+        results: [
+          {
+            name: 'Jane Doe',
+            obfuscatedId: 'abc123',
+            metadata: {
+              title: 'Software Engineer',
+              department: 'Engineering',
+              location: 'San Francisco',
+              email: 'jane.doe@example.com',
+            },
+          },
+        ],
+        totalCount: 1,
+        hasMoreResults: false,
+      };
+
+      return HttpResponse.json(responseData);
+    },
+  ),
 ];

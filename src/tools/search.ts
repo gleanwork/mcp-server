@@ -10,7 +10,10 @@
 
 import { z } from 'zod';
 import { getClient } from '../common/client.js';
-import { SearchRequest$inboundSchema as SearchRequestSchema } from '@gleanwork/api-client/models/components';
+import {
+  SearchRequest,
+  SearchRequest$inboundSchema as SearchRequestSchema,
+} from '@gleanwork/api-client/models/components';
 
 /**
  * Simplified schema for Glean search requests designed for LLM interaction
@@ -39,16 +42,15 @@ export type ToolSearchRequest = z.infer<typeof ToolSearchSchema>;
 function convertToAPISearchRequest(input: ToolSearchRequest) {
   const { query, datasources } = input;
 
-  // Initialize request object with fixed page size
-  const searchRequest: any = {
+  const searchRequest: SearchRequest = {
     query,
-    pageSize: 10, // Fixed default page size
+    pageSize: 10,
   };
 
-  // Map datasources to datasourcesFilter if provided
   if (datasources && datasources.length > 0) {
     searchRequest.requestOptions = {
       datasourcesFilter: datasources,
+      facetBucketSize: 10,
     };
   }
 
@@ -63,14 +65,10 @@ function convertToAPISearchRequest(input: ToolSearchRequest) {
  * @throws If the search request fails
  */
 export async function search(params: ToolSearchRequest) {
-  // Map simplified params to the format expected by the Glean API
   const mappedParams = convertToAPISearchRequest(params);
-
-  // Validate with the original schema to ensure compatibility
   const parsedParams = SearchRequestSchema.parse(mappedParams);
-
-  // Get client and execute request
   const client = await getClient();
+
   return await client.search.query(parsedParams);
 }
 
