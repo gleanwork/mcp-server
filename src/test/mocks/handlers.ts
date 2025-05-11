@@ -2,7 +2,7 @@ import { http, HttpResponse } from 'msw';
 
 export const handlers = [
   http.post(
-    'https://:subdomain-be.glean.com/rest/api/v1/search',
+    'https://:instance-be.glean.com/rest/api/v1/search',
     async ({ request }) => {
       const authHeader = request.headers.get('Authorization');
 
@@ -56,7 +56,7 @@ export const handlers = [
   ),
 
   http.post(
-    'https://:subdomain-be.glean.com/rest/api/v1/chat',
+    'https://:instance-be.glean.com/rest/api/v1/chat',
     async ({ request }) => {
       const authHeader = request.headers.get('Authorization');
 

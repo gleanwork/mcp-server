@@ -559,7 +559,7 @@ export function getOAuthScopes(config: GleanOAuthConfig): string {
   const { issuer: issuer } = config;
   const domain = parseDomain(issuer).domain ?? '';
 
-  trace(`computing scopes for issuer: '${issuer}', domain: '${domain}'`);
+  trace(`computing scopes for issuer: '${issuer}', instance: '${domain}'`);
 
   switch (domain) {
     case 'google.com':

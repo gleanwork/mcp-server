@@ -4,7 +4,7 @@
  * This module provides a client for interacting with the Glean API.
  *
  * Required environment variables:
- * - GLEAN_SUBDOMAIN: Subdomain of the Glean instance
+ * - GLEAN_INSTANCE or GLEAN_SUBDOMAIN: Name of the Glean instance
  * - GLEAN_API_TOKEN: API token for authentication
  *
  * Optional environment variables:
@@ -105,7 +105,7 @@ export async function getAPIClientOptions(): Promise<SDKOptions> {
       sanitizeConfig(config),
     );
     throw new AuthError(
-      'Missing or invalid Glean configuration. Please check that your environment variables are set correctly (e.g. GLEAN_SUBDOMAIN).',
+      'Missing or invalid Glean configuration. Please check that your environment variables are set correctly (e.g. GLEAN_INSTANCE or GLEAN_SUBDOMAIN).',
       { code: AuthErrorCode.InvalidConfig },
     );
   }

@@ -4,7 +4,6 @@ import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { vi } from 'vitest';
 
 import { cursorConfigPath } from '../configure/client/cursor.js';
 import { claudeConfigPath } from '../configure/client/claude.js';
@@ -68,13 +67,13 @@ describe('CLI', () => {
           Options for configure
             --client, -c   MCP client to configure for (claude, cursor, windsurf)
             --token, -t    Glean API token (required)
-            --domain, -d   Glean instance domain/subdomain
-            --env, -e      Path to .env file containing GLEAN_SUBDOMAIN and optionally GLEAN_API_TOKEN
+            --domain, -d   Glean instance name
+            --env, -e      Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
 
           Examples
             $ npx @gleanwork/mcp-server
-            $ npx @gleanwork/mcp-server configure --client cursor --token glean_api_xyz --domain my-company
-            $ npx @gleanwork/mcp-server configure --client claude --token glean_api_xyz --domain my-company
+            $ npx @gleanwork/mcp-server configure --client cursor --token glean_api_xyz --instance my-company
+            $ npx @gleanwork/mcp-server configure --client claude --token glean_api_xyz --instance my-company
             $ npx @gleanwork/mcp-server configure --client windsurf --env ~/.glean.env
 
           Run 'npx @gleanwork/mcp-server help' for more details on supported clients
@@ -101,7 +100,7 @@ describe('CLI', () => {
       'configure',
       '--client',
       'invalid-client',
-      '--domain',
+      '--instance',
       'my-company',
     );
 
@@ -131,7 +130,7 @@ describe('CLI', () => {
         'cursor',
         '--token',
         'glean_api_test',
-        '--domain',
+        '--instance',
         'test-domain',
         {
           env: {
@@ -154,7 +153,7 @@ describe('CLI', () => {
           3. You'll be asked for approval when Agent uses these tools
 
           Notes:
-          - You may need to set your Glean subdomain and API token if they weren't provided during configuration
+          - You may need to set your Glean instance and API token if they weren't provided during configuration
           - Configuration is at: <TMP_DIR>/.cursor/mcp.json
           "
         `);
@@ -172,7 +171,7 @@ describe('CLI', () => {
                 "@gleanwork/mcp-server"
               ],
               "env": {
-                "GLEAN_SUBDOMAIN": "test-domain",
+                "GLEAN_INSTANCE": "test-domain",
                 "GLEAN_API_TOKEN": "glean_api_test"
               }
             }
@@ -198,7 +197,7 @@ describe('CLI', () => {
         'cursor',
         '--token',
         'glean_api_test',
-        '--domain',
+        '--instance',
         'test-domain',
         {
           env: {
@@ -221,7 +220,7 @@ describe('CLI', () => {
           3. You'll be asked for approval when Agent uses these tools
 
           Notes:
-          - You may need to set your Glean subdomain and API token if they weren't provided during configuration
+          - You may need to set your Glean instance and API token if they weren't provided during configuration
           - Configuration is at: <TMP_DIR>/.cursor/mcp.json
           "
         `);
@@ -244,7 +243,7 @@ describe('CLI', () => {
                 "@gleanwork/mcp-server"
               ],
               "env": {
-                "GLEAN_SUBDOMAIN": "test-domain",
+                "GLEAN_INSTANCE": "test-domain",
                 "GLEAN_API_TOKEN": "glean_api_test"
               }
             }
@@ -261,7 +260,7 @@ describe('CLI', () => {
             args: ['-y', '@gleanwork/mcp-server'],
             env: {
               GLEAN_API_TOKEN: 'glean_api_existing',
-              GLEAN_SUBDOMAIN: 'existing-domain',
+              GLEAN_INSTANCE: 'existing-domain',
             },
           },
         },
@@ -277,7 +276,7 @@ describe('CLI', () => {
         'cursor',
         '--token',
         'glean_api_test',
-        '--domain',
+        '--instance',
         'test-domain',
         {
           env: {
@@ -317,7 +316,7 @@ describe('CLI', () => {
         'claude',
         '--token',
         'glean_api_test',
-        '--domain',
+        '--instance',
         'test-domain',
         {
           env: {
@@ -340,7 +339,7 @@ describe('CLI', () => {
           3. Click the hammer to see available tools including Glean search and chat
 
           Notes:
-          - You may need to set your Glean subdomain and API token if they weren't provided during configuration
+          - You may need to set your Glean instance and API token if they weren't provided during configuration
           - Configuration is at: <TMP_DIR>/Claude/claude_desktop_config.json
           "
         `);
@@ -358,7 +357,7 @@ describe('CLI', () => {
                 "@gleanwork/mcp-server"
               ],
               "env": {
-                "GLEAN_SUBDOMAIN": "test-domain",
+                "GLEAN_INSTANCE": "test-domain",
                 "GLEAN_API_TOKEN": "glean_api_test"
               }
             }
@@ -385,7 +384,7 @@ describe('CLI', () => {
         'claude',
         '--token',
         'glean_api_test',
-        '--domain',
+        '--instance',
         'test-domain',
         {
           env: {
@@ -408,7 +407,7 @@ describe('CLI', () => {
           3. Click the hammer to see available tools including Glean search and chat
 
           Notes:
-          - You may need to set your Glean subdomain and API token if they weren't provided during configuration
+          - You may need to set your Glean instance and API token if they weren't provided during configuration
           - Configuration is at: <TMP_DIR>/Claude/claude_desktop_config.json
           "
         `);
@@ -432,7 +431,7 @@ describe('CLI', () => {
                 "@gleanwork/mcp-server"
               ],
               "env": {
-                "GLEAN_SUBDOMAIN": "test-domain",
+                "GLEAN_INSTANCE": "test-domain",
                 "GLEAN_API_TOKEN": "glean_api_test"
               }
             }
@@ -449,7 +448,7 @@ describe('CLI', () => {
             args: ['-y', '@gleanwork/mcp-server'],
             env: {
               GLEAN_API_TOKEN: 'glean_api_existing',
-              GLEAN_SUBDOMAIN: 'existing-domain',
+              GLEAN_INSTANCE: 'existing-domain',
             },
           },
         },
@@ -465,7 +464,7 @@ describe('CLI', () => {
         'claude',
         '--token',
         'glean_api_test',
-        '--domain',
+        '--instance',
         'test-domain',
         {
           env: {
@@ -505,7 +504,7 @@ describe('CLI', () => {
         'windsurf',
         '--token',
         'glean_api_test',
-        '--domain',
+        '--instance',
         'test-domain',
         {
           env: {
@@ -529,7 +528,7 @@ describe('CLI', () => {
           4. You should now see Glean in your available MCP servers
 
           Notes:
-          - You may need to set your Glean subdomain and API token if they weren't provided during configuration
+          - You may need to set your Glean instance and API token if they weren't provided during configuration
           - Configuration is at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
           "
         `);
@@ -547,7 +546,7 @@ describe('CLI', () => {
                 "@gleanwork/mcp-server"
               ],
               "env": {
-                "GLEAN_SUBDOMAIN": "test-domain",
+                "GLEAN_INSTANCE": "test-domain",
                 "GLEAN_API_TOKEN": "glean_api_test"
               }
             }
@@ -573,7 +572,7 @@ describe('CLI', () => {
         'windsurf',
         '--token',
         'glean_api_test',
-        '--domain',
+        '--instance',
         'test-domain',
         {
           env: {
@@ -597,7 +596,7 @@ describe('CLI', () => {
           4. You should now see Glean in your available MCP servers
 
           Notes:
-          - You may need to set your Glean subdomain and API token if they weren't provided during configuration
+          - You may need to set your Glean instance and API token if they weren't provided during configuration
           - Configuration is at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
           "
         `);
@@ -620,7 +619,7 @@ describe('CLI', () => {
                 "@gleanwork/mcp-server"
               ],
               "env": {
-                "GLEAN_SUBDOMAIN": "test-domain",
+                "GLEAN_INSTANCE": "test-domain",
                 "GLEAN_API_TOKEN": "glean_api_test"
               }
             }
@@ -637,7 +636,7 @@ describe('CLI', () => {
             args: ['-y', '@gleanwork/mcp-server'],
             env: {
               GLEAN_API_TOKEN: 'glean_api_existing',
-              GLEAN_SUBDOMAIN: 'existing-domain',
+              GLEAN_INSTANCE: 'existing-domain',
             },
           },
         },
@@ -653,7 +652,7 @@ describe('CLI', () => {
         'windsurf',
         '--token',
         'glean_api_test',
-        '--domain',
+        '--instance',
         'test-domain',
         {
           env: {
@@ -675,13 +674,13 @@ describe('CLI', () => {
     });
   });
 
-  it('can configure with custom subdomain and token', async () => {
+  it('can configure with custom instance and token', async () => {
     const result = await runBin(
       'configure',
       '--client',
       'cursor',
-      '--domain',
-      'custom-domain',
+      '--instance',
+      'custom-instance',
       '--token',
       'test-token',
       {
@@ -705,72 +704,17 @@ describe('CLI', () => {
         3. You'll be asked for approval when Agent uses these tools
 
         Notes:
-        - You may need to set your Glean subdomain and API token if they weren't provided during configuration
+        - You may need to set your Glean instance and API token if they weren't provided during configuration
         - Configuration is at: <TMP_DIR>/.cursor/mcp.json
         "
       `);
   });
 
-  it('requires API token when GLEAN_OAUTH_ENABLED is not set', async () => {
-    const result = await runBin(
-      'configure',
-      '--client',
-      'cursor',
-      '--domain',
-      'custom-domain',
-      {
-        env: {
-          GLEAN_MCP_CONFIG_DIR: project.baseDir,
-          // Ensure OAuth is not enabled
-          GLEAN_OAUTH_ENABLED: undefined,
-        },
-      },
-    );
-
-    expect(result.exitCode).toEqual(1);
-    expect(result.stderr).toContain('API token is required');
-    expect(result.stderr).toContain(
-      'Please provide a token with the --token option',
-    );
-  });
-
-  it('allows tokenless flow when GLEAN_OAUTH_ENABLED is set', async () => {
-    // Mock ensureAuthTokenPresence to avoid actual OAuth flow
-    const originalEnsureAuth = await vi.importActual('../auth/auth.js');
-    vi.mock('../auth/auth.js', () => {
-      return {
-        ...originalEnsureAuth,
-        ensureAuthTokenPresence: vi.fn().mockResolvedValue(true),
-      };
-    });
-
-    const result = await runBin(
-      'configure',
-      '--client',
-      'cursor',
-      '--domain',
-      'custom-domain',
-      {
-        env: {
-          GLEAN_MCP_CONFIG_DIR: project.baseDir,
-          GLEAN_OAUTH_ENABLED: 'true',
-        },
-      },
-    );
-
-    expect(result.exitCode).toEqual(0);
-    // The test should proceed without requiring a token
-    expect(result.stderr).not.toContain('API token is required');
-
-    // Restore original implementation
-    vi.restoreAllMocks();
-  });
-
-  describe('unlisted authentication commands', () => {
+  describe('unlisted OAuth commands', () => {
     it('Prints user-friendly error messages on failures', async () => {
       // Set up a temp XDG_STATE_HOME
       const tempStateDir = fs.mkdtempSync(
-        path.join(os.tmpdir(), 'cli-auth-test-'),
+        path.join(os.tmpdir(), 'cli-oauth-test-'),
       );
       // Only set GLEAN_BASE_URL to a value that will fail
       const env = {

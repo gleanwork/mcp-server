@@ -100,7 +100,7 @@ export function isBasicConfig(
  * @throws {Error} If required environment variables are missing
  */
 export function getConfig(): GleanConfig {
-  const subdomain = process.env.GLEAN_SUBDOMAIN;
+  const instance = process.env.GLEAN_INSTANCE || process.env.GLEAN_SUBDOMAIN;
   const baseUrl = process.env.GLEAN_BASE_URL;
   const token = process.env.GLEAN_API_TOKEN;
   const actAs = process.env.GLEAN_ACT_AS;
@@ -119,14 +119,14 @@ export function getConfig(): GleanConfig {
   if (token !== undefined) {
     return buildTokenConfig({
       token,
-      subdomain,
+      instance,
       baseUrl,
       actAs,
     });
   }
 
   let config: GleanConfig = buildBasicConfig({
-    subdomain,
+    instance,
     baseUrl,
     issuer,
     clientId,
@@ -181,23 +181,23 @@ export function sanitizeConfig(config: GleanConfig): SafeConfig {
 
 function buildGleanBaseUrl({
   baseUrl,
-  subdomain,
+  instance,
 }: {
   baseUrl?: string;
-  subdomain?: string;
+  instance?: string;
 }): string {
   if (!baseUrl) {
-    if (!subdomain) {
-      throw new Error('GLEAN_SUBDOMAIN environment variable is required');
+    if (!instance) {
+      throw new Error('GLEAN_INSTANCE environment variable is required');
     }
-    return `https://${subdomain}-be.glean.com/`;
+    return `https://${instance}-be.glean.com/`;
   }
 
   return baseUrl;
 }
 
 function buildBasicConfig({
-  subdomain,
+  instance,
   baseUrl,
   issuer,
   clientId,
@@ -205,7 +205,7 @@ function buildBasicConfig({
   authorizationEndpoint,
   tokenEndpoint,
 }: {
-  subdomain?: string;
+  instance?: string;
   baseUrl?: string;
   issuer?: string;
   clientId?: string;
@@ -215,7 +215,7 @@ function buildBasicConfig({
 }): GleanBasicConfig {
   return {
     authType: 'unknown',
-    baseUrl: buildGleanBaseUrl({ subdomain, baseUrl }),
+    baseUrl: buildGleanBaseUrl({ instance, baseUrl }),
     issuer,
     clientId,
     clientSecret,
@@ -228,12 +228,12 @@ function buildTokenConfig({
   token,
   actAs,
   baseUrl,
-  subdomain,
+  instance,
 }: {
   token: string;
   actAs?: string;
   baseUrl?: string;
-  subdomain?: string;
+  instance?: string;
 }): GleanConfig {
   if (!token) {
     throw new Error('GLEAN_API_TOKEN environment variable is required');
@@ -241,7 +241,7 @@ function buildTokenConfig({
 
   return {
     authType: 'token',
-    baseUrl: buildGleanBaseUrl({ subdomain, baseUrl }),
+    baseUrl: buildGleanBaseUrl({ instance, baseUrl }),
     token,
     ...(actAs ? { actAs } : {}),
   };

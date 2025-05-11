@@ -6,14 +6,14 @@ import '../mocks/setup';
 
 describe('Chat Tool', () => {
   beforeEach(() => {
-    // delete BASE_URL because it takes precedence over SUBDOMAIN
+    // delete BASE_URL because it takes precedence over INSTANCE
     delete process.env.GLEAN_BASE_URL;
-    process.env.GLEAN_SUBDOMAIN = 'test';
+    process.env.GLEAN_INSTANCE = 'test';
     process.env.GLEAN_API_TOKEN = 'test-token';
   });
 
   afterEach(() => {
-    delete process.env.GLEAN_SUBDOMAIN;
+    delete process.env.GLEAN_INSTANCE;
     delete process.env.GLEAN_API_TOKEN;
   });
 
