@@ -124,12 +124,18 @@ export async function configure(client: string, options: ConfigureOptions) {
       return;
     }
 
-    // Otherwise, use OAuth device flow
+    // Check if OAuth is enabled
+    const oauthEnabled = process.env.GLEAN_OAUTH_ENABLED;
+    if (!oauthEnabled) {
+      throw new Error(
+        'API token is required. Please provide a token with the --token option.',
+      );
+    }
+
+    // For non-token auth flow (requires GLEAN_OAUTH_ENABLED)
     const { subdomainOrUrl } = loadCredentials(options);
     if (!subdomainOrUrl) {
-      throw new Error(
-        'Domain/subdomain or URL is required for OAuth configuration',
-      );
+      throw new Error('Domain/subdomain or URL is required for configuration');
     }
 
     // Set environment variables for OAuth flow

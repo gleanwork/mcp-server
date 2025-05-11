@@ -55,7 +55,7 @@ export async function validateFlags(
     return false;
   }
 
-  if(hasToken && !hasDeployment){
+  if (hasToken && !hasDeployment) {
     console.error(`
 "Warning: Configuring without complete credentials.
 You must provide either:
@@ -78,12 +78,9 @@ Continuing with configuration, but you will need to set credentials manually lat
 
   if (!hasToken && !hasDeployment && !hasEnvParam) {
     console.error('Error: You must provide either:');
-    console.error('  1. --domain for OAuth device flow, or');
+    console.error('  1. Both --token and --domain for authentication, or');
     console.error(
-      '  2. Both --token and --domain for Glean token auth, or',
-    );
-    console.error(
-      '  3. --env pointing to a .env file containing GLEAN_SUBDOMAIN and optionally GLEAN_API_TOKEN',
+      '  2. --env pointing to a .env file containing GLEAN_SUBDOMAIN and GLEAN_API_TOKEN',
     );
     console.error('Run with --help for usage information');
     return false;
@@ -120,14 +117,14 @@ async function main() {
 
     Options for configure
       --client, -c   MCP client to configure for (${clientList || 'loading available clients...'})
-      --token, -t    Glean API token (if not provided, OAuth device flow will be used)
+      --token, -t    Glean API token (required)
       --domain, -d   Glean instance domain/subdomain
       --env, -e      Path to .env file containing GLEAN_SUBDOMAIN and optionally GLEAN_API_TOKEN
 
     Examples
       $ npx @gleanwork/mcp-server
       $ npx @gleanwork/mcp-server configure --client cursor --token glean_api_xyz --domain my-company
-      $ npx @gleanwork/mcp-server configure --client claude --domain my-company
+      $ npx @gleanwork/mcp-server configure --client claude --token glean_api_xyz --domain my-company
       $ npx @gleanwork/mcp-server configure --client windsurf --env ~/.glean.env
 
     Run 'npx @gleanwork/mcp-server help' for more details on supported clients
