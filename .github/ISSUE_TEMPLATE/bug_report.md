@@ -15,7 +15,7 @@ assignees: ''
 <!-- Please complete the following checklist before submitting your issue to ensure you've done basic troubleshooting -->
 
 - [ ] I have verified my environment variables are correctly set
-  - `GLEAN_SUBDOMAIN` is set to my Glean instance subdomain
+  - `GLEAN_INSTANCE` is set to my Glean instance (note: `GLEAN_SUBDOMAIN` is still supported for backwards compatibility)
   - `GLEAN_API_TOKEN` is a valid, non-expired API token
   - (Optional) `GLEAN_ACT_AS` is correctly set if using impersonation
 - [ ] I have tested the MCP server locally using `pnpm inspector` and confirmed the issue occurs there as well
@@ -61,7 +61,7 @@ assignees: ''
       "command": "npx",
       "args": ["-y", "@gleanwork/mcp-server"],
       "env": {
-        "GLEAN_SUBDOMAIN": "<redacted>",
+        "GLEAN_INSTANCE": "<redacted>",
         "GLEAN_API_TOKEN": "<redacted>"
       }
     }
