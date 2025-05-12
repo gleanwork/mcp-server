@@ -67,7 +67,7 @@ describe('CLI', () => {
           Options for configure
             --client, -c   MCP client to configure for (claude, cursor, windsurf)
             --token, -t    Glean API token (required)
-            --domain, -d   Glean instance name
+            --instance, -i   Glean instance name
             --env, -e      Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
 
           Examples
