@@ -86,12 +86,12 @@ export async function getAPIClientOptions(): Promise<SDKOptions> {
         { code: AuthErrorCode.InvalidConfig },
       );
     }
-    opts.bearerAuth = tokens?.accessToken;
+    opts.instance = tokens?.accessToken;
     opts.httpClient = buildHttpClientWithGlobalHeaders({
       'X-Glean-Auth-Type': 'OAUTH',
     });
   } else if (isGleanTokenConfig(config)) {
-    opts.bearerAuth = config.token;
+    opts.instance = config.token;
 
     const { actAs } = config;
     if (actAs) {
