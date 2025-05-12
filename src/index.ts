@@ -16,13 +16,13 @@ import { runServer } from './server.js';
 import { configure, listSupportedClients } from './configure.js';
 import { availableClients, ensureClientsLoaded } from './configure/index.js';
 import { VERSION } from './common/version.js';
-import { getClient } from './common/client.js';
 import { Logger, trace, LogLevel, error } from './log/logger.js';
 import {
   discoverOAuthConfig,
   forceAuthorize,
   forceRefreshTokens,
 } from './auth/auth.js';
+import { chat, formatResponse } from './tools/chat.js';
 
 /**
  * Validates client and credential parameters
@@ -251,12 +251,8 @@ async function main() {
 
     case 'auth-test': {
       try {
-        const client = await getClient();
-        const searchResponse = await client.search.query({
-          query: 'doc',
-          pageSize: 10,
-        });
-        trace('auth-test search', searchResponse);
+        const chatResponse = await chat({ message: "Who am I?" });
+        trace('auth-test search', formatResponse(chatResponse));
         console.log('Access token accepted.');
       } catch (err: any) {
         error('auth-test error', err);
