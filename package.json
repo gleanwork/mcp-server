@@ -74,10 +74,10 @@
     "vitest": "^3.0.9"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "volta": {
-    "node": "22.14.0",
+    "node": "20.19.1",
     "pnpm": "10.6.2"
   },
   "publishConfig": {
