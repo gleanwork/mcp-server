@@ -81,7 +81,7 @@ describe('getSDKOptions (integration, msw)', () => {
 
     // Act
     const opts = await getAPIClientOptions();
-    expect(opts.bearerAuth).toBe('test-token');
+    expect(opts.apiToken).toBe('test-token');
     expect(opts.serverURL).toBe('https://glean.example.com');
     expect(opts.httpClient).toBeUndefined(); // No actAs, so no custom httpClient
   });
@@ -129,7 +129,7 @@ describe('getSDKOptions (integration, msw)', () => {
 
     // Act
     const opts = await getAPIClientOptions();
-    expect(opts.bearerAuth).toBe('oauth-access-token');
+    expect(opts.apiToken).toBe('oauth-access-token');
     expect(opts.serverURL).toBe('https://glean.example.com');
     expect(opts.httpClient).toBeDefined();
 
@@ -161,7 +161,7 @@ describe('getSDKOptions (integration, msw)', () => {
     );
 
     const opts = await getAPIClientOptions();
-    expect(opts.bearerAuth).toBe('test-token');
+    expect(opts.apiToken).toBe('test-token');
     expect(opts.serverURL).toBe('https://glean.example.com');
     expect(opts.httpClient).toBeDefined();
 
