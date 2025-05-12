@@ -1,3 +1,13 @@
+
+## v0.5.0 (2025-05-12)
+
+#### :boom: Breaking Change
+* [#97](https://github.com/gleanwork/mcp-server/pull/97) chore: Bumping node, pinning to lowest version, updating ci matrix ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+#### Committers: 1
+- Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+
 ## v0.4.0 (2025-05-11)
 
 #### :rocket: Enhancement
