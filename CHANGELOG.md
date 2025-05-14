@@ -1,4 +1,25 @@
 
+
+## v0.6.0 (2025-05-14)
+
+#### :rocket: Enhancement
+* [#105](https://github.com/gleanwork/mcp-server/pull/105) Add `--instance` preflight validation for `npx @gleanwork/mcp-server configure` ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+* [#104](https://github.com/gleanwork/mcp-server/pull/104) Add `--instance` and `--token` options to `npx @gleanwork/mcp-server server` ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+* [#102](https://github.com/gleanwork/mcp-server/pull/102) Add explicit `npx @gleanwork/mcp-server server` command (as the default) ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+
+#### :bug: Bug Fix
+* [#103](https://github.com/gleanwork/mcp-server/pull/103) Fix short flag for `--instance` in `npx @gleanwork/mcp-server server` to be `-i` ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+
+#### :house: Internal
+* [#101](https://github.com/gleanwork/mcp-server/pull/101) build(tooling): migrate from volta to mise ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+* [#99](https://github.com/gleanwork/mcp-server/pull/99) feat(auth-test): readability ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+* [#98](https://github.com/gleanwork/mcp-server/pull/98) fix(test): Run auth tests isolated ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### Committers: 2
+- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+- Robert Jackson ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+
+
 ## v0.5.0 (2025-05-12)
 
 #### :boom: Breaking Change
