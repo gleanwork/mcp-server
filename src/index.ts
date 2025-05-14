@@ -109,9 +109,11 @@ async function main() {
       Typically this package is configured in an MCP client configuration file.
       However, you can also run it directly with the following commands, which help you set up the server configuration in an MCP client:
 
+      $ npx @gleanwork/mcp-server [server]                           # Run the MCP server (default)
       $ npx @gleanwork/mcp-server configure --client <client-name> [options]
 
     Commands
+      server      Run the MCP server (default if no command is specified)
       configure   Configure MCP settings for a specific client/host
       help        Show this help message
 
@@ -174,18 +176,17 @@ async function main() {
   trace(process.title, `ppid/pid: [${process.ppid} / ${process.pid}]`);
   trace(process.execPath, process.execArgv, process.argv);
 
-  // If no input is provided, run the MCP server
-  if (cli.input.length === 0) {
-    runServer().catch((error) => {
-      console.error('Error starting MCP server:', error);
-      process.exit(1);
-    });
-    return;
-  }
-
-  const command = cli.input[0].toLowerCase();
+  // Get the command, defaulting to 'server' if none provided
+  const command = cli.input.length === 0 ? 'server' : cli.input[0].toLowerCase();
 
   switch (command) {
+    case 'server': {
+      runServer().catch((error) => {
+        console.error('Error starting MCP server:', error);
+        process.exit(1);
+      });
+      return;
+    }
     case 'configure': {
       const { client, token, instance, url, env } = cli.flags;
 

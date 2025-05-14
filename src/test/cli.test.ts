@@ -58,9 +58,11 @@ describe('CLI', () => {
             Typically this package is configured in an MCP client configuration file.
             However, you can also run it directly with the following commands, which help you set up the server configuration in an MCP client:
 
+            $ npx @gleanwork/mcp-server [server]                           # Run the MCP server (default)
             $ npx @gleanwork/mcp-server configure --client <client-name> [options]
 
           Commands
+            server      Run the MCP server (default if no command is specified)
             configure   Configure MCP settings for a specific client/host
             help        Show this help message
 
