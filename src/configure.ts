@@ -123,8 +123,19 @@ export async function configure(client: string, options: ConfigureOptions) {
     trace(`Validating instance: ${options.instance}...`);
     if (!(await validateInstance(options.instance))) {
       error(`Error validating instance: ${options.instance}`);
-      console.error(`Could not validate instance: ${options.instance}`);
-      console.error('Please check the `--instance` and try again.');
+      console.error();
+      console.error(
+        `Unable to establish a connection to Glean instance: ${options.instance}`,
+      );
+      console.error();
+      console.error('Troubleshooting tips:');
+      console.error(
+        '1. Check that the instance name is spelled correctly  (e.g. "acme" for acme-be.glean.com)',
+      );
+      console.error(
+        '  • Visit https://app.glean.com/admin/about-glean and look for "Server instance"',
+      );
+      console.error('2. Verify your internet connection and try again');
       process.exit(1);
     }
   }
