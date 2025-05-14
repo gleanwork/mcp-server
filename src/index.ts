@@ -146,7 +146,7 @@ async function main() {
         },
         instance: {
           type: 'string',
-          shortFlag: 'd',
+          shortFlag: 'i',
         },
         // Omit url from help output.  This flag is only useful for dev, when
         // you're running a local server and need to specify a port.
