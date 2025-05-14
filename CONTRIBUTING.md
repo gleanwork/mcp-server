@@ -11,6 +11,15 @@ git clone https://github.com/gleanwork/mcp-server.git
 cd mcp-server
 ```
 
+1. Ensure `node` and `pnpm` are installed. This project has a built-in
+   [mise](http://mise.jdx.dev/) config file that you can use if you'd like
+(though it is not required):
+
+```
+mise trust
+mise install
+```
+
 1. Install dependencies:
 
 ```bash
