@@ -109,13 +109,17 @@ async function main() {
       Typically this package is configured in an MCP client configuration file.
       However, you can also run it directly with the following commands, which help you set up the server configuration in an MCP client:
 
-      $ npx @gleanwork/mcp-server [server]                           # Run the MCP server (default)
+      $ npx @gleanwork/mcp-server [server] [options]                 # Run the MCP server (default)
       $ npx @gleanwork/mcp-server configure --client <client-name> [options]
 
     Commands
       server      Run the MCP server (default if no command is specified)
       configure   Configure MCP settings for a specific client/host
       help        Show this help message
+
+    Options for server
+      --instance, -i   Glean instance name
+      --token, -t      Glean API token
 
     Options for configure
       --client, -c   MCP client to configure for (${clientList || 'loading available clients...'})
@@ -125,6 +129,7 @@ async function main() {
 
     Examples
       $ npx @gleanwork/mcp-server
+      $ npx @gleanwork/mcp-server server --instance my-company --token glean_api_xyz
       $ npx @gleanwork/mcp-server configure --client cursor --token glean_api_xyz --instance my-company
       $ npx @gleanwork/mcp-server configure --client claude --token glean_api_xyz --instance my-company
       $ npx @gleanwork/mcp-server configure --client windsurf --env ~/.glean.env
@@ -177,11 +182,13 @@ async function main() {
   trace(process.execPath, process.execArgv, process.argv);
 
   // Get the command, defaulting to 'server' if none provided
-  const command = cli.input.length === 0 ? 'server' : cli.input[0].toLowerCase();
+  const command =
+    cli.input.length === 0 ? 'server' : cli.input[0].toLowerCase();
 
   switch (command) {
     case 'server': {
-      runServer().catch((error) => {
+      const { instance, token } = cli.flags;
+      runServer({ instance, token }).catch((error) => {
         console.error('Error starting MCP server:', error);
         process.exit(1);
       });
@@ -252,7 +259,7 @@ async function main() {
 
     case 'auth-test': {
       try {
-        const chatResponse = await chat({ message: "Who am I?" });
+        const chatResponse = await chat({ message: 'Who am I?' });
         trace('auth-test search', formatResponse(chatResponse));
         console.log('Access token accepted.');
       } catch (err: any) {

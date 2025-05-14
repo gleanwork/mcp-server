@@ -242,9 +242,24 @@ export function formatGleanError(error: GleanError): string {
  * This is the main entry point for the server process.
  *
  * @async
+ * @param {Object} options - Options for server initialization
+ * @param {string} [options.instance] - The Glean instance name from the command line
+ * @param {string} [options.token] - The Glean API token from the command line
  * @throws {Error} If server initialization or connection fails
  */
-export async function runServer() {
+export async function runServer(options?: {
+  instance?: string;
+  token?: string;
+}) {
+  // Set environment variables from command line args if provided
+  if (options?.instance) {
+    process.env.GLEAN_INSTANCE = options.instance;
+  }
+
+  if (options?.token) {
+    process.env.GLEAN_API_TOKEN = options.token;
+  }
+
   const transport = new StdioServerTransport();
 
   try {

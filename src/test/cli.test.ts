@@ -58,13 +58,17 @@ describe('CLI', () => {
             Typically this package is configured in an MCP client configuration file.
             However, you can also run it directly with the following commands, which help you set up the server configuration in an MCP client:
 
-            $ npx @gleanwork/mcp-server [server]                           # Run the MCP server (default)
+            $ npx @gleanwork/mcp-server [server] [options]                 # Run the MCP server (default)
             $ npx @gleanwork/mcp-server configure --client <client-name> [options]
 
           Commands
             server      Run the MCP server (default if no command is specified)
             configure   Configure MCP settings for a specific client/host
             help        Show this help message
+
+          Options for server
+            --instance, -i   Glean instance name
+            --token, -t      Glean API token
 
           Options for configure
             --client, -c   MCP client to configure for (claude, cursor, windsurf)
@@ -74,6 +78,7 @@ describe('CLI', () => {
 
           Examples
             $ npx @gleanwork/mcp-server
+            $ npx @gleanwork/mcp-server server --instance my-company --token glean_api_xyz
             $ npx @gleanwork/mcp-server configure --client cursor --token glean_api_xyz --instance my-company
             $ npx @gleanwork/mcp-server configure --client claude --token glean_api_xyz --instance my-company
             $ npx @gleanwork/mcp-server configure --client windsurf --env ~/.glean.env
