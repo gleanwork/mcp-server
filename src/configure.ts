@@ -14,7 +14,8 @@ import dotenv from 'dotenv';
 import { availableClients, ensureClientsLoaded } from './configure/index.js';
 import { VERSION } from './common/version.js';
 import { ensureAuthTokenPresence } from './auth/auth.js';
-import { trace } from './log/logger.js';
+import { trace, error } from './log/logger.js';
+import { validateInstance } from './util/preflight.js';
 
 /**
  * Configure options interface
@@ -117,6 +118,16 @@ export async function configure(client: string, options: ConfigureOptions) {
 
   const homedir = os.homedir();
   const configFilePath = clientConfig.configFilePath(homedir);
+
+  if (options.instance && process.env._SKIP_INSTANCE_PREFLIGHT !== 'true') {
+    trace(`Validating instance: ${options.instance}...`);
+    if (!(await validateInstance(options.instance))) {
+      error(`Error validating instance: ${options.instance}`);
+      console.error(`Could not validate instance: ${options.instance}`);
+      console.error('Please check the `--instance` and try again.');
+      process.exit(1);
+    }
+  }
 
   try {
     // If token is provided, use token auth

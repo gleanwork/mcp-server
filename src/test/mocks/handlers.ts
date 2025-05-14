@@ -1,6 +1,32 @@
 import { http, HttpResponse } from 'msw';
 
 export const handlers = [
+  http.get(
+    'https://:instance-be.glean.com/liveness_check',
+    async ({ params }) => {
+      const { instance } = params;
+
+      if (instance === 'invalid-instance') {
+        return new HttpResponse(null, {
+          status: 404,
+          statusText: 'Not Found',
+        });
+      }
+
+      if (instance === 'network-error') {
+        const error = new Error('Network error');
+        error.name = 'FetchError';
+        throw error;
+      }
+
+      return new HttpResponse(JSON.stringify({ status: 'ok' }), {
+        status: 200,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    },
+  ),
   http.post(
     'https://:instance-be.glean.com/rest/api/v1/search',
     async ({ request }) => {
