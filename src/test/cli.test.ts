@@ -37,11 +37,13 @@ describe('CLI', () => {
   });
 
   beforeEach(async () => {
+    process.env._SKIP_INSTANCE_PREFLIGHT = 'true';
     project = await setupProject();
   });
 
   afterEach(() => {
     teardownProject();
+    delete process.env._SKIP_INSTANCE_PREFLIGHT;
   });
 
   it('shows help when no arguments provided', async () => {
