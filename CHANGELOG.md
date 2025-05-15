@@ -1,5 +1,15 @@
 
 
+
+## v0.6.1 (2025-05-15)
+
+#### :rocket: Enhancement
+* [#107](https://github.com/gleanwork/mcp-server/pull/107) fix: Making preflight validation message more clear ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+#### Committers: 1
+- Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+
 ## v0.6.0 (2025-05-14)
 
 #### :rocket: Enhancement
