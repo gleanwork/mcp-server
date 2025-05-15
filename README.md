@@ -5,6 +5,10 @@
 [![npm version](https://badge.fury.io/js/@gleanwork%2Fmcp-server.svg)](https://badge.fury.io/js/@gleanwork%2Fmcp-server)
 [![License](https://img.shields.io/npm/l/@gleanwork%2Fmcp-server.svg)](https://github.com/gleanwork/mcp-server/blob/main/LICENSE)
 
+<a href="https://glama.ai/mcp/servers/@gleanwork/mcp-server">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@gleanwork/mcp-server/badge" alt="Glean Server MCP server" />
+</a>
+
 The Glean MCP Server is a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) server that provides seamless integration with Glean's enterprise knowledge.
 
 ## Features
