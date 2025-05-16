@@ -64,7 +64,7 @@ function buildHttpClientWithGlobalHeaders(
 }
 
 export async function getAPIClientOptions(): Promise<SDKOptions> {
-  const config = getConfig();
+  const config = await getConfig({ discoverOAuth: true });
   const opts: SDKOptions = {};
 
   opts.serverURL = config.baseUrl;

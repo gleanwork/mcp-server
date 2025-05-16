@@ -1,3 +1,4 @@
+import { attemptUpgradeConfigToOAuth } from '../auth/auth.js';
 import { loadOAuthMetadata } from '../auth/oauth-cache.js';
 import { stripUndefined } from '../util/object.js';
 
@@ -94,12 +95,45 @@ export function isBasicConfig(
 }
 
 /**
+ * Type that represents the return value of getConfig based on the discoverOAuth option.
+ * When discoverOAuth is true, the return type cannot be GleanBasicConfig.
+ */
+type GetConfigReturn<T extends GetConfigOptions> =
+  T['discoverOAuth'] extends true
+    ? GleanTokenConfig | GleanOAuthConfig
+    : GleanConfig;
+
+interface GetConfigOptions {
+  discoverOAuth?: boolean;
+}
+
+/**
  * Validates required environment variables and returns client configuration.
  *
- * @returns {GleanConfig} Configuration object for GleanClient
+ * @param opts - Configuration options
+ * @param opts.discoverOAuth - If true, attempts to discover OAuth
+ * configuration via network calls to load oauth protected resource metadata.
+ * Guarantees the return type is not a GleanBasicConfig
+ * @returns A promise that resolves to:
+ *   - GleanTokenConfig | GleanOAuthConfig if discoverOAuth is true
+ *   - GleanConfig (which may include GleanBasicConfig) if discoverOAuth is false
  * @throws {Error} If required environment variables are missing
  */
-export function getConfig(): GleanConfig {
+export async function getConfig<T extends GetConfigOptions = GetConfigOptions>(
+  opts?: T,
+): Promise<GetConfigReturn<T>> {
+  const config = getLocalConfig();
+
+  if (opts?.discoverOAuth === true && !isOAuthConfig(config)) {
+    return attemptUpgradeConfigToOAuth(config);
+  } else {
+    // It's probably possible to avoid this cast with some type guards, but
+    // it's annoying.
+    return config as GetConfigReturn<T>;
+  }
+}
+
+function getLocalConfig(): GleanConfig {
   const instance = process.env.GLEAN_INSTANCE || process.env.GLEAN_SUBDOMAIN;
   const baseUrl = process.env.GLEAN_BASE_URL;
   const token = process.env.GLEAN_API_TOKEN;
@@ -146,11 +180,17 @@ export function getConfig(): GleanConfig {
     // We have a saved OAuth config that's recent. No need to discover
     // anything, but let the user override individual things, mostly for
     // testing/debugging.
-    return {
+    const result: GleanOAuthConfig = {
       ...oauthConfig,
       ...config,
       authType: 'oauth',
     };
+
+    if ('clientSecret' in result && result.clientSecret === undefined) {
+      delete result['clientSecret'];
+    }
+
+    return result;
   }
 
   // No saved OAuth config, just returrn a basic config and try to discover

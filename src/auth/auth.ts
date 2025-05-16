@@ -51,7 +51,7 @@ import { parse as parseDomain } from 'tldts';
 export async function ensureAuthTokenPresence() {
   trace('validateAccessTokenOrAuth');
 
-  const config = getConfig();
+  const config = await getConfig();
   if (isGleanTokenConfig(config)) {
     return true;
   }
@@ -81,8 +81,11 @@ export async function ensureAuthTokenPresence() {
  * tokens were obtained (e.g. if the user did not authenticate or did not enter
  * the user code).
  */
-export async function forceAuthorize() {
-  const config = await getConfigAndUpgradeToOAuth();
+export async function forceAuthorize(config?: GleanConfig) {
+  if (config === undefined || isBasicConfig(config)) {
+    config = await getConfig({ discoverOAuth: true });
+  }
+
   if (isGleanTokenConfig(config)) {
     throw new AuthError(
       `Cannot get OAuth access token when using glean-token configuration.  Specify GLEAN_OAUTH_ISSUER and GLEAN_OAUTH_CLIENT_ID and not GLEAN_API_TOKEN to use OAuth.`,
@@ -95,6 +98,23 @@ export async function forceAuthorize() {
   }
 
   return tokens;
+}
+
+export async function attemptUpgradeConfigToOAuth(
+  config: GleanConfig,
+): Promise<GleanTokenConfig | GleanOAuthConfig> {
+  if (isGleanTokenConfig(config)) {
+    return config;
+  }
+
+  const oauthConfig = await discoverOAuthConfig(config);
+
+  if ('clientSecret' in oauthConfig && oauthConfig.clientSecret === undefined) {
+    delete oauthConfig['clientSecret'];
+  }
+  saveOAuthMetadata(oauthConfig);
+
+  return oauthConfig;
 }
 
 /**
@@ -112,10 +132,15 @@ export async function forceAuthorize() {
  * authorization flow.
  *
  */
-export async function discoverOAuthConfig(): Promise<GleanOAuthConfig> {
+export async function discoverOAuthConfig(
+  config?: GleanConfig,
+): Promise<GleanOAuthConfig> {
   debug('discovering OAuth config');
 
-  const config = getConfig();
+  if (config === undefined) {
+    config = await getConfig();
+  }
+
   if (isGleanTokenConfig(config)) {
     throw new AuthError(
       '[internal error] attempting OAuth flow with a Glean-issued non-OAuth token',
@@ -323,7 +348,7 @@ export async function fetchProtectedResourceMetadata(
 export async function forceRefreshTokens() {
   trace('forceRefreshTokens');
 
-  const config = await getConfigAndUpgradeToOAuth();
+  const config = await getConfig({ discoverOAuth: true });
 
   if (isGleanTokenConfig(config)) {
     throw new AuthError(
@@ -534,18 +559,6 @@ async function pollForToken(
 
     poll().catch(reject);
   });
-}
-
-async function getConfigAndUpgradeToOAuth(): Promise<
-  GleanTokenConfig | GleanOAuthConfig
-> {
-  let config = getConfig();
-  if (isBasicConfig(config)) {
-    config = await discoverOAuthConfig();
-    saveOAuthMetadata(config);
-  }
-
-  return config;
 }
 
 /**

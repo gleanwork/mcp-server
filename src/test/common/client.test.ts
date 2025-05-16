@@ -173,13 +173,13 @@ describe('getSDKOptions (integration, msw)', () => {
     expect(receivedHeaders['x-glean-auth-type']).toBeUndefined();
   });
 
-  it('should throw AuthError for invalid config (neither token nor OAuth)', async () => {
+  it('should throw AuthError for basic config where we cannot fetch OAuth metadata', async () => {
     process.env.GLEAN_INSTANCE = 'awesome-co';
     // No env vars, no config files
     await expect(
       async () => await getAPIClientOptions(),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[AuthError: ERR_A_19: Missing or invalid Glean configuration. Please check that your environment variables are set correctly (e.g. GLEAN_INSTANCE or GLEAN_SUBDOMAIN).]`,
+      `[AuthError: ERR_A_06: Unable to fetch OAuth protected resource metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly.]`,
     );
   });
 
