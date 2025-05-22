@@ -34,6 +34,24 @@ export interface MCPClientConfig {
 
   /** Instructions displayed after successful configuration */
   successMessage: (configPath: string) => string;
+
+  /**
+   * Check if configuration exists in the existing config object
+   * @param existingConfig Existing configuration object from the config file
+   * @returns boolean indicating if configuration exists
+   */
+  hasExistingConfig: (existingConfig: Record<string, any>) => boolean;
+
+  /**
+   * Update existing configuration with new config
+   * @param existingConfig Existing configuration object to update
+   * @param newConfig New configuration to merge with existing
+   * @returns Updated configuration object
+   */
+  updateConfig: (
+    existingConfig: Record<string, any>,
+    newConfig: any,
+  ) => Record<string, any>;
 }
 
 /**
@@ -123,6 +141,21 @@ export function createBaseClient(
 
     successMessage: (configPath) =>
       createSuccessMessage(displayName, configPath, instructions),
+
+    hasExistingConfig: (existingConfig: Record<string, any>) => {
+      return (
+        existingConfig.mcpServers?.glean?.command === 'npx' &&
+        existingConfig.mcpServers?.glean?.args?.includes(
+          '@gleanwork/mcp-server',
+        )
+      );
+    },
+
+    updateConfig: (existingConfig: Record<string, any>, newConfig: any) => {
+      existingConfig.mcpServers = existingConfig.mcpServers || {};
+      existingConfig.mcpServers.glean = newConfig.mcpServers.glean;
+      return existingConfig;
+    },
   };
 }
 

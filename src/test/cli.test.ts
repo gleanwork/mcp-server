@@ -12,6 +12,8 @@ import { windsurfConfigPath } from '../configure/client/windsurf.js';
 function normalizeOutput(output: string, baseDir: string): string {
   let normalized = normalizeBaseDirOutput(output, baseDir);
   normalized = normalizeVersionOutput(normalized);
+  normalized = normalizeVSCodeConfigPath(normalized);
+
   return normalized;
 }
 
@@ -21,6 +23,13 @@ function normalizeBaseDirOutput(output: string, baseDir: string): string {
 
 function normalizeVersionOutput(output: string): string {
   return output.replace(/Version: v\d+\.\d+\.\d+/g, 'Version: v9.9.9');
+}
+
+function normalizeVSCodeConfigPath(output: string): string {
+  return output.replace(
+    /[^\s"]*(\.config|Code|Application Support)([/\\][^/\\]+)*[/\\]settings\.json/g,
+    '<VS_CODE_CONFIG_DIR>/settings.json',
+  );
 }
 
 function createConfigFile(configFilePath: string, config: Record<string, any>) {
@@ -73,7 +82,7 @@ describe('CLI', () => {
             --token, -t      Glean API token
 
           Options for configure
-            --client, -c   MCP client to configure for (claude, cursor, windsurf)
+            --client, -c   MCP client to configure for (claude, cursor, vscode, windsurf)
             --token, -t    Glean API token (required)
             --instance, -i   Glean instance name
             --env, -e      Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
@@ -116,7 +125,7 @@ describe('CLI', () => {
     expect(result.exitCode).toEqual(1);
     expect(result.stderr).toMatchInlineSnapshot(`
       "Unsupported MCP client: invalid-client
-      Supported clients: claude, cursor, windsurf"
+      Supported clients: claude, cursor, vscode, windsurf"
     `);
     expect(result.stdout).toMatchInlineSnapshot(`""`);
   });
@@ -677,6 +686,202 @@ describe('CLI', () => {
           Glean MCP configuration already exists in Windsurf.
           Configuration file: <TMP_DIR>/.codeium/windsurf/mcp_config.json"
         `);
+
+      const configAfter = fs.readFileSync(configFilePath, 'utf8');
+      expect(configAfter).toBe(configBefore);
+    });
+  });
+
+  describe('VS Code client', () => {
+    let configFilePath: string;
+
+    beforeEach(() => {
+      const platform = process.platform;
+
+      if (platform === 'win32') {
+        configFilePath = path.join(
+          project.baseDir,
+          'Code',
+          'User',
+          'settings.json',
+        );
+      } else if (platform === 'darwin') {
+        configFilePath = path.join(
+          project.baseDir,
+          'Library',
+          'Application Support',
+          'Code',
+          'User',
+          'settings.json',
+        );
+      } else {
+        configFilePath = path.join(
+          project.baseDir,
+          '.config',
+          'Code',
+          'User',
+          'settings.json',
+        );
+      }
+
+      fs.mkdirSync(path.dirname(configFilePath), { recursive: true });
+    });
+
+    it('creates a new config file when none exists', async () => {
+      const result = await runBin(
+        'configure',
+        '--client',
+        'vscode',
+        '--token',
+        'glean_api_test',
+        '--instance',
+        'test-domain',
+        {
+          env: {
+            GLEAN_MCP_CONFIG_DIR: project.baseDir,
+            HOME: project.baseDir,
+            USERPROFILE: project.baseDir,
+            APPDATA: project.baseDir,
+          },
+        },
+      );
+
+      expect(result.exitCode).toEqual(0);
+      const normalized = normalizeOutput(result.stdout, project.baseDir);
+
+      expect(normalized).toMatchInlineSnapshot(`
+        "Configuring Glean MCP for VS Code...
+        Created new configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
+        "
+      `);
+
+      const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+
+      expect(fs.existsSync(configFilePath)).toBe(true);
+      // Normalize JSON to avoid platform-specific escaping issues
+      const parsedContents = JSON.parse(configFileContents);
+      expect(parsedContents).toMatchObject({
+        mcp: {
+          servers: {
+            glean: {
+              type: 'stdio',
+              command: 'npx',
+              args: ['-y', '@gleanwork/mcp-server'],
+              env: {
+                GLEAN_INSTANCE: 'test-domain',
+                GLEAN_API_TOKEN: 'glean_api_test',
+              },
+            },
+          },
+        },
+      });
+    });
+
+    it("adds config to existing file that doesn't have Glean config", async () => {
+      const existingConfig = {
+        'editor.fontSize': 14,
+        'workbench.colorTheme': 'Default Dark+',
+      };
+
+      createConfigFile(configFilePath, existingConfig);
+
+      const result = await runBin(
+        'configure',
+        '--client',
+        'vscode',
+        '--token',
+        'glean_api_test',
+        '--instance',
+        'test-domain',
+        {
+          env: {
+            GLEAN_MCP_CONFIG_DIR: project.baseDir,
+            HOME: project.baseDir,
+            USERPROFILE: project.baseDir,
+            APPDATA: project.baseDir,
+          },
+        },
+      );
+
+      expect(result.exitCode).toEqual(0);
+      const normalized = normalizeOutput(result.stdout, project.baseDir);
+
+      expect(normalized).toMatchInlineSnapshot(`
+        "Configuring Glean MCP for VS Code...
+        Updated configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
+        "
+      `);
+
+      const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+      const parsedConfig = JSON.parse(configFileContents);
+
+      expect(parsedConfig).toMatchObject({
+        'editor.fontSize': 14,
+        'workbench.colorTheme': 'Default Dark+',
+        mcp: {
+          servers: {
+            glean: {
+              type: 'stdio',
+              command: 'npx',
+              args: ['-y', '@gleanwork/mcp-server'],
+              env: {
+                GLEAN_INSTANCE: 'test-domain',
+                GLEAN_API_TOKEN: 'glean_api_test',
+              },
+            },
+          },
+        },
+      });
+    });
+
+    it("doesn't modify existing file that already has Glean config", async () => {
+      const existingConfig = {
+        'editor.fontSize': 14,
+        mcp: {
+          servers: {
+            glean: {
+              type: 'stdio',
+              command: 'npx',
+              args: ['-y', '@gleanwork/mcp-server'],
+              env: {
+                GLEAN_INSTANCE: 'existing-domain',
+                GLEAN_API_TOKEN: 'glean_api_existing',
+              },
+            },
+          },
+        },
+      };
+
+      createConfigFile(configFilePath, existingConfig);
+
+      const configBefore = fs.readFileSync(configFilePath, 'utf8');
+
+      const result = await runBin(
+        'configure',
+        '--client',
+        'vscode',
+        '--token',
+        'glean_api_test',
+        '--instance',
+        'test-domain',
+        {
+          env: {
+            GLEAN_MCP_CONFIG_DIR: project.baseDir,
+            HOME: project.baseDir,
+            USERPROFILE: project.baseDir,
+            APPDATA: project.baseDir,
+          },
+        },
+      );
+
+      expect(result.exitCode).toEqual(0);
+      const normalized = normalizeOutput(result.stdout, project.baseDir);
+
+      expect(normalized).toMatchInlineSnapshot(`
+        "Configuring Glean MCP for VS Code...
+        Glean MCP configuration already exists in VS Code.
+        Configuration file: <VS_CODE_CONFIG_DIR>/settings.json"
+      `);
 
       const configAfter = fs.readFileSync(configFilePath, 'utf8');
       expect(configAfter).toBe(configBefore);

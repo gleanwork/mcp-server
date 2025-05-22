@@ -11,7 +11,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import dotenv from 'dotenv';
-import { availableClients, ensureClientsLoaded } from './configure/index.js';
+import { availableClients, ensureClientsLoaded, MCPClientConfig } from './configure/index.js';
 import { VERSION } from './common/version.js';
 import { ensureAuthTokenPresence } from './auth/auth.js';
 import { trace, error } from './log/logger.js';
@@ -195,7 +195,7 @@ export async function configure(client: string, options: ConfigureOptions) {
 function writeConfigFile(
   configFilePath: string,
   newConfig: any,
-  clientConfig: any,
+  clientConfig: MCPClientConfig,
 ) {
   if (fs.existsSync(configFilePath)) {
     const fileContent = fs.readFileSync(configFilePath, 'utf-8');
@@ -222,13 +222,11 @@ function writeConfigFile(
       return;
     }
 
-    if (
-      existingConfig.mcpServers &&
-      existingConfig.mcpServers.glean &&
-      existingConfig.mcpServers.glean.command === 'npx' &&
-      existingConfig.mcpServers.glean.args &&
-      existingConfig.mcpServers.glean.args.includes('@gleanwork/mcp-server')
-    ) {
+    const hasConfig = clientConfig.hasExistingConfig 
+      ? clientConfig.hasExistingConfig(existingConfig)
+      : false;
+      
+    if (hasConfig) {
       console.log(
         `Glean MCP configuration already exists in ${clientConfig.displayName}.`,
       );
@@ -236,8 +234,7 @@ function writeConfigFile(
       return;
     }
 
-    existingConfig.mcpServers = existingConfig.mcpServers || {};
-    existingConfig.mcpServers.glean = newConfig.mcpServers.glean;
+    existingConfig = clientConfig.updateConfig(existingConfig, newConfig);
 
     fs.writeFileSync(configFilePath, JSON.stringify(existingConfig, null, 2));
     console.log(`Updated configuration file at: ${configFilePath}`);
