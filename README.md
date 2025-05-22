@@ -62,6 +62,9 @@ npx @gleanwork/mcp-server configure --client cursor --token your_api_token --ins
 # Configure for Claude Desktop
 npx @gleanwork/mcp-server configure --client claude --token your_api_token --instance instance_name
 
+# Configure for VS Code
+npx @gleanwork/mcp-server configure --client vscode --token your_api_token --instance instance_name
+
 # Configure for Windsurf
 npx @gleanwork/mcp-server configure --client windsurf --token your_api_token --instance instance_name
 ```
