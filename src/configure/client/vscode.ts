@@ -98,17 +98,6 @@ const vscodeClient = createBaseClient('VS Code', vscodeConfigPath, [
 // Override configFilePath to handle workspace vs global
 vscodeClient.configFilePath = (homedir: string, options?: ConfigureOptions) => {
   if (options?.workspace) {
-    // Validate we're in a valid workspace directory
-    if (
-      !fs.existsSync('.vscode') &&
-      !fs.existsSync('package.json') &&
-      !fs.existsSync('.git')
-    ) {
-      throw new Error(
-        'Workspace configuration requires a workspace directory. ' +
-          'Please run this command from a project root (containing .vscode, package.json, or .git)',
-      );
-    }
     return path.join(process.cwd(), '.vscode', 'mcp.json');
   }
   return getVSCodeUserSettingsPath(homedir);

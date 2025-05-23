@@ -3,7 +3,6 @@ import vscodeClient from '../../configure/client/vscode.js';
 import type { ConfigureOptions, MCPConfig } from '../../configure.js';
 import os from 'os';
 import path from 'path';
-import fs from 'fs';
 
 describe('VS Code MCP Client', () => {
   const homedir = os.homedir();
@@ -47,14 +46,8 @@ describe('VS Code MCP Client', () => {
 
   it('should generate workspace config path when workspace option is provided', () => {
     const originalCwd = process.cwd();
-    const originalExistsSync = fs.existsSync;
 
     try {
-      (fs as any).existsSync = (path: string) => {
-        if (path === '.vscode') return true;
-        return originalExistsSync(path);
-      };
-
       process.cwd = () => '/test/workspace';
 
       const options: ConfigureOptions = { workspace: true };
@@ -62,22 +55,20 @@ describe('VS Code MCP Client', () => {
       expect(configPath).toBe('/test/workspace/.vscode/mcp.json');
     } finally {
       process.cwd = () => originalCwd;
-      (fs as any).existsSync = originalExistsSync;
     }
   });
 
-  it('should throw error for workspace config outside workspace directory', () => {
-    const originalExistsSync = fs.existsSync;
+  it('should generate workspace config path in any directory', () => {
+    const originalCwd = process.cwd();
 
     try {
-      (fs as any).existsSync = () => false;
+      process.cwd = () => '/any/directory';
 
       const options: ConfigureOptions = { workspace: true };
-      expect(() => {
-        vscodeClient.configFilePath(homedir, options);
-      }).toThrow('Workspace configuration requires a workspace directory');
+      const configPath = vscodeClient.configFilePath(homedir, options);
+      expect(configPath).toBe('/any/directory/.vscode/mcp.json');
     } finally {
-      (fs as any).existsSync = originalExistsSync;
+      process.cwd = () => originalCwd;
     }
   });
 
