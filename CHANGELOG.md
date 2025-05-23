@@ -1,6 +1,19 @@
 
 
 
+
+## v0.7.0 (2025-05-23)
+
+#### :rocket: Enhancement
+* [#126](https://github.com/gleanwork/mcp-server/pull/126) feat: Implements local configuration for vscode (to complement the global one) ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+* [#125](https://github.com/gleanwork/mcp-server/pull/125) feat(configure): add VS Code MCP client support ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+
+#### Committers: 3
+- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+- Robert Jackson ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+- Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+
 ## v0.6.1 (2025-05-15)
 
 #### :rocket: Enhancement
