@@ -11,20 +11,29 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import dotenv from 'dotenv';
-import { availableClients, ensureClientsLoaded, MCPClientConfig } from './configure/index.js';
+import {
+  availableClients,
+  ensureClientsLoaded,
+  MCPClientConfig,
+  MCPConfig,
+  ConfigFileContents,
+} from './configure/index.js';
 import { VERSION } from './common/version.js';
 import { ensureAuthTokenPresence } from './auth/auth.js';
 import { trace, error } from './log/logger.js';
 import { validateInstance } from './util/preflight.js';
 
+export type { MCPConfig, ConfigFileContents } from './configure/index.js';
+
 /**
  * Configure options interface
  */
-interface ConfigureOptions {
+export interface ConfigureOptions {
   token?: string;
   instance?: string;
   url?: string;
   envPath?: string;
+  workspace?: boolean;
 }
 
 /**
@@ -96,8 +105,8 @@ function loadCredentials(options: ConfigureOptions): {
 /**
  * Handles the configuration process for the specified MCP client
  *
- * @param client - The MCP client to configure for (cursor, claude, windsurf)
- * @param options - Configuration options including token, instance, url, and envPath
+ * @param client - The MCP client to configure for (cursor, claude, windsurf, vscode)
+ * @param options - Configuration options including token, instance, url, envPath, and workspace
  */
 export async function configure(client: string, options: ConfigureOptions) {
   trace('configuring ', client);
@@ -113,11 +122,26 @@ export async function configure(client: string, options: ConfigureOptions) {
     process.exit(1);
   }
 
+  // Validate --workspace flag is only used with VS Code
+  if (options.workspace && normalizedClient !== 'vscode') {
+    console.error(
+      'Configuration failed: --workspace flag is only supported for VS Code',
+    );
+    process.exit(1);
+  }
+
   const clientConfig = availableClients[normalizedClient];
   console.log(`Configuring Glean MCP for ${clientConfig.displayName}...`);
 
   const homedir = os.homedir();
-  const configFilePath = clientConfig.configFilePath(homedir);
+
+  let configFilePath: string;
+  try {
+    configFilePath = clientConfig.configFilePath(homedir, options);
+  } catch (error: any) {
+    console.error(`Configuration failed: ${error.message}`);
+    process.exit(1);
+  }
 
   if (options.instance && process.env._SKIP_INSTANCE_PREFLIGHT !== 'true') {
     trace(`Validating instance: ${options.instance}...`);
@@ -145,8 +169,12 @@ export async function configure(client: string, options: ConfigureOptions) {
     if (options.token) {
       trace('configuring Glean token auth');
       const { instanceOrUrl, apiToken } = loadCredentials(options);
-      const newConfig = clientConfig.configTemplate(instanceOrUrl, apiToken);
-      writeConfigFile(configFilePath, newConfig, clientConfig);
+      const newConfig = clientConfig.configTemplate(
+        instanceOrUrl,
+        apiToken,
+        options,
+      );
+      writeConfigFile(configFilePath, newConfig, clientConfig, options);
       return;
     }
 
@@ -181,8 +209,12 @@ export async function configure(client: string, options: ConfigureOptions) {
       throw new Error('OAuth authorization failed');
     }
 
-    const newConfig = clientConfig.configTemplate(instanceOrUrl);
-    writeConfigFile(configFilePath, newConfig, clientConfig);
+    const newConfig = clientConfig.configTemplate(
+      instanceOrUrl,
+      undefined,
+      options,
+    );
+    writeConfigFile(configFilePath, newConfig, clientConfig, options);
   } catch (error: any) {
     console.error(`Error configuring client: ${error.message}`);
     process.exit(1);
@@ -194,15 +226,16 @@ export async function configure(client: string, options: ConfigureOptions) {
  */
 function writeConfigFile(
   configFilePath: string,
-  newConfig: any,
+  newConfig: MCPConfig,
   clientConfig: MCPClientConfig,
+  options: ConfigureOptions,
 ) {
   if (fs.existsSync(configFilePath)) {
     const fileContent = fs.readFileSync(configFilePath, 'utf-8');
-    let existingConfig: Record<string, any>;
+    let existingConfig: ConfigFileContents;
 
     try {
-      existingConfig = JSON.parse(fileContent);
+      existingConfig = JSON.parse(fileContent) as ConfigFileContents;
     } catch (error: any) {
       const backupPath = `${configFilePath}.backup-${Date.now()}`;
 
@@ -218,14 +251,14 @@ function writeConfigFile(
 
       fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2));
       console.log(`New configuration file created at: ${configFilePath}`);
-      console.log(clientConfig.successMessage(configFilePath));
+      console.log(clientConfig.successMessage(configFilePath, options));
       return;
     }
 
-    const hasConfig = clientConfig.hasExistingConfig 
-      ? clientConfig.hasExistingConfig(existingConfig)
+    const hasConfig = clientConfig.hasExistingConfig
+      ? clientConfig.hasExistingConfig(existingConfig, options)
       : false;
-      
+
     if (hasConfig) {
       console.log(
         `Glean MCP configuration already exists in ${clientConfig.displayName}.`,
@@ -234,7 +267,11 @@ function writeConfigFile(
       return;
     }
 
-    existingConfig = clientConfig.updateConfig(existingConfig, newConfig);
+    existingConfig = clientConfig.updateConfig(
+      existingConfig,
+      newConfig,
+      options,
+    );
 
     fs.writeFileSync(configFilePath, JSON.stringify(existingConfig, null, 2));
     console.log(`Updated configuration file at: ${configFilePath}`);
@@ -248,7 +285,7 @@ function writeConfigFile(
     console.log(`Created new configuration file at: ${configFilePath}`);
   }
 
-  console.log(clientConfig.successMessage(configFilePath));
+  console.log(clientConfig.successMessage(configFilePath, options));
 }
 
 /**

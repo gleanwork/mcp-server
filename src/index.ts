@@ -126,6 +126,7 @@ async function main() {
       --token, -t    Glean API token (required)
       --instance, -i   Glean instance name
       --env, -e      Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
+      --workspace    Create workspace configuration instead of global (VS Code only)
 
     Examples
       $ npx @gleanwork/mcp-server
@@ -133,6 +134,7 @@ async function main() {
       $ npx @gleanwork/mcp-server configure --client cursor --token glean_api_xyz --instance my-company
       $ npx @gleanwork/mcp-server configure --client claude --token glean_api_xyz --instance my-company
       $ npx @gleanwork/mcp-server configure --client windsurf --env ~/.glean.env
+      $ npx @gleanwork/mcp-server configure --client vscode --token glean_api_xyz --instance my-company --workspace
 
     Run 'npx @gleanwork/mcp-server help' for more details on supported clients
     
@@ -170,6 +172,9 @@ async function main() {
         trace: {
           type: 'boolean',
         },
+        workspace: {
+          type: 'boolean',
+        },
       },
     },
   );
@@ -195,7 +200,7 @@ async function main() {
       return;
     }
     case 'configure': {
-      const { client, token, instance, url, env } = cli.flags;
+      const { client, token, instance, url, env, workspace } = cli.flags;
 
       if (!(await validateFlags(client, token, instance, url, env))) {
         process.exit(1);
@@ -207,6 +212,7 @@ async function main() {
           instance,
           url,
           envPath: env,
+          workspace,
         });
       } catch (error: any) {
         console.error(`Configuration failed: ${error.message}`);

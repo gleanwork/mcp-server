@@ -1,9 +1,11 @@
-import { describe, it, expect, afterEach, beforeEach } from 'vitest';
-import { BinTesterProject, createBinTester } from '@scalvert/bin-tester';
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
+import { createBinTester, BinTesterProject } from '@scalvert/bin-tester';
 import { fileURLToPath } from 'node:url';
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import type { ConfigFileContents } from '../configure/index.js';
+import './mocks/setup';
 
 import { cursorConfigPath } from '../configure/client/cursor.js';
 import { claudeConfigPath } from '../configure/client/claude.js';
@@ -32,9 +34,11 @@ function normalizeVSCodeConfigPath(output: string): string {
   );
 }
 
-function createConfigFile(configFilePath: string, config: Record<string, any>) {
-  const dirPath = path.dirname(configFilePath);
-  fs.mkdirSync(dirPath, { recursive: true });
+function createConfigFile(configFilePath: string, config: ConfigFileContents) {
+  const configDir = path.dirname(configFilePath);
+  if (!fs.existsSync(configDir)) {
+    fs.mkdirSync(configDir, { recursive: true });
+  }
   fs.writeFileSync(configFilePath, JSON.stringify(config, null, 2));
 }
 
@@ -86,6 +90,7 @@ describe('CLI', () => {
             --token, -t    Glean API token (required)
             --instance, -i   Glean instance name
             --env, -e      Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
+            --workspace    Create workspace configuration instead of global (VS Code only)
 
           Examples
             $ npx @gleanwork/mcp-server
@@ -93,6 +98,7 @@ describe('CLI', () => {
             $ npx @gleanwork/mcp-server configure --client cursor --token glean_api_xyz --instance my-company
             $ npx @gleanwork/mcp-server configure --client claude --token glean_api_xyz --instance my-company
             $ npx @gleanwork/mcp-server configure --client windsurf --env ~/.glean.env
+            $ npx @gleanwork/mcp-server configure --client vscode --token glean_api_xyz --instance my-company --workspace
 
           Run 'npx @gleanwork/mcp-server help' for more details on supported clients
 
@@ -128,6 +134,42 @@ describe('CLI', () => {
       Supported clients: claude, cursor, vscode, windsurf"
     `);
     expect(result.stdout).toMatchInlineSnapshot(`""`);
+  });
+
+  it('can configure with custom instance and token', async () => {
+    const result = await runBin(
+      'configure',
+      '--client',
+      'cursor',
+      '--instance',
+      'custom-instance',
+      '--token',
+      'test-token',
+      {
+        env: {
+          GLEAN_MCP_CONFIG_DIR: project.baseDir,
+        },
+      },
+    );
+
+    expect(result.exitCode).toEqual(0);
+    expect(normalizeOutput(result.stdout, project.baseDir))
+      .toMatchInlineSnapshot(`
+        "Configuring Glean MCP for Cursor...
+        Created new configuration file at: <TMP_DIR>/.cursor/mcp.json
+
+        Cursor MCP configuration has been configured to: <TMP_DIR>/.cursor/mcp.json
+
+        To use it:
+        1. Restart Cursor
+        2. Agent will now have access to Glean search and chat tools
+        3. You'll be asked for approval when Agent uses these tools
+
+        Notes:
+        - You may need to set your Glean instance and API token if they weren't provided during configuration
+        - Configuration is at: <TMP_DIR>/.cursor/mcp.json
+        "
+      `);
   });
 
   describe('Cursor client', () => {
@@ -760,21 +802,26 @@ describe('CLI', () => {
       expect(fs.existsSync(configFilePath)).toBe(true);
       // Normalize JSON to avoid platform-specific escaping issues
       const parsedContents = JSON.parse(configFileContents);
-      expect(parsedContents).toMatchObject({
-        mcp: {
-          servers: {
-            glean: {
-              type: 'stdio',
-              command: 'npx',
-              args: ['-y', '@gleanwork/mcp-server'],
-              env: {
-                GLEAN_INSTANCE: 'test-domain',
-                GLEAN_API_TOKEN: 'glean_api_test',
+      expect(parsedContents).toMatchInlineSnapshot(`
+        {
+          "mcp": {
+            "servers": {
+              "glean": {
+                "args": [
+                  "-y",
+                  "@gleanwork/mcp-server",
+                ],
+                "command": "npx",
+                "env": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                  "GLEAN_INSTANCE": "test-domain",
+                },
+                "type": "stdio",
               },
             },
           },
-        },
-      });
+        }
+      `);
     });
 
     it("adds config to existing file that doesn't have Glean config", async () => {
@@ -815,23 +862,28 @@ describe('CLI', () => {
       const configFileContents = fs.readFileSync(configFilePath, 'utf8');
       const parsedConfig = JSON.parse(configFileContents);
 
-      expect(parsedConfig).toMatchObject({
-        'editor.fontSize': 14,
-        'workbench.colorTheme': 'Default Dark+',
-        mcp: {
-          servers: {
-            glean: {
-              type: 'stdio',
-              command: 'npx',
-              args: ['-y', '@gleanwork/mcp-server'],
-              env: {
-                GLEAN_INSTANCE: 'test-domain',
-                GLEAN_API_TOKEN: 'glean_api_test',
+      expect(parsedConfig).toMatchInlineSnapshot(`
+        {
+          "editor.fontSize": 14,
+          "mcp": {
+            "servers": {
+              "glean": {
+                "args": [
+                  "-y",
+                  "@gleanwork/mcp-server",
+                ],
+                "command": "npx",
+                "env": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                  "GLEAN_INSTANCE": "test-domain",
+                },
+                "type": "stdio",
               },
             },
           },
-        },
-      });
+          "workbench.colorTheme": "Default Dark+",
+        }
+      `);
     });
 
     it("doesn't modify existing file that already has Glean config", async () => {
@@ -886,42 +938,6 @@ describe('CLI', () => {
       const configAfter = fs.readFileSync(configFilePath, 'utf8');
       expect(configAfter).toBe(configBefore);
     });
-  });
-
-  it('can configure with custom instance and token', async () => {
-    const result = await runBin(
-      'configure',
-      '--client',
-      'cursor',
-      '--instance',
-      'custom-instance',
-      '--token',
-      'test-token',
-      {
-        env: {
-          GLEAN_MCP_CONFIG_DIR: project.baseDir,
-        },
-      },
-    );
-
-    expect(result.exitCode).toEqual(0);
-    expect(normalizeOutput(result.stdout, project.baseDir))
-      .toMatchInlineSnapshot(`
-        "Configuring Glean MCP for Cursor...
-        Created new configuration file at: <TMP_DIR>/.cursor/mcp.json
-
-        Cursor MCP configuration has been configured to: <TMP_DIR>/.cursor/mcp.json
-
-        To use it:
-        1. Restart Cursor
-        2. Agent will now have access to Glean search and chat tools
-        3. You'll be asked for approval when Agent uses these tools
-
-        Notes:
-        - You may need to set your Glean instance and API token if they weren't provided during configuration
-        - Configuration is at: <TMP_DIR>/.cursor/mcp.json
-        "
-      `);
   });
 
   describe('unlisted OAuth commands', () => {

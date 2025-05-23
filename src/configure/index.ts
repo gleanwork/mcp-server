@@ -8,6 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { VERSION } from '../common/version.js';
+import type { ConfigureOptions } from '../configure.js';
 
 export { VERSION };
 
@@ -17,6 +18,64 @@ export interface MCPConfigPath {
 }
 
 /**
+ * MCP Server configuration
+ */
+export interface MCPServerConfig {
+  type?: string;
+  command: string;
+  args: Array<string>;
+  env: Record<string, string>;
+}
+
+/**
+ * Standard MCP configuration format (Claude, Cursor, Windsurf)
+ */
+export interface StandardMCPConfig {
+  mcpServers: {
+    glean: MCPServerConfig;
+    [key: string]: MCPServerConfig;
+  };
+}
+
+/**
+ * VS Code global configuration format
+ */
+export interface VSCodeGlobalConfig {
+  mcp: {
+    servers: {
+      glean: MCPServerConfig;
+      [key: string]: MCPServerConfig;
+    };
+  };
+  [key: string]: unknown;
+}
+
+/**
+ * VS Code workspace configuration format
+ */
+export interface VSCodeWorkspaceConfig {
+  servers: {
+    glean: MCPServerConfig;
+    [key: string]: MCPServerConfig;
+  };
+  [key: string]: unknown;
+}
+
+/**
+ * Union of all possible MCP configuration formats
+ */
+export type MCPConfig =
+  | StandardMCPConfig
+  | VSCodeGlobalConfig
+  | VSCodeWorkspaceConfig;
+
+/**
+ * Generic config file contents that might contain MCP configuration
+ * Represents the parsed contents of client config files like VS Code settings.json
+ */
+export type ConfigFileContents = Record<string, unknown> & Partial<MCPConfig>;
+
+/**
  * Interface for MCP client configuration details
  */
 export interface MCPClientConfig {
@@ -24,34 +83,44 @@ export interface MCPClientConfig {
   displayName: string;
 
   /**
-   * Path to the config file, supports OS-specific paths.
+   * Path to the config file, supports OS-specific paths and client-specific options.
    * If GLEAN_MCP_CONFIG_DIR environment variable is set, it will override the default path.
    */
-  configFilePath: (homedir: string) => string;
+  configFilePath: (homedir: string, options?: ConfigureOptions) => string;
 
   /** Function to generate the config JSON for this client */
-  configTemplate: (subdomainOrUrl?: string, apiToken?: string) => any;
+  configTemplate: (
+    subdomainOrUrl?: string,
+    apiToken?: string,
+    options?: ConfigureOptions,
+  ) => MCPConfig;
 
   /** Instructions displayed after successful configuration */
-  successMessage: (configPath: string) => string;
+  successMessage: (configPath: string, options?: ConfigureOptions) => string;
 
   /**
    * Check if configuration exists in the existing config object
    * @param existingConfig Existing configuration object from the config file
+   * @param options Additional options that may affect detection logic
    * @returns boolean indicating if configuration exists
    */
-  hasExistingConfig: (existingConfig: Record<string, any>) => boolean;
+  hasExistingConfig: (
+    existingConfig: ConfigFileContents,
+    options?: ConfigureOptions,
+  ) => boolean;
 
   /**
    * Update existing configuration with new config
    * @param existingConfig Existing configuration object to update
    * @param newConfig New configuration to merge with existing
+   * @param options Additional options that may affect merging logic
    * @returns Updated configuration object
    */
   updateConfig: (
-    existingConfig: Record<string, any>,
-    newConfig: any,
-  ) => Record<string, any>;
+    existingConfig: ConfigFileContents,
+    newConfig: MCPConfig,
+    options?: ConfigureOptions,
+  ) => ConfigFileContents;
 }
 
 /**
@@ -60,7 +129,7 @@ export interface MCPClientConfig {
 export function createConfigTemplate(
   instanceOrUrl = '<glean instance name>',
   apiToken?: string,
-) {
+): StandardMCPConfig {
   const env: Record<string, string> = {};
 
   // If it looks like a URL, use GLEAN_BASE_URL
@@ -142,19 +211,26 @@ export function createBaseClient(
     successMessage: (configPath) =>
       createSuccessMessage(displayName, configPath, instructions),
 
-    hasExistingConfig: (existingConfig: Record<string, any>) => {
+    hasExistingConfig: (existingConfig: ConfigFileContents) => {
+      const standardConfig = existingConfig as StandardMCPConfig;
       return (
-        existingConfig.mcpServers?.glean?.command === 'npx' &&
-        existingConfig.mcpServers?.glean?.args?.includes(
+        standardConfig.mcpServers?.glean?.command === 'npx' &&
+        standardConfig.mcpServers?.glean?.args?.includes(
           '@gleanwork/mcp-server',
         )
       );
     },
 
-    updateConfig: (existingConfig: Record<string, any>, newConfig: any) => {
-      existingConfig.mcpServers = existingConfig.mcpServers || {};
-      existingConfig.mcpServers.glean = newConfig.mcpServers.glean;
-      return existingConfig;
+    updateConfig: (
+      existingConfig: ConfigFileContents,
+      newConfig: MCPConfig,
+    ) => {
+      const standardNewConfig = newConfig as StandardMCPConfig;
+      const result = { ...existingConfig } as ConfigFileContents &
+        StandardMCPConfig;
+      result.mcpServers = result.mcpServers || {};
+      result.mcpServers.glean = standardNewConfig.mcpServers.glean;
+      return result;
     },
   };
 }
