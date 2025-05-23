@@ -5,7 +5,17 @@
  */
 
 import path from 'path';
-import { MCPConfigPath, createBaseClient } from '../index.js';
+import fs from 'fs';
+import {
+  MCPConfigPath,
+  createBaseClient,
+  VSCodeGlobalConfig,
+  VSCodeLocalConfig,
+  MCPConfig,
+  ConfigFileContents,
+  MCPServerConfig,
+} from '../index.js';
+import type { ConfigureOptions } from '../../configure.js';
 
 // VS Code user settings location varies by platform
 function getVSCodeUserSettingsPath(homedir: string): string {
@@ -36,6 +46,43 @@ function getVSCodeUserSettingsPath(homedir: string): string {
   }
 }
 
+/**
+ * Creates VS Code local workspace configuration format
+ */
+function createVSCodeLocalConfig(
+  instanceOrUrl?: string,
+  apiToken?: string,
+): VSCodeLocalConfig {
+  const env: Record<string, string> = {};
+
+  if (
+    instanceOrUrl?.startsWith('http://') ||
+    instanceOrUrl?.startsWith('https://')
+  ) {
+    const baseUrl = instanceOrUrl.endsWith('/rest/api/v1')
+      ? instanceOrUrl
+      : `${instanceOrUrl}/rest/api/v1`;
+    env.GLEAN_BASE_URL = baseUrl;
+  } else if (instanceOrUrl) {
+    env.GLEAN_INSTANCE = instanceOrUrl;
+  }
+
+  if (apiToken) {
+    env.GLEAN_API_TOKEN = apiToken;
+  }
+
+  return {
+    servers: {
+      glean: {
+        type: 'stdio',
+        command: 'npx',
+        args: ['-y', '@gleanwork/mcp-server'],
+        env,
+      },
+    },
+  };
+}
+
 export const vscodeConfigPath: MCPConfigPath = {
   configDir: '',
   configFileName: '',
@@ -49,29 +96,38 @@ const vscodeClient = createBaseClient('VS Code', vscodeConfigPath, [
   "You'll be asked for approval when Agent uses these tools",
 ]);
 
-vscodeClient.configFilePath = (homedir: string) => {
+// Override configFilePath to handle local vs global
+vscodeClient.configFilePath = (homedir: string, options?: ConfigureOptions) => {
+  if (options?.local) {
+    // Validate we're in a valid workspace directory
+    if (
+      !fs.existsSync('.vscode') &&
+      !fs.existsSync('package.json') &&
+      !fs.existsSync('.git')
+    ) {
+      throw new Error(
+        'Local configuration requires a workspace directory. ' +
+          'Please run this command from a project root (containing .vscode, package.json, or .git)',
+      );
+    }
+    return path.join(process.cwd(), '.vscode', 'mcp.json');
+  }
   return getVSCodeUserSettingsPath(homedir);
 };
 
-vscodeClient.successMessage = (configPath) => `
-VS Code MCP configuration has been configured in your user settings: ${configPath}
+// Override configTemplate to handle local vs global format
+vscodeClient.configTemplate = (
+  instanceOrUrl?: string,
+  apiToken?: string,
+  options?: ConfigureOptions,
+): MCPConfig => {
+  if (options?.local) {
+    return createVSCodeLocalConfig(instanceOrUrl, apiToken);
+  }
 
-To use it:
-1. Enable MCP support in VS Code by adding "chat.mcp.enabled": true to your user settings
-2. Restart VS Code
-3. Open the Chat view (Ctrl+Alt+I or ⌃⌘I) and select "Agent" mode from the dropdown
-4. Click the "Tools" button to see and use Glean tools in Agent mode
-5. You'll be asked for approval when Agent uses these tools
-
-Notes:
-- You may need to set your Glean instance and API token if they weren't provided during configuration
-- User settings are at: ${configPath}
-`;
-
-vscodeClient.configTemplate = (instanceOrUrl?: string, apiToken?: string) => {
+  // Global configuration format
   const env: Record<string, string> = {};
 
-  // If it looks like a URL, use GLEAN_BASE_URL
   if (
     instanceOrUrl?.startsWith('http://') ||
     instanceOrUrl?.startsWith('https://')
@@ -102,22 +158,85 @@ vscodeClient.configTemplate = (instanceOrUrl?: string, apiToken?: string) => {
   };
 };
 
-vscodeClient.hasExistingConfig = (existingConfig: Record<string, any>) => {
+// Override successMessage to handle local vs global
+vscodeClient.successMessage = (
+  configPath: string,
+  options?: ConfigureOptions,
+) => {
+  if (options?.local) {
+    return `
+VS Code local MCP configuration has been configured: ${configPath}
+
+To use it:
+1. Restart VS Code
+2. Open the Chat view (⌃⌘I on Mac, Ctrl+Alt+I on Windows/Linux) and select "Agent" mode
+3. Click the "Tools" button to see and use Glean tools in Agent mode
+4. You'll be asked for approval when Agent uses these tools
+
+Notes:
+- This configuration is specific to this workspace
+- Configuration is at: ${configPath}
+`;
+  }
+
+  return `
+VS Code MCP configuration has been configured in your user settings: ${configPath}
+
+To use it:
+1. Enable MCP support in VS Code by adding "chat.mcp.enabled": true to your user settings
+2. Restart VS Code
+3. Open the Chat view (Ctrl+Alt+I or ⌃⌘I) and select "Agent" mode from the dropdown
+4. Click the "Tools" button to see and use Glean tools in Agent mode
+5. You'll be asked for approval when Agent uses these tools
+
+Notes:
+- You may need to set your Glean instance and API token if they weren't provided during configuration
+- User settings are at: ${configPath}
+`;
+};
+
+// Override hasExistingConfig to handle local vs global format
+vscodeClient.hasExistingConfig = (
+  existingConfig: ConfigFileContents,
+  options?: ConfigureOptions,
+) => {
+  if (options?.local) {
+    const localConfig = existingConfig as VSCodeLocalConfig;
+    return (
+      localConfig.servers?.glean?.command === 'npx' &&
+      localConfig.servers?.glean?.args?.includes('@gleanwork/mcp-server')
+    );
+  }
+
+  const globalConfig = existingConfig as VSCodeGlobalConfig;
   return (
-    existingConfig.mcp?.servers?.glean?.command === 'npx' &&
-    existingConfig.mcp?.servers?.glean?.args?.includes('@gleanwork/mcp-server')
+    globalConfig.mcp?.servers?.glean?.command === 'npx' &&
+    globalConfig.mcp?.servers?.glean?.args?.includes('@gleanwork/mcp-server')
   );
 };
 
+// Override updateConfig to handle local vs global format
 vscodeClient.updateConfig = (
-  existingConfig: Record<string, any>,
-  newConfig: any,
-) => {
-  existingConfig.mcp = existingConfig.mcp || {};
-  existingConfig.mcp.servers = existingConfig.mcp.servers || {};
-  existingConfig.mcp.servers.glean = newConfig.mcp.servers.glean;
-  return existingConfig;
+  existingConfig: ConfigFileContents,
+  newConfig: MCPConfig,
+  options?: ConfigureOptions,
+): ConfigFileContents => {
+  if (options?.local) {
+    const localNewConfig = newConfig as VSCodeLocalConfig;
+    const result = { ...existingConfig } as ConfigFileContents &
+      VSCodeLocalConfig;
+    result.servers = result.servers || {};
+    result.servers.glean = localNewConfig.servers.glean;
+    return result;
+  }
+
+  const globalNewConfig = newConfig as VSCodeGlobalConfig;
+  const result = { ...existingConfig } as ConfigFileContents &
+    VSCodeGlobalConfig;
+  result.mcp = result.mcp || { servers: {} };
+  result.mcp.servers = result.mcp.servers || {};
+  result.mcp.servers.glean = globalNewConfig.mcp.servers.glean;
+  return result;
 };
 
 export default vscodeClient;
-
