@@ -45,21 +45,19 @@ describe('VS Code MCP Client', () => {
     expect(vscodeClient.configFilePath(homedir)).toBe(expectedPath);
   });
 
-  it('should generate local workspace config path when local option is provided', () => {
+  it('should generate workspace config path when workspace option is provided', () => {
     const originalCwd = process.cwd();
     const originalExistsSync = fs.existsSync;
 
     try {
-      // Mock fs.existsSync to simulate a workspace directory
       (fs as any).existsSync = (path: string) => {
         if (path === '.vscode') return true;
         return originalExistsSync(path);
       };
 
-      // Mock process.cwd to return a test directory
       process.cwd = () => '/test/workspace';
 
-      const options: ConfigureOptions = { local: true };
+      const options: ConfigureOptions = { workspace: true };
       const configPath = vscodeClient.configFilePath(homedir, options);
       expect(configPath).toBe('/test/workspace/.vscode/mcp.json');
     } finally {
@@ -68,17 +66,16 @@ describe('VS Code MCP Client', () => {
     }
   });
 
-  it('should throw error for local config outside workspace directory', () => {
+  it('should throw error for workspace config outside workspace directory', () => {
     const originalExistsSync = fs.existsSync;
 
     try {
-      // Mock fs.existsSync to simulate no workspace indicators
       (fs as any).existsSync = () => false;
 
-      const options: ConfigureOptions = { local: true };
+      const options: ConfigureOptions = { workspace: true };
       expect(() => {
         vscodeClient.configFilePath(homedir, options);
-      }).toThrow('Local configuration requires a workspace directory');
+      }).toThrow('Workspace configuration requires a workspace directory');
     } finally {
       (fs as any).existsSync = originalExistsSync;
     }
@@ -107,8 +104,8 @@ describe('VS Code MCP Client', () => {
     });
   });
 
-  it('should generate a valid VS Code local config template with instance', () => {
-    const options: ConfigureOptions = { local: true };
+  it('should generate a valid VS Code workspace config template with instance', () => {
+    const options: ConfigureOptions = { workspace: true };
     const config = vscodeClient.configTemplate(
       'example-instance',
       'test-token',
@@ -159,13 +156,13 @@ describe('VS Code MCP Client', () => {
     expect(message).toContain('Restart VS Code');
   });
 
-  it('should include local-specific success message for local config', () => {
+  it('should include workspace-specific success message for workspace config', () => {
     const configPath = '/workspace/.vscode/mcp.json';
-    const options: ConfigureOptions = { local: true };
+    const options: ConfigureOptions = { workspace: true };
     const message = vscodeClient.successMessage(configPath, options);
 
     expect(message).toContain(
-      'VS Code local MCP configuration has been configured',
+      'VS Code workspace MCP configuration has been configured',
     );
     expect(message).toContain(
       'This configuration is specific to this workspace',
@@ -188,7 +185,7 @@ describe('VS Code MCP Client', () => {
     expect(vscodeClient.hasExistingConfig(existingConfig)).toBe(true);
   });
 
-  it('should detect existing local config correctly', () => {
+  it('should detect existing workspace config correctly', () => {
     const existingConfig = {
       servers: {
         glean: {
@@ -198,7 +195,7 @@ describe('VS Code MCP Client', () => {
       },
     };
 
-    const options: ConfigureOptions = { local: true };
+    const options: ConfigureOptions = { workspace: true };
     expect(vscodeClient.hasExistingConfig(existingConfig, options)).toBe(true);
   });
 
@@ -224,7 +221,7 @@ describe('VS Code MCP Client', () => {
     });
   });
 
-  it('should update local config correctly', () => {
+  it('should update workspace config correctly', () => {
     const existingConfig = { someOtherConfig: true };
     const newConfig: MCPConfig = {
       servers: {
@@ -236,7 +233,7 @@ describe('VS Code MCP Client', () => {
       },
     };
 
-    const options: ConfigureOptions = { local: true };
+    const options: ConfigureOptions = { workspace: true };
     const updated = vscodeClient.updateConfig(
       existingConfig,
       newConfig,
@@ -249,8 +246,8 @@ describe('VS Code MCP Client', () => {
     });
   });
 
-  it('should generate a valid VS Code local config template with URL', () => {
-    const options: ConfigureOptions = { local: true };
+  it('should generate a valid VS Code workspace config template with URL', () => {
+    const options: ConfigureOptions = { workspace: true };
     const config = vscodeClient.configTemplate(
       'https://example.com/rest/api/v1',
       'test-token',
@@ -272,8 +269,8 @@ describe('VS Code MCP Client', () => {
     });
   });
 
-  it('should generate global config when local option is false', () => {
-    const options: ConfigureOptions = { local: false };
+  it('should generate global config when workspace option is false', () => {
+    const options: ConfigureOptions = { workspace: false };
     const config = vscodeClient.configTemplate(
       'example-instance',
       'test-token',

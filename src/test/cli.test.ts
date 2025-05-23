@@ -90,7 +90,7 @@ describe('CLI', () => {
             --token, -t    Glean API token (required)
             --instance, -i   Glean instance name
             --env, -e      Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
-            --local        Create local workspace configuration instead of global (VS Code only)
+            --workspace    Create workspace configuration instead of global (VS Code only)
 
           Examples
             $ npx @gleanwork/mcp-server
@@ -98,7 +98,7 @@ describe('CLI', () => {
             $ npx @gleanwork/mcp-server configure --client cursor --token glean_api_xyz --instance my-company
             $ npx @gleanwork/mcp-server configure --client claude --token glean_api_xyz --instance my-company
             $ npx @gleanwork/mcp-server configure --client windsurf --env ~/.glean.env
-            $ npx @gleanwork/mcp-server configure --client vscode --token glean_api_xyz --instance my-company --local
+            $ npx @gleanwork/mcp-server configure --client vscode --token glean_api_xyz --instance my-company --workspace
 
           Run 'npx @gleanwork/mcp-server help' for more details on supported clients
 

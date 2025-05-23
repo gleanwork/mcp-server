@@ -51,9 +51,9 @@ export interface VSCodeGlobalConfig {
 }
 
 /**
- * VS Code local configuration format
+ * VS Code workspace configuration format
  */
-export interface VSCodeLocalConfig {
+export interface VSCodeWorkspaceConfig {
   servers: {
     glean: MCPServerConfig;
     [key: string]: MCPServerConfig;
@@ -67,7 +67,7 @@ export interface VSCodeLocalConfig {
 export type MCPConfig =
   | StandardMCPConfig
   | VSCodeGlobalConfig
-  | VSCodeLocalConfig;
+  | VSCodeWorkspaceConfig;
 
 /**
  * Generic config file contents that might contain MCP configuration

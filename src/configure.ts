@@ -33,7 +33,7 @@ export interface ConfigureOptions {
   instance?: string;
   url?: string;
   envPath?: string;
-  local?: boolean;
+  workspace?: boolean;
 }
 
 /**
@@ -106,7 +106,7 @@ function loadCredentials(options: ConfigureOptions): {
  * Handles the configuration process for the specified MCP client
  *
  * @param client - The MCP client to configure for (cursor, claude, windsurf, vscode)
- * @param options - Configuration options including token, instance, url, envPath, and local
+ * @param options - Configuration options including token, instance, url, envPath, and workspace
  */
 export async function configure(client: string, options: ConfigureOptions) {
   trace('configuring ', client);
@@ -122,10 +122,10 @@ export async function configure(client: string, options: ConfigureOptions) {
     process.exit(1);
   }
 
-  // Validate --local flag is only used with VS Code
-  if (options.local && normalizedClient !== 'vscode') {
+  // Validate --workspace flag is only used with VS Code
+  if (options.workspace && normalizedClient !== 'vscode') {
     console.error(
-      'Configuration failed: --local flag is only supported for VS Code',
+      'Configuration failed: --workspace flag is only supported for VS Code',
     );
     process.exit(1);
   }

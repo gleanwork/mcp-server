@@ -10,10 +10,9 @@ import {
   MCPConfigPath,
   createBaseClient,
   VSCodeGlobalConfig,
-  VSCodeLocalConfig,
+  VSCodeWorkspaceConfig,
   MCPConfig,
   ConfigFileContents,
-  MCPServerConfig,
 } from '../index.js';
 import type { ConfigureOptions } from '../../configure.js';
 
@@ -47,12 +46,12 @@ function getVSCodeUserSettingsPath(homedir: string): string {
 }
 
 /**
- * Creates VS Code local workspace configuration format
+ * Creates VS Code workspace configuration format
  */
-function createVSCodeLocalConfig(
+function createVSCodeWorkspaceConfig(
   instanceOrUrl?: string,
   apiToken?: string,
-): VSCodeLocalConfig {
+): VSCodeWorkspaceConfig {
   const env: Record<string, string> = {};
 
   if (
@@ -96,9 +95,9 @@ const vscodeClient = createBaseClient('VS Code', vscodeConfigPath, [
   "You'll be asked for approval when Agent uses these tools",
 ]);
 
-// Override configFilePath to handle local vs global
+// Override configFilePath to handle workspace vs global
 vscodeClient.configFilePath = (homedir: string, options?: ConfigureOptions) => {
-  if (options?.local) {
+  if (options?.workspace) {
     // Validate we're in a valid workspace directory
     if (
       !fs.existsSync('.vscode') &&
@@ -106,7 +105,7 @@ vscodeClient.configFilePath = (homedir: string, options?: ConfigureOptions) => {
       !fs.existsSync('.git')
     ) {
       throw new Error(
-        'Local configuration requires a workspace directory. ' +
+        'Workspace configuration requires a workspace directory. ' +
           'Please run this command from a project root (containing .vscode, package.json, or .git)',
       );
     }
@@ -115,14 +114,14 @@ vscodeClient.configFilePath = (homedir: string, options?: ConfigureOptions) => {
   return getVSCodeUserSettingsPath(homedir);
 };
 
-// Override configTemplate to handle local vs global format
+// Override configTemplate to handle workspace vs global format
 vscodeClient.configTemplate = (
   instanceOrUrl?: string,
   apiToken?: string,
   options?: ConfigureOptions,
 ): MCPConfig => {
-  if (options?.local) {
-    return createVSCodeLocalConfig(instanceOrUrl, apiToken);
+  if (options?.workspace) {
+    return createVSCodeWorkspaceConfig(instanceOrUrl, apiToken);
   }
 
   // Global configuration format
@@ -158,14 +157,14 @@ vscodeClient.configTemplate = (
   };
 };
 
-// Override successMessage to handle local vs global
+// Override successMessage to handle workspace vs global
 vscodeClient.successMessage = (
   configPath: string,
   options?: ConfigureOptions,
 ) => {
-  if (options?.local) {
+  if (options?.workspace) {
     return `
-VS Code local MCP configuration has been configured: ${configPath}
+VS Code workspace MCP configuration has been configured: ${configPath}
 
 To use it:
 1. Restart VS Code
@@ -195,16 +194,16 @@ Notes:
 `;
 };
 
-// Override hasExistingConfig to handle local vs global format
+// Override hasExistingConfig to handle workspace vs global format
 vscodeClient.hasExistingConfig = (
   existingConfig: ConfigFileContents,
   options?: ConfigureOptions,
 ) => {
-  if (options?.local) {
-    const localConfig = existingConfig as VSCodeLocalConfig;
+  if (options?.workspace) {
+    const workspaceConfig = existingConfig as VSCodeWorkspaceConfig;
     return (
-      localConfig.servers?.glean?.command === 'npx' &&
-      localConfig.servers?.glean?.args?.includes('@gleanwork/mcp-server')
+      workspaceConfig.servers?.glean?.command === 'npx' &&
+      workspaceConfig.servers?.glean?.args?.includes('@gleanwork/mcp-server')
     );
   }
 
@@ -215,18 +214,18 @@ vscodeClient.hasExistingConfig = (
   );
 };
 
-// Override updateConfig to handle local vs global format
+// Override updateConfig to handle workspace vs global format
 vscodeClient.updateConfig = (
   existingConfig: ConfigFileContents,
   newConfig: MCPConfig,
   options?: ConfigureOptions,
 ): ConfigFileContents => {
-  if (options?.local) {
-    const localNewConfig = newConfig as VSCodeLocalConfig;
+  if (options?.workspace) {
+    const workspaceNewConfig = newConfig as VSCodeWorkspaceConfig;
     const result = { ...existingConfig } as ConfigFileContents &
-      VSCodeLocalConfig;
+      VSCodeWorkspaceConfig;
     result.servers = result.servers || {};
-    result.servers.glean = localNewConfig.servers.glean;
+    result.servers.glean = workspaceNewConfig.servers.glean;
     return result;
   }
 
