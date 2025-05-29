@@ -44,18 +44,20 @@ export async function validateFlags(
 
   const hasDeployment = Boolean(instance || url);
   const hasToken = Boolean(token);
-  const hasCredential = Boolean(hasDeployment || hasToken);
+
+  const hasEnvironmentToken = Boolean(process.env.GLEAN_API_TOKEN);
+  const hasEnvironmentInstance = Boolean(
+    process.env.GLEAN_INSTANCE ||
+      process.env.GLEAN_SUBDOMAIN ||
+      process.env.GLEAN_BASE_URL,
+  );
+
   const hasEnvParam = Boolean(env);
 
-  if (hasCredential && hasEnvParam) {
-    console.error(
-      'Error: You must provide either --instance OR --env, not both.',
-    );
-    console.error('Run with --help for usage information');
-    return false;
-  }
+  const hasAnyInstance = Boolean(hasDeployment || hasEnvironmentInstance);
+  const hasAnyToken = Boolean(hasToken || hasEnvironmentToken);
 
-  if (hasToken && !hasDeployment) {
+  if (hasAnyToken && !hasAnyInstance) {
     console.error(`
 "Warning: Configuring without complete credentials.
 You must provide either:
@@ -76,7 +78,7 @@ Continuing with configuration, but you will need to set credentials manually lat
     return false;
   }
 
-  if (!hasToken && !hasDeployment && !hasEnvParam) {
+  if (!hasAnyToken && !hasAnyInstance && !hasEnvParam) {
     console.error('Error: You must provide either:');
     console.error('  1. Both --token and --instance for authentication, or');
     console.error(
