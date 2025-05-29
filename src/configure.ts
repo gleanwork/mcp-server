@@ -165,10 +165,12 @@ export async function configure(client: string, options: ConfigureOptions) {
   }
 
   try {
-    // If token is provided, use token auth
-    if (options.token) {
+    // Load credentials from all sources first (flags, env files, environment)
+    const { instanceOrUrl, apiToken } = loadCredentials(options);
+
+    // If we have both token and instance from any source, use token auth
+    if (apiToken && instanceOrUrl) {
       trace('configuring Glean token auth');
-      const { instanceOrUrl, apiToken } = loadCredentials(options);
       const newConfig = clientConfig.configTemplate(
         instanceOrUrl,
         apiToken,
@@ -178,16 +180,15 @@ export async function configure(client: string, options: ConfigureOptions) {
       return;
     }
 
-    // Check if OAuth is enabled
+    // No token available from any source, check if OAuth is enabled
     const oauthEnabled = process.env.GLEAN_OAUTH_ENABLED;
     if (!oauthEnabled) {
       throw new Error(
-        'API token is required. Please provide a token with the --token option.',
+        'API token is required. Please provide a token with the --token option or in your .env file.',
       );
     }
 
-    // For non-token auth flow (requires GLEAN_OAUTH_ENABLED)
-    const { instanceOrUrl } = loadCredentials(options);
+    // For OAuth flow (requires GLEAN_OAUTH_ENABLED and instance/URL)
     if (!instanceOrUrl) {
       throw new Error('Instance or URL is required for OAuth configuration');
     }
