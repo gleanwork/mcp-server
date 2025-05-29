@@ -2,6 +2,16 @@
 
 
 
+
+## v0.7.1 (2025-05-29)
+
+#### :bug: Bug Fix
+* [#132](https://github.com/gleanwork/mcp-server/pull/132) fix(cli): Fixes .env file and process.env support in configure ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+#### Committers: 1
+- Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+
 ## v0.7.0 (2025-05-23)
 
 #### :rocket: Enhancement
