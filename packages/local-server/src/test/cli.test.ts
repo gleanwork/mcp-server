@@ -47,6 +47,7 @@ describe('CLI', () => {
   let configPath: string;
   let configFilePath: string;
   let envFilePath: string;
+  let originalEnv: NodeJS.ProcessEnv;
 
   const { configDir, configFileName } = cursorConfigPath;
 
@@ -55,7 +56,15 @@ describe('CLI', () => {
   });
 
   beforeEach(async () => {
+    originalEnv = { ...process.env };
+
+    delete process.env.GLEAN_OAUTH_ENABLED;
+    delete process.env.GLEAN_API_TOKEN;
+    delete process.env.GLEAN_INSTANCE;
+    delete process.env.GLEAN_SUBDOMAIN;
+    delete process.env.GLEAN_BASE_URL;
     process.env._SKIP_INSTANCE_PREFLIGHT = 'true';
+
     project = await setupProject();
 
     configPath = path.join(project.baseDir, configDir);
@@ -65,7 +74,7 @@ describe('CLI', () => {
 
   afterEach(() => {
     teardownProject();
-    delete process.env._SKIP_INSTANCE_PREFLIGHT;
+    process.env = originalEnv;
   });
 
   it('shows help when no arguments provided', async () => {

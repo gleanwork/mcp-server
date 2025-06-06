@@ -10,6 +10,11 @@ describe('validateFlags', () => {
   beforeEach(() => {
     ({ resetConsole, consoleState } = mockConsole());
     originalEnv = { ...process.env };
+
+    delete process.env.GLEAN_API_TOKEN;
+    delete process.env.GLEAN_INSTANCE;
+    delete process.env.GLEAN_SUBDOMAIN;
+    delete process.env.GLEAN_BASE_URL;
   });
 
   afterEach(() => {
@@ -47,11 +52,6 @@ describe('validateFlags', () => {
   });
 
   it('should return false when neither instance nor url is provided and no environment variables', async () => {
-    delete process.env.GLEAN_API_TOKEN;
-    delete process.env.GLEAN_INSTANCE;
-    delete process.env.GLEAN_SUBDOMAIN;
-    delete process.env.GLEAN_BASE_URL;
-
     const result = await validateFlags(
       'client',
       undefined,
