@@ -1,0 +1,117 @@
+{
+  "name": "@gleanwork/mcp-server-utils",
+  "version": "0.7.1",
+  "description": "Shared utilities for MCP server packages",
+  "keywords": [
+    "mcp",
+    "mcp-server"
+  ],
+  "homepage": "",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/gleanwork/mcp-server.git",
+    "directory": "packages/utils"
+  },
+  "license": "MIT",
+  "author": "Steve Calvert <steve.calvert@glean.com>",
+  "type": "module",
+  "exports": {
+    "./auth": {
+      "types": "./build/auth/index.d.ts",
+      "import": "./build/auth/index.js",
+      "default": "./build/auth/index.js"
+    },
+    "./errors": {
+      "types": "./build/common/errors.d.ts",
+      "import": "./build/common/errors.js",
+      "default": "./build/common/errors.js"
+    },
+    "./tools/chat": {
+      "types": "./build/tools/chat.d.ts",
+      "import": "./build/tools/chat.js",
+      "default": "./build/tools/chat.js"
+    },
+    "./tools/people-profile-search": {
+      "types": "./build/tools/people_profile_search.d.ts",
+      "import": "./build/tools/people_profile_search.js",
+      "default": "./build/tools/people_profile_search.js"
+    },
+    "./tools/search": {
+      "types": "./build/tools/search.d.ts",
+      "import": "./build/tools/search.js",
+      "default": "./build/tools/search.js"
+    },
+    "./util": {
+      "types": "./build/util/index.d.ts",
+      "import": "./build/util/index.js",
+      "default": "./build/util/index.js"
+    },
+    "./logger": {
+      "types": "./build/log/logger.d.ts",
+      "import": "./build/log/logger.js",
+      "default": "./build/log/logger.js"
+    }
+  },
+  "main": "./build/index.js",
+  "files": [
+    "build/**/*.js",
+    "build/**/*.d.ts",
+    "build/**/*.js.map",
+    "build/**/*.d.ts.map",
+    "!build/**/test/**",
+    "!build/test/**",
+    "!build/src/**",
+    "!build/vitest.config.*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "lint": "npm-run-all --sequential lint:*",
+    "lint:eslint": "eslint \"src/**/*.ts\" --fix",
+    "lint:package-json": "sort-package-json",
+    "lint:ts": "tsc --noEmit",
+    "prepare": "pnpm run build",
+    "release": "release-it",
+    "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest run",
+    "test:all": "pnpm lint && pnpm lint:ts && pnpm test",
+    "test:watch": "vitest",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "fs-extra": "^11.3.0",
+    "open": "^10.1.1",
+    "tldts": "^7.0.7",
+    "zod": "^3.24.2",
+    "zod-to-json-schema": "^3.24.5"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.23.0",
+    "@gleanwork/api-client": "0.6.1",
+    "@release-it-plugins/lerna-changelog": "^7.0.0",
+    "@types/node": "^22.14.0",
+    "@typescript-eslint/eslint-plugin": "^8.33.1",
+    "@typescript-eslint/parser": "^8.27.0",
+    "console-test-helpers": "^0.3.3",
+    "eslint": "^9.23.0",
+    "eslint-plugin-prettier": "^5.2.5",
+    "fixturify": "^3.0.0",
+    "globals": "^16.0.0",
+    "msw": "^2.10.2",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^3.5.3",
+    "release-it": "^17.11.0",
+    "rimraf": "^6.0.1",
+    "sort-package-json": "^3.2.1",
+    "typescript": "^5.8.2",
+    "vitest": "^3.2.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

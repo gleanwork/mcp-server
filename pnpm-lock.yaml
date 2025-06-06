@@ -17,15 +17,18 @@ importers:
       sort-package-json:
         specifier: ^3.2.1
         version: 3.2.1
+      vitest:
+        specifier: ^3.2.3
+        version: 3.2.3(@types/debug@4.1.12)(@types/node@22.15.29)(msw@2.10.2(@types/node@22.15.29)(typescript@5.8.3))
 
-  packages/local-server:
+  packages/configure-mcp-server:
     dependencies:
-      '@gleanwork/api-client':
-        specifier: 0.6.1
-        version: 0.6.1(zod@3.25.46)
-      '@modelcontextprotocol/sdk':
-        specifier: ^1.7.0
-        version: 1.12.1
+      '@gleanwork/local-mcp-server':
+        specifier: workspace:*
+        version: link:../local-mcp-server
+      '@gleanwork/mcp-server-utils':
+        specifier: workspace:*
+        version: link:../mcp-server-utils
       dotenv:
         specifier: ^16.3.1
         version: 16.5.0
@@ -84,6 +87,182 @@ importers:
       fs-extra:
         specifier: ^11.3.0
         version: 11.3.0
+      globals:
+        specifier: ^16.0.0
+        version: 16.2.0
+      msw:
+        specifier: ^2.10.2
+        version: 2.10.2(@types/node@22.15.29)(typescript@5.8.3)
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      prettier:
+        specifier: ^3.5.3
+        version: 3.5.3
+      release-it:
+        specifier: ^17.11.0
+        version: 17.11.0(typescript@5.8.3)
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
+      sort-package-json:
+        specifier: ^3.2.1
+        version: 3.2.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.3
+        version: 3.2.3(@types/debug@4.1.12)(@types/node@22.15.29)(msw@2.10.2(@types/node@22.15.29)(typescript@5.8.3))
+
+  packages/local-mcp-server:
+    dependencies:
+      '@gleanwork/api-client':
+        specifier: 0.6.1
+        version: 0.6.1(zod@3.25.46)
+      '@gleanwork/mcp-server-utils':
+        specifier: workspace:*
+        version: link:../mcp-server-utils
+      '@modelcontextprotocol/sdk':
+        specifier: ^1.7.0
+        version: 1.12.1
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.5.0
+      meow:
+        specifier: ^13.2.0
+        version: 13.2.0
+      open:
+        specifier: ^10.1.1
+        version: 10.1.2
+      tldts:
+        specifier: ^7.0.7
+        version: 7.0.8
+      zod:
+        specifier: ^3.24.2
+        version: 3.25.46
+      zod-to-json-schema:
+        specifier: ^3.24.5
+        version: 3.24.5(zod@3.25.46)
+    devDependencies:
+      '@eslint/eslintrc':
+        specifier: ^3.3.1
+        version: 3.3.1
+      '@eslint/js':
+        specifier: ^9.23.0
+        version: 9.28.0
+      '@release-it-plugins/lerna-changelog':
+        specifier: ^7.0.0
+        version: 7.0.0(release-it@17.11.0(typescript@5.8.3))
+      '@types/node':
+        specifier: ^22.14.0
+        version: 22.15.29
+      '@types/node-fetch':
+        specifier: ^2.6.12
+        version: 2.6.12
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.33.1
+        version: 8.33.1(@typescript-eslint/parser@8.33.0(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.27.0
+        version: 8.33.0(eslint@9.28.0)(typescript@5.8.3)
+      console-test-helpers:
+        specifier: ^0.3.3
+        version: 0.3.3
+      eslint:
+        specifier: ^9.23.0
+        version: 9.28.0
+      eslint-plugin-prettier:
+        specifier: ^5.2.5
+        version: 5.4.1(eslint@9.28.0)(prettier@3.5.3)
+      fixturify:
+        specifier: ^3.0.0
+        version: 3.0.0
+      fs-extra:
+        specifier: ^11.3.0
+        version: 11.3.0
+      globals:
+        specifier: ^16.0.0
+        version: 16.2.0
+      msw:
+        specifier: ^2.10.2
+        version: 2.10.2(@types/node@22.15.29)(typescript@5.8.3)
+      npm-run-all:
+        specifier: ^4.1.5
+        version: 4.1.5
+      prettier:
+        specifier: ^3.5.3
+        version: 3.5.3
+      release-it:
+        specifier: ^17.11.0
+        version: 17.11.0(typescript@5.8.3)
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
+      sort-package-json:
+        specifier: ^3.2.1
+        version: 3.2.1
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.3
+      vitest:
+        specifier: ^3.2.3
+        version: 3.2.3(@types/debug@4.1.12)(@types/node@22.15.29)(msw@2.10.2(@types/node@22.15.29)(typescript@5.8.3))
+
+  packages/mcp-server-utils:
+    dependencies:
+      dotenv:
+        specifier: ^16.3.1
+        version: 16.5.0
+      fs-extra:
+        specifier: ^11.3.0
+        version: 11.3.0
+      open:
+        specifier: ^10.1.1
+        version: 10.1.2
+      tldts:
+        specifier: ^7.0.7
+        version: 7.0.8
+      zod:
+        specifier: ^3.24.2
+        version: 3.25.46
+      zod-to-json-schema:
+        specifier: ^3.24.5
+        version: 3.24.5(zod@3.25.46)
+    devDependencies:
+      '@eslint/eslintrc':
+        specifier: ^3.3.1
+        version: 3.3.1
+      '@eslint/js':
+        specifier: ^9.23.0
+        version: 9.28.0
+      '@gleanwork/api-client':
+        specifier: 0.6.1
+        version: 0.6.1(zod@3.25.46)
+      '@release-it-plugins/lerna-changelog':
+        specifier: ^7.0.0
+        version: 7.0.0(release-it@17.11.0(typescript@5.8.3))
+      '@types/node':
+        specifier: ^22.14.0
+        version: 22.15.29
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.33.1
+        version: 8.33.1(@typescript-eslint/parser@8.33.0(eslint@9.28.0)(typescript@5.8.3))(eslint@9.28.0)(typescript@5.8.3)
+      '@typescript-eslint/parser':
+        specifier: ^8.27.0
+        version: 8.33.0(eslint@9.28.0)(typescript@5.8.3)
+      console-test-helpers:
+        specifier: ^0.3.3
+        version: 0.3.3
+      eslint:
+        specifier: ^9.23.0
+        version: 9.28.0
+      eslint-plugin-prettier:
+        specifier: ^5.2.5
+        version: 5.4.1(eslint@9.28.0)(prettier@3.5.3)
+      fixturify:
+        specifier: ^3.0.0
+        version: 3.0.0
       globals:
         specifier: ^16.0.0
         version: 16.2.0
@@ -1396,8 +1575,8 @@ packages:
     resolution: {integrity: sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==}
     engines: {node: '>= 0.6'}
 
-  eventsource-parser@3.0.1:
-    resolution: {integrity: sha512-VARTJ9CYeuQYb0pZEPbzi740OWFgpHe7AYJ2WFZVnUDUQp5Dk2yJUgF36YsZ81cOyxT0QxmXD2EQpapAouzWVA==}
+  eventsource-parser@3.0.2:
+    resolution: {integrity: sha512-6RxOBZ/cYgd8usLwsEl+EC09Au/9BcmCKYF2/xbml6DNczf7nv0MQb+7BA2F+li6//I+28VNlQR37XfQtcAJuA==}
     engines: {node: '>=18.0.0'}
 
   eventsource@3.0.7:
@@ -3953,7 +4132,7 @@ snapshots:
 
   '@typescript-eslint/project-service@8.33.0(typescript@5.8.3)':
     dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.33.0(typescript@5.8.3)
+      '@typescript-eslint/tsconfig-utils': 8.33.1(typescript@5.8.3)
       '@typescript-eslint/types': 8.33.1
       debug: 4.4.1
     transitivePeerDependencies:
@@ -4736,7 +4915,7 @@ snapshots:
       '@humanfs/node': 0.16.6
       '@humanwhocodes/module-importer': 1.0.1
       '@humanwhocodes/retry': 0.4.3
-      '@types/estree': 1.0.7
+      '@types/estree': 1.0.8
       '@types/json-schema': 7.0.15
       ajv: 6.12.6
       chalk: 4.1.2
@@ -4789,11 +4968,11 @@ snapshots:
 
   etag@1.8.1: {}
 
-  eventsource-parser@3.0.1: {}
+  eventsource-parser@3.0.2: {}
 
   eventsource@3.0.7:
     dependencies:
-      eventsource-parser: 3.0.1
+      eventsource-parser: 3.0.2
 
   execa@5.1.1:
     dependencies:
@@ -4851,7 +5030,7 @@ snapshots:
       router: 2.2.0
       send: 1.2.0
       serve-static: 2.2.0
-      statuses: 2.0.1
+      statuses: 2.0.2
       type-is: 2.0.1
       vary: 1.1.2
     transitivePeerDependencies:

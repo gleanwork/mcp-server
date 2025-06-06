@@ -26,24 +26,32 @@ mise install
 pnpm install
 ```
 
-1. Run tests:
-
-```bash
-pnpm test
-```
-
 1. Build the project:
 
 ```bash
 pnpm run build
 ```
 
+1. Run tests:
+
+```bash
+pnpm test
+```
+
+## Repo Organization
+
+The repository is structured as a monorepo with the following packages:
+
+- `@gleanwork/configure-mcp-server` a tool for configuring popular MCP clients to use Glean.
+- `@gleanwork/local-mcp-server` the stdio MCP server that exposes Glean APIs to local assistants.
+- `@gleanwork/mcp-server-utils` a collection of utilities used by both the configure tool and local mcp server.
+
 ## Running the Server Locally
 
 The server communicates via stdio, making it ideal for integration with AI models and other tools:
 
 ```bash
-node build/index.js
+node packages/local-server/build/index.js
 ```
 
 Input and output follow the JSON-RPC 2.0 protocol, with each message on a new line.
