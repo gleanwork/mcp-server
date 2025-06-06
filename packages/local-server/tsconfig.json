@@ -1,0 +1,27 @@
+{
+  "include": ["./src"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "esnext",
+    "lib": ["es2022"],
+    "outDir": "./build",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "checkJs": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/lib/*"],
+      "$/*": ["src/*"],
+      "$cli/*": ["src/cli/*"],
+      "$test/*": ["src/test/*"]
+    }
+  }
+}
