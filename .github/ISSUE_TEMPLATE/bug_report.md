@@ -59,7 +59,7 @@ assignees: ''
   "mcpServers": {
     "glean": {
       "command": "npx",
-      "args": ["-y", "@gleanwork/mcp-server"],
+      "args": ["-y", "@gleanwork/local-mcp-server"],
       "env": {
         "GLEAN_INSTANCE": "<redacted>",
         "GLEAN_API_TOKEN": "<redacted>"

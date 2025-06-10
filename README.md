@@ -57,22 +57,22 @@ You can use the built-in configuration tool to automatically set up Glean for yo
 
 ```bash
 # Configure for Cursor
-npx @gleanwork/mcp-server configure --client cursor --token your_api_token --instance instance_name
+npx @gleanwork/configure-mcp-server --client cursor --token your_api_token --instance instance_name
 
 # Configure for Claude Desktop
-npx @gleanwork/mcp-server configure --client claude --token your_api_token --instance instance_name
+npx @gleanwork/configure-mcp-server --client claude --token your_api_token --instance instance_name
 
 # Configure for VS Code
-npx @gleanwork/mcp-server configure --client vscode --token your_api_token --instance instance_name
+npx @gleanwork/configure-mcp-server --client vscode --token your_api_token --instance instance_name
 
 # Configure for Windsurf
-npx @gleanwork/mcp-server configure --client windsurf --token your_api_token --instance instance_name
+npx @gleanwork/configure-mcp-server --client windsurf --token your_api_token --instance instance_name
 ```
 
 Alternatively, you can use an environment file:
 
 ```bash
-npx @gleanwork/mcp-server configure --client cursor --env path/to/.env.glean
+npx @gleanwork/configure-mcp-server --client cursor --env path/to/.env.glean
 ```
 
 The environment file should contain:
@@ -97,7 +97,7 @@ To configure this MCP server in your MCP client (such as Claude Desktop, Windsur
   "mcpServers": {
     "glean": {
       "command": "npx",
-      "args": ["-y", "@gleanwork/mcp-server"],
+      "args": ["-y", "@gleanwork/local-mcp-server"],
       "env": {
         "GLEAN_INSTANCE": "<glean instance name>",
         "GLEAN_API_TOKEN": "<glean api token>"
