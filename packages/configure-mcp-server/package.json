@@ -41,7 +41,7 @@
     "lint:ts": "tsc --noEmit",
     "prepare": "pnpm run build",
     "release": "release-it",
-    "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest run",
+    "test": "vitest run",
     "test:all": "pnpm lint && pnpm lint:ts && pnpm test",
     "test:watch": "vitest",
     "watch": "tsc -w"
