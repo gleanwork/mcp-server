@@ -17,11 +17,6 @@
     "allowJs": true,
     "skipLibCheck": true,
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/lib/*"],
-      "$/*": ["src/*"],
-      "$cli/*": ["src/cli/*"],
-      "$test/*": ["src/test/*"]
-    }
+    "paths": {}
   }
 }
