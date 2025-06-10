@@ -15,6 +15,9 @@
   "license": "MIT",
   "author": "Steve Calvert <steve.calvert@glean.com>",
   "type": "module",
+  "exports": {
+    ".": "./build/index.js"
+  },
   "main": "./build/index.js",
   "bin": {
     "configure-mcp-server": "./build/index.js"
