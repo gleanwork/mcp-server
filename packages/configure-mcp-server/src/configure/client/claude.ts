@@ -42,7 +42,7 @@ const claudeClient = createBaseClient(
   [
     'Restart Claude Desktop',
     'You should see a hammer icon in the input box, indicating MCP tools are available',
-    'Click the hammer to see available tools including Glean search and chat',
+    'Click the hammer to see available tools',
   ],
   claudePathResolver,
 );

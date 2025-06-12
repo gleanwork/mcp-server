@@ -14,6 +14,7 @@ import * as authModule from '../../auth/auth.js';
 import * as configModule from '../../config/config.js';
 import { fetchDeviceAuthorization } from '../../auth/auth.js';
 import { getOAuthScopes } from '../../auth/auth.js';
+import { loadOAuthMetadata } from '../../auth/oauth-cache.js';
 
 // Mock getConfig rather than mock the network for these tests (see
 // authorize.test.ts for those) but we don't want to mock the type guards from
@@ -33,6 +34,46 @@ function setupXdgTemp() {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'auth-test-'));
   process.env.XDG_STATE_HOME = tmpDir;
   return tmpDir;
+}
+
+// Helper to read MCP remote client info file
+function readMcpRemoteClientInfo(mcpAuthDir: string): Record<string, unknown> {
+  const files = fs.readdirSync(mcpAuthDir);
+  const dirs = files.filter((f) =>
+    fs.statSync(path.join(mcpAuthDir, f)).isDirectory(),
+  );
+  expect(dirs).toHaveLength(1);
+
+  const targetDir = path.join(mcpAuthDir, dirs[0]);
+  const targetFiles = fs.readdirSync(targetDir);
+  const clientInfoFile = targetFiles.find((f: string) =>
+    f.endsWith('_client_info.json'),
+  );
+  expect(clientInfoFile).toBeDefined();
+
+  return JSON.parse(
+    fs.readFileSync(path.join(targetDir, clientInfoFile!), 'utf-8'),
+  );
+}
+
+// Helper to read MCP remote tokens file
+function readMcpRemoteTokens(mcpAuthDir: string): Record<string, unknown> {
+  const files = fs.readdirSync(mcpAuthDir);
+  const dirs = files.filter((f) =>
+    fs.statSync(path.join(mcpAuthDir, f)).isDirectory(),
+  );
+  expect(dirs).toHaveLength(1);
+
+  const targetDir = path.join(mcpAuthDir, dirs[0]);
+  const targetFiles = fs.readdirSync(targetDir);
+  const tokensFile = targetFiles.find((f: string) =>
+    f.endsWith('_tokens.json'),
+  );
+  expect(tokensFile).toBeDefined();
+
+  return JSON.parse(
+    fs.readFileSync(path.join(targetDir, tokensFile!), 'utf-8'),
+  );
 }
 
 describe('auth', () => {
@@ -705,6 +746,170 @@ describe('auth', () => {
         "verification_uri": "https://verify.example.com",
       }
     `);
+    });
+  });
+
+  describe('setupMcpRemote', () => {
+    const baseUrl = 'https://api.example.com';
+    const config = {
+      baseUrl,
+      authType: 'oauth' as const,
+      clientId: 'client-123',
+      issuer: 'https://auth.example.com',
+      authorizationEndpoint: 'https://auth.example.com/device',
+      tokenEndpoint: 'https://auth.example.com/token',
+    };
+    const validTokens = {
+      accessToken: 'access-123',
+      refreshToken: 'refresh-456',
+      expiresAt: Date.now() + 3600 * 1000,
+      isExpired: () => false,
+    };
+    const validOAuthMetadata = {
+      clientId: 'client-123',
+      clientSecret: 'secret-xyz',
+    };
+
+    let loadTokensSpy: ReturnType<typeof vi.spyOn>;
+    let loadOAuthMetadataSpy: ReturnType<typeof vi.spyOn>;
+    let getConfig: any;
+
+    beforeEach(() => {
+      loadTokensSpy = vi.spyOn(tokenStore, 'loadTokens');
+      // Mock the module directly
+      vi.mock('../../auth/oauth-cache.js', () => ({
+        loadOAuthMetadata: vi.fn(),
+      }));
+      loadOAuthMetadataSpy = vi.mocked(loadOAuthMetadata);
+      getConfig = (configModule as any).getConfig;
+      getConfig.mockReturnValue(config);
+
+      // Set XDG_STATE_HOME and HOME to tmpDir so .mcp-auth is created in the test temp dir
+      process.env.XDG_STATE_HOME = tmpDir;
+      process.env.HOME = tmpDir;
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      Logger.reset();
+      delete process.env.XDG_STATE_HOME;
+      delete process.env.HOME;
+    });
+
+    it('throws if using Glean token config', async () => {
+      getConfig.mockReturnValue({
+        baseUrl,
+        authType: 'token' as const,
+        token: 'token-abc',
+      });
+      await expect(
+        authModule.setupMcpRemote({ target: 'default' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[AuthError: ERR_A_01: Cannot setup MCP remote with Glean token configuration. Please use OAuth configuration instead.]`,
+      );
+    });
+
+    it('throws if OAuth metadata is missing', async () => {
+      loadOAuthMetadataSpy.mockReturnValue(null);
+      await expect(
+        authModule.setupMcpRemote({ target: 'default' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[AuthError: ERR_A_21: Missing OAuth metadata required for MCP remote setup. Please authenticate first using OAuth.]`,
+      );
+    });
+
+    it('throws if tokens are missing', async () => {
+      loadOAuthMetadataSpy.mockReturnValue(validOAuthMetadata);
+      loadTokensSpy.mockReturnValue(null);
+      await expect(
+        authModule.setupMcpRemote({ target: 'default' }),
+      ).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[AuthError: ERR_A_22: Missing OAuth tokens required for MCP remote setup. Please authenticate first using OAuth.]`,
+      );
+    });
+
+    it('writes client info and tokens for default target', async () => {
+      loadOAuthMetadataSpy.mockReturnValue(validOAuthMetadata);
+      loadTokensSpy.mockReturnValue(validTokens);
+
+      const { setupMcpRemote } = authModule;
+      await setupMcpRemote({ target: 'default' });
+
+      // Read the written files
+      const mcpAuthDir = path.join(tmpDir, '.mcp-auth');
+      const clientInfo = readMcpRemoteClientInfo(mcpAuthDir);
+      expect(clientInfo).toMatchInlineSnapshot(`
+        {
+          "client_id": "client-123",
+          "client_secret": "secret-xyz",
+          "redirect_uris": [
+            "http://localhost:9999/cb",
+          ],
+        }
+      `);
+
+      const tokens = readMcpRemoteTokens(mcpAuthDir);
+      expect(tokens).toMatchInlineSnapshot(`
+        {
+          "access_token": "access-123",
+          "expires_in": 1,
+          "refresh_token": "refresh-456",
+          "token_type": "Bearer",
+        }
+      `);
+    });
+
+    it('writes client info and tokens for agents target', async () => {
+      loadOAuthMetadataSpy.mockReturnValue(validOAuthMetadata);
+      loadTokensSpy.mockReturnValue(validTokens);
+
+      const { setupMcpRemote } = authModule;
+      await setupMcpRemote({ target: 'agents' });
+
+      // Read the written files
+      const mcpAuthDir = path.join(tmpDir, '.mcp-auth');
+      const clientInfo = readMcpRemoteClientInfo(mcpAuthDir);
+      expect(clientInfo).toMatchInlineSnapshot(`
+        {
+          "client_id": "client-123",
+          "client_secret": "secret-xyz",
+          "redirect_uris": [
+            "http://localhost:9999/cb",
+          ],
+        }
+      `);
+
+      const tokens = readMcpRemoteTokens(mcpAuthDir);
+      expect(tokens).toMatchInlineSnapshot(`
+        {
+          "access_token": "access-123",
+          "expires_in": 1,
+          "refresh_token": "refresh-456",
+          "token_type": "Bearer",
+        }
+      `);
+    });
+
+    it('omits client_secret if not present in OAuth metadata', async () => {
+      loadOAuthMetadataSpy.mockReturnValue({
+        clientId: 'client-123',
+      });
+      loadTokensSpy.mockReturnValue(validTokens);
+
+      const { setupMcpRemote } = authModule;
+      await setupMcpRemote({ target: 'default' });
+
+      // Read the written files
+      const mcpAuthDir = path.join(tmpDir, '.mcp-auth');
+      const clientInfo = readMcpRemoteClientInfo(mcpAuthDir);
+      expect(clientInfo).toMatchInlineSnapshot(`
+        {
+          "client_id": "client-123",
+          "redirect_uris": [
+            "http://localhost:9999/cb",
+          ],
+        }
+      `);
     });
   });
 });
