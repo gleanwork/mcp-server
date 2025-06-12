@@ -69,3 +69,17 @@ function hasCommonAuthResponseFields(json: any): boolean {
     'interval' in json
   );
 }
+
+export interface McpRemoteClientInfo {
+  client_id: string;
+  client_secret?: string;
+  redirect_uris: string[];
+}
+
+export interface McpRemoteTokens {
+  access_token: string;
+  token_type: string;
+  expires_in?: number | undefined;
+  scope?: string | undefined;
+  refresh_token?: string | undefined;
+}

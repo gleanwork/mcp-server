@@ -8,6 +8,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import type { ConfigureOptions } from '../index.js';
+import { RemoteMcpTargets } from '@gleanwork/mcp-server-utils/util';
+import { isOAuthEnabled } from '../../common/env.js';
 
 export interface MCPConfigPath {
   configDir: string;
@@ -126,6 +128,7 @@ export interface MCPClientConfig {
 export function createConfigTemplate(
   instanceOrUrl = '<glean instance name>',
   apiToken?: string,
+  options?: ConfigureOptions,
 ): StandardMCPConfig {
   const env: Record<string, string> = {};
 
@@ -147,15 +150,51 @@ export function createConfigTemplate(
     env.GLEAN_API_TOKEN = apiToken;
   }
 
+  const isLocal = !options?.remote;
+  if (isLocal) {
+    return {
+      mcpServers: {
+        glean: {
+          command: 'npx',
+          args: ['-y', '@gleanwork/local-mcp-server'],
+          env,
+        },
+      },
+    };
+  }
+
+  const usingOAuth = apiToken === undefined && isOAuthEnabled();
+
+  // remote set up, either default or agents
+  const serverUrl = buildMcpUrl(
+    instanceOrUrl,
+    options?.agents ? 'agents' : 'default',
+  );
+  const args = ['-y', '@gleanwork/connect-mcp-server', serverUrl];
+  if (usingOAuth) {
+    args.push('--header', 'X-Glean-Auth-Type: OAUTH');
+  }
+
   return {
     mcpServers: {
       glean: {
         command: 'npx',
-        args: ['-y', '@gleanwork/local-mcp-server'],
+        args,
         env,
       },
     },
   };
+}
+
+function buildMcpUrl(instanceOrUrl: string, target: RemoteMcpTargets) {
+  const baseUrl =
+    instanceOrUrl.startsWith('http://') || instanceOrUrl.startsWith('https://')
+      ? // url: strip path and add /mcp
+        new URL(instanceOrUrl).origin + '/mcp'
+      : // instance
+        `https://${instanceOrUrl}-be.glean.com/mcp`;
+
+  return `${baseUrl}/${target}/sse`;
 }
 
 /**

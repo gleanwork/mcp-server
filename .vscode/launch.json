@@ -34,6 +34,17 @@
       "args": ["--trace", "auth-test"],
       "smartStep": true,
       "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug CLI (setup-mcp-remote)",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "packages/configure-mcp-server/build/index.js",
+      "args": ["--trace", "setup-mcp-remote"],
+      "smartStep": true,
+      "console": "integratedTerminal"
     }
   ]
 }

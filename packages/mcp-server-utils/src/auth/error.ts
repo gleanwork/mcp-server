@@ -41,6 +41,10 @@ export enum AuthErrorCode {
   InvalidConfig = 'ERR_A_19',
   /** Unexpected response fetching access token */
   UnexpectedAuthGrantResponse = 'ERR_A_20',
+  /** Missing OAuth metadata required for MCP remote setup */
+  MissingOAuthMetadata = 'ERR_A_21',
+  /** Missing OAuth tokens required for MCP remote setup */
+  MissingOAuthTokens = 'ERR_A_22',
 }
 
 /**
