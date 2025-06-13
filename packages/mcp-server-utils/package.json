@@ -64,7 +64,7 @@
     "!build/vitest.config.*"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rimraf build && tsc",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "npm-run-all --sequential lint:*",
     "lint:eslint": "eslint \"src/**/*.ts\" --fix",
