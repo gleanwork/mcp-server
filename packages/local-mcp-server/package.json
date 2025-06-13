@@ -16,7 +16,12 @@
   "author": "Steve Calvert <steve.calvert@glean.com>",
   "type": "module",
   "exports": {
-    ".": "./build/index.js"
+    ".": "./build/index.js",
+    "./tools/chat": {
+      "types": "./build/tools/chat.d.ts",
+      "import": "./build/tools/chat.js",
+      "default": "./build/tools/chat.js"
+    }
   },
   "main": "./build/index.js",
   "bin": {

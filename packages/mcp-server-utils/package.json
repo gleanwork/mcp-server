@@ -21,6 +21,11 @@
       "import": "./build/auth/index.js",
       "default": "./build/auth/index.js"
     },
+    "./config": {
+      "types": "./build/config/index.d.ts",
+      "import": "./build/config/index.js",
+      "default": "./build/config/index.js"
+    },
     "./errors": {
       "types": "./build/common/errors.d.ts",
       "import": "./build/common/errors.js",

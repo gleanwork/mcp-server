@@ -15,18 +15,16 @@
 
 import { HTTPClient } from '@gleanwork/api-client/lib/http.js';
 import { VERSION } from './version.js';
-import { loadTokens } from '../auth/token-store.js';
+import { AuthError, AuthErrorCode, ensureAuthTokenPresence, loadTokens } from '@gleanwork/mcp-server-utils/auth';
 import {
   getConfig,
   isGleanTokenConfig,
   isOAuthConfig,
   sanitizeConfig,
-} from '../config/config.js';
-import { trace } from '../log/logger.js';
+} from '@gleanwork/mcp-server-utils/config';
+import { trace } from '@gleanwork/mcp-server-utils/logger';
 import { Glean, SDK_METADATA, SDKOptions } from '@gleanwork/api-client';
 import { Client } from '@gleanwork/api-client/sdk/client.js';
-import { AuthError, AuthErrorCode } from '../auth/error.js';
-import { ensureAuthTokenPresence } from '../auth/auth.js';
 
 let clientInstancePromise: Promise<Client> | null = null;
 

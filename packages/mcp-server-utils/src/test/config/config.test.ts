@@ -10,7 +10,7 @@ import {
   isBasicConfig,
   isGleanTokenConfig,
   isOAuthConfig,
-} from '../../config/config.js';
+} from '../../config/index.js';
 
 // Helper to set up XDG temp dir
 function setupXdgTemp() {

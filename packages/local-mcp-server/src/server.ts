@@ -18,9 +18,9 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import * as search from '@gleanwork/mcp-server-utils/tools/search';
-import * as chat from '@gleanwork/mcp-server-utils/tools/chat';
-import * as peopleProfileSearch from '@gleanwork/mcp-server-utils/tools/people-profile-search';
+import * as search from './tools/search.js';
+import * as chat from './tools/chat.js';
+import * as peopleProfileSearch from './tools/people_profile_search.js';
 import {} from '@gleanwork/mcp-server-utils/auth';
 import {
   formatGleanError,

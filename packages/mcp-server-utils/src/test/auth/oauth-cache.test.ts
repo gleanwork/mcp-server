@@ -3,7 +3,7 @@ import {
   saveOAuthMetadata,
   loadOAuthMetadata,
 } from '../../auth/oauth-cache.js';
-import { GleanOAuthConfig } from '../../config/config.js';
+import { GleanOAuthConfig } from '../../config/index.js';
 import path from 'node:path';
 import fixturify from 'fixturify';
 import os from 'node:os';

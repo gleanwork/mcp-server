@@ -14,7 +14,7 @@ import {
   isBasicConfig,
   isGleanTokenConfig,
   isOAuthConfig,
-} from '../config/config.js';
+ } from '../config/index.js';
 import { debug, error, trace } from '../log/logger.js';
 import { loadTokens, saveTokens, Tokens } from './token-store.js';
 import {
