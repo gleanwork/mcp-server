@@ -10,7 +10,7 @@ import {
 import { http } from 'msw';
 import { setupServer } from 'msw/node';
 import { getAPIClientOptions, resetClient } from '../../common/client.js';
-import { Logger } from '../../log/logger.js';
+import { Logger } from '@gleanwork/mcp-server-utils/logger';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';

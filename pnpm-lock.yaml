@@ -239,9 +239,6 @@ importers:
       '@eslint/js':
         specifier: ^9.23.0
         version: 9.28.0
-      '@gleanwork/api-client':
-        specifier: 0.6.1
-        version: 0.6.1(zod@3.25.46)
       '@release-it-plugins/lerna-changelog':
         specifier: ^7.0.0
         version: 7.0.0(release-it@17.11.0(typescript@5.8.3))
