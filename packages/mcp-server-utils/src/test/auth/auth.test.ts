@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { http, HttpResponse } from 'msw';
-import { server } from '../mocks/setup';
+import { server } from '@gleanwork/test-utils/mocks/setup';
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
