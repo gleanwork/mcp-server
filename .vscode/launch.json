@@ -19,7 +19,7 @@
       "name": "Debug CLI (auth)",
       "autoAttachChildProcesses": true,
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
-      "program": "build/index.js",
+      "program": "packages/configure-mcp-server/build/index.js",
       "args": ["--trace", "auth"],
       "smartStep": true,
       "console": "integratedTerminal"
@@ -30,7 +30,7 @@
       "name": "Debug CLI (auth-test)",
       "autoAttachChildProcesses": true,
       "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
-      "program": "build/index.js",
+      "program": "packages/configure-mcp-server/build/index.js",
       "args": ["--trace", "auth-test"],
       "smartStep": true,
       "console": "integratedTerminal"
