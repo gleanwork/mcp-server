@@ -18,10 +18,11 @@ import {
   MCPConfig,
   ConfigFileContents,
 } from './client/index.js';
-import { ensureAuthTokenPresence } from '@gleanwork/mcp-server-utils/auth';
+import { ensureAuthTokenPresence, setupMcpRemote } from '@gleanwork/mcp-server-utils/auth';
 import { trace, error } from '@gleanwork/mcp-server-utils/logger';
 import { validateInstance } from '@gleanwork/mcp-server-utils/util';
 import { VERSION } from '../common/version.js';
+import { isOAuthEnabled } from '../common/env.js';
 
 export type { MCPConfig, ConfigFileContents } from './client/index.js';
 
@@ -31,6 +32,8 @@ export type { MCPConfig, ConfigFileContents } from './client/index.js';
 export interface ConfigureOptions {
   token?: string;
   instance?: string;
+  remote?: boolean;
+  agents?: boolean;
   url?: string;
   envPath?: string;
   workspace?: boolean;
@@ -181,7 +184,7 @@ export async function configure(client: string, options: ConfigureOptions) {
     }
 
     // No token available from any source, check if OAuth is enabled
-    const oauthEnabled = process.env.GLEAN_OAUTH_ENABLED;
+    const oauthEnabled = isOAuthEnabled();
     if (!oauthEnabled) {
       throw new Error(
         'API token is required. Please provide a token with the --token option or in your .env file.',
@@ -209,6 +212,10 @@ export async function configure(client: string, options: ConfigureOptions) {
     if (!authSuccess) {
       throw new Error('OAuth authorization failed');
     }
+
+    await setupMcpRemote({
+      target: options.agents ? 'agents' : 'default'
+    });
 
     const newConfig = clientConfig.configTemplate(
       instanceOrUrl,
