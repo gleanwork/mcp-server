@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { validateInstance } from '../../util/preflight.js';
-import '../mocks/setup.js';
+import '@gleanwork/test-utils/mocks/setup';
 
 describe('Preflight Validation', () => {
   beforeEach(() => {
