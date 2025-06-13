@@ -14,6 +14,7 @@
  */
 
 import { HTTPClient } from '@gleanwork/api-client/lib/http.js';
+import { VERSION } from './version.js';
 import { loadTokens } from '../auth/token-store.js';
 import {
   getConfig,
@@ -22,13 +23,14 @@ import {
   sanitizeConfig,
 } from '../config/config.js';
 import { trace } from '../log/logger.js';
-import { Glean, SDKOptions } from '@gleanwork/api-client';
+import { Glean, SDK_METADATA, SDKOptions } from '@gleanwork/api-client';
 import { Client } from '@gleanwork/api-client/sdk/client.js';
 import { AuthError, AuthErrorCode } from '../auth/error.js';
 import { ensureAuthTokenPresence } from '../auth/auth.js';
 
 let clientInstancePromise: Promise<Client> | null = null;
 
+const USER_AGENT = `speakeasy-sdk/typescript ${VERSION} ${SDK_METADATA.genVersion} ${SDK_METADATA.openapiDocVersion} @gleanwork/local-mcp-server`;
 /**
  * Gets the singleton instance of the Glean client, creating it if necessary.
  *
@@ -89,6 +91,7 @@ export async function getAPIClientOptions(): Promise<SDKOptions> {
     opts.apiToken = tokens?.accessToken;
     opts.httpClient = buildHttpClientWithGlobalHeaders({
       'X-Glean-Auth-Type': 'OAUTH',
+      'user-agent': USER_AGENT,
     });
   } else if (isGleanTokenConfig(config)) {
     opts.apiToken = config.token;
@@ -97,6 +100,7 @@ export async function getAPIClientOptions(): Promise<SDKOptions> {
     if (actAs) {
       opts.httpClient = buildHttpClientWithGlobalHeaders({
         'X-Glean-Act-As': actAs,
+        'user-agent': USER_AGENT,
       });
     }
   } else {
