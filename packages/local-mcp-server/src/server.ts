@@ -21,6 +21,7 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 import * as search from './tools/search.js';
 import * as chat from './tools/chat.js';
 import * as peopleProfileSearch from './tools/people_profile_search.js';
+import * as readDocuments from './tools/read_documents.js';
 import {} from '@gleanwork/mcp-server-utils/auth';
 import {
   formatGleanError,
@@ -32,6 +33,7 @@ export const TOOL_NAMES = {
   companySearch: 'company_search',
   peopleProfileSearch: 'people_profile_search',
   chat: 'chat',
+  readDocuments: 'read_documents',
 };
 
 /**
@@ -101,6 +103,23 @@ export async function listToolsHandler() {
           peopleProfileSearch.ToolPeopleProfileSearchSchema,
         ),
       },
+      {
+        name: TOOL_NAMES.readDocuments,
+        description: `Read documents from Glean by ID or URL
+
+        Example request:
+
+        "documentSpecs": [
+            {
+                "id": "doc-123",
+            },
+            {
+                "url": "https://example.com/doc2"
+            }
+          ]
+        `,
+        inputSchema: zodToJsonSchema(readDocuments.ToolReadDocumentsSchema),
+      },
     ],
   };
 }
@@ -145,6 +164,19 @@ export async function callToolHandler(
         );
         const result = await peopleProfileSearch.peopleProfileSearch(args);
         const formattedResults = peopleProfileSearch.formatResponse(result);
+
+        return {
+          content: [{ type: 'text', text: formattedResults }],
+          isError: false,
+        };
+      }
+
+      case TOOL_NAMES.readDocuments: {
+        const args = readDocuments.ToolReadDocumentsSchema.parse(
+          request.params.arguments,
+        );
+        const result = await readDocuments.readDocuments(args);
+        const formattedResults = readDocuments.formatResponse(result);
 
         return {
           content: [{ type: 'text', text: formattedResults }],
