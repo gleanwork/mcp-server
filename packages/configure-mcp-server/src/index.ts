@@ -32,7 +32,7 @@ import {
   forceAuthorize,
   forceRefreshTokens,
 } from '@gleanwork/mcp-server-utils/auth';
-import { chat, formatResponse } from '@gleanwork/mcp-server-utils/tools/chat';
+import { chat, formatResponse } from '@gleanwork/local-mcp-server/tools/chat';
 import { VERSION } from './common/version.js';
 
 /**
