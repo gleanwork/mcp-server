@@ -1,6 +1,6 @@
 {
   "name": "@gleanwork/configure-mcp-server",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "MCP server configurator for Glean",
   "keywords": [
     "mcp",
@@ -47,8 +47,8 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@gleanwork/local-mcp-server": "workspace:*",
-    "@gleanwork/mcp-server-utils": "workspace:*",
+    "@gleanwork/local-mcp-server": "0.7.3",
+    "@gleanwork/mcp-server-utils": "0.7.3",
     "dotenv": "^16.3.1",
     "meow": "^13.2.0",
     "open": "^10.1.1",
