@@ -3,6 +3,26 @@
 
 
 
+
+## v0.7.5 (2025-06-16)
+
+#### :bug: Bug Fix
+* `mcp-server-utils`
+  * [#171](https://github.com/gleanwork/mcp-server/pull/171) fix(auth): keep unexpired refresh tokens ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### :house: Internal
+* Other
+  * [#172](https://github.com/gleanwork/mcp-server/pull/172) chore(release-it): Correctly disable `npm` integration ([@rwjblue-glean](https://github.com/rwjblue-glean))
+* `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`, `mcp-test-utils`
+  * [#170](https://github.com/gleanwork/mcp-server/pull/170) chore: extract common eslint configuration ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+* `mcp-server-utils`
+  * [#169](https://github.com/gleanwork/mcp-server/pull/169) chore: use upstream types ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### Committers: 2
+- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+- Robert Jackson ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+
 ## v0.7.1 (2025-05-29)
 
 #### :bug: Bug Fix
