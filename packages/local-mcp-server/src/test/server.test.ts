@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { listToolsHandler, callToolHandler, TOOL_NAMES } from '../server.js';
 import { CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import '@gleanwork/test-utils/mocks/setup';
+import '@gleanwork/mcp-test-utils/mocks/setup';
 
 describe('MCP Server Handlers (integration)', () => {
   beforeEach(() => {

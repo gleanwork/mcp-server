@@ -154,9 +154,9 @@ importers:
       '@eslint/js':
         specifier: ^9.23.0
         version: 9.28.0
-      '@gleanwork/test-utils':
+      '@gleanwork/mcp-test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../mcp-test-utils
       '@release-it-plugins/lerna-changelog':
         specifier: ^7.0.0
         version: 7.0.0(release-it@17.11.0(typescript@5.8.3))
@@ -248,9 +248,9 @@ importers:
       '@gleanwork/connect-mcp-server':
         specifier: ^0.2.0
         version: 0.2.1
-      '@gleanwork/test-utils':
+      '@gleanwork/mcp-test-utils':
         specifier: workspace:*
-        version: link:../test-utils
+        version: link:../mcp-test-utils
       '@release-it-plugins/lerna-changelog':
         specifier: ^7.0.0
         version: 7.0.0(release-it@17.11.0(typescript@5.8.3))
@@ -303,7 +303,7 @@ importers:
         specifier: ^3.2.3
         version: 3.2.3(@types/debug@4.1.12)(@types/node@22.15.29)(msw@2.10.2(@types/node@22.15.29)(typescript@5.8.3))(yaml@2.8.0)
 
-  packages/test-utils:
+  packages/mcp-test-utils:
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.3.1

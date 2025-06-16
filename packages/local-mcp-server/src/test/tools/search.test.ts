@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SearchResponse } from '@gleanwork/api-client/models/components';
 import { ToolSearchSchema, search } from '../../tools/search';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import '@gleanwork/test-utils/mocks/setup';
+import '@gleanwork/mcp-test-utils/mocks/setup';
 
 describe('Search Tool', () => {
   beforeEach(() => {

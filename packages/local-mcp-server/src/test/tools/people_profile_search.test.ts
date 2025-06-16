@@ -5,7 +5,7 @@ import {
 } from '../../tools/people_profile_search';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { ListEntitiesResponse } from '@gleanwork/api-client/models/components';
-import '@gleanwork/test-utils/mocks/setup';
+import '@gleanwork/mcp-test-utils/mocks/setup';
 
 describe('People Profile Search Tool', () => {
   beforeEach(() => {
