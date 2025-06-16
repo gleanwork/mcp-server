@@ -16,7 +16,12 @@
   "author": "Steve Calvert <steve.calvert@glean.com>",
   "type": "module",
   "exports": {
-    ".": "./build/index.js"
+    ".": "./build/index.js",
+    "./tools/chat": {
+      "types": "./build/tools/chat.d.ts",
+      "import": "./build/tools/chat.js",
+      "default": "./build/tools/chat.js"
+    }
   },
   "main": "./build/index.js",
   "bin": {
@@ -60,6 +65,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.23.0",
+    "@gleanwork/test-utils": "workspace:*",
     "@release-it-plugins/lerna-changelog": "^7.0.0",
     "@types/node": "^22.14.0",
     "@types/node-fetch": "^2.6.12",

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
-import { server } from '../mocks/setup';
+import { server } from '@gleanwork/test-utils/mocks/setup';
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -10,7 +10,7 @@ import {
   isBasicConfig,
   isGleanTokenConfig,
   isOAuthConfig,
-} from '../../config/config.js';
+} from '../../config/index.js';
 
 // Helper to set up XDG temp dir
 function setupXdgTemp() {

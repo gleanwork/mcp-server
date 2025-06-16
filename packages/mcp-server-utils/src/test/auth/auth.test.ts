@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { http, HttpResponse } from 'msw';
-import { server } from '../mocks/setup';
+import { server } from '@gleanwork/test-utils/mocks/setup';
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -11,7 +11,7 @@ import {
 } from '../../auth/auth.js';
 import * as tokenStore from '../../auth/token-store.js';
 import * as authModule from '../../auth/auth.js';
-import * as configModule from '../../config/config.js';
+import * as configModule from '../../config/index.js';
 import { fetchDeviceAuthorization } from '../../auth/auth.js';
 import { getOAuthScopes } from '../../auth/auth.js';
 import { loadOAuthMetadata } from '../../auth/oauth-cache.js';
@@ -19,9 +19,9 @@ import { loadOAuthMetadata } from '../../auth/oauth-cache.js';
 // Mock getConfig rather than mock the network for these tests (see
 // authorize.test.ts for those) but we don't want to mock the type guards from
 // config.ts
-vi.mock('../../config/config.js', async () => {
-  const actual = await vi.importActual<typeof import('../../config/config.js')>(
-    '../../config/config.js',
+vi.mock('../../config/index.js', async () => {
+  const actual = await vi.importActual<typeof import('../../config/index.js')>(
+    '../../config/index.js',
   );
   return {
     ...actual,

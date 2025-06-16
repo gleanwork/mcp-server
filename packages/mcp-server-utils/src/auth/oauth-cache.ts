@@ -1,4 +1,4 @@
-import { GleanOAuthConfig } from '../config/config.js';
+import { GleanOAuthConfig } from '../config/index.js';
 import { getStateDir } from '../xdg/xdg.js';
 import { trace, error } from '../log/logger.js';
 import path from 'node:path';
