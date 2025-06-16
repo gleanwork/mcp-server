@@ -36,9 +36,7 @@
     ]
   },
   "release-it": {
-    "npm": {
-      "publish": false
-    },
+    "npm": false,
     "git": {
       "tagName": "v${version}",
       "requireCleanWorkingDir": false
