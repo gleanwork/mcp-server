@@ -27,11 +27,11 @@ importers:
   packages/configure-mcp-server:
     dependencies:
       '@gleanwork/local-mcp-server':
-        specifier: 0.7.3
-        version: 0.7.3
+        specifier: 0.7.4
+        version: 0.7.4
       '@gleanwork/mcp-server-utils':
-        specifier: 0.7.3
-        version: 0.7.3
+        specifier: 0.7.4
+        version: 0.7.4
       dotenv:
         specifier: ^16.3.1
         version: 16.5.0
@@ -124,8 +124,8 @@ importers:
         specifier: 0.6.1
         version: 0.6.1(zod@3.25.46)
       '@gleanwork/mcp-server-utils':
-        specifier: 0.7.3
-        version: 0.7.3
+        specifier: 0.7.4
+        version: 0.7.4
       '@modelcontextprotocol/sdk':
         specifier: ^1.7.0
         version: 1.12.1
@@ -585,13 +585,13 @@ packages:
     resolution: {integrity: sha512-PRzf+BVqp7ObN/7523kag3LyEYtn0/juY3NkCuaR0FNYu4NKvQaMgAfj8LTfhVIA2OlGJ64o1U5Em8Uh0UZ4Tw==}
     hasBin: true
 
-  '@gleanwork/local-mcp-server@0.7.3':
-    resolution: {integrity: sha512-0VyyJYUuqhvd2p6XAgbOjuGHumXxtGaQpFJCl/jl7OiQAWezNoBCuXUM5TeFZA9F/3HrOfU7szQjclhpi2OkHg==}
+  '@gleanwork/local-mcp-server@0.7.4':
+    resolution: {integrity: sha512-nYahZUqjSTKcT0GIcr2x/mvuzYs+mdo6HumjejbnXTAkddkGzbOv2HNRx3eRd/5ZUXBddmx3/CdROG6FJQ8K7w==}
     engines: {node: '>=20'}
     hasBin: true
 
-  '@gleanwork/mcp-server-utils@0.7.3':
-    resolution: {integrity: sha512-mraA3znBAAEjDvbJZTY2PjJIbTnSHM4t4zxN91rNd2AP0hAoPoetiKlwKWnzA4g8xAlgduK72WdQ+/T3a+MA+Q==}
+  '@gleanwork/mcp-server-utils@0.7.4':
+    resolution: {integrity: sha512-tf265mqQ+M1vhnMukpebPE6pZ/5LlkBq2lJaRlTN1kI0lGGAvHn93w3dVcex87cfrbHvT2hIrbMxu62El7BKeg==}
     engines: {node: '>=20'}
 
   '@humanfs/core@0.19.1':
@@ -4004,10 +4004,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@gleanwork/local-mcp-server@0.7.3':
+  '@gleanwork/local-mcp-server@0.7.4':
     dependencies:
       '@gleanwork/api-client': 0.6.1(zod@3.25.46)
-      '@gleanwork/mcp-server-utils': 0.7.3
+      '@gleanwork/mcp-server-utils': 0.7.4
       '@modelcontextprotocol/sdk': 1.12.1
       dotenv: 16.5.0
       meow: 13.2.0
@@ -4021,14 +4021,17 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@gleanwork/mcp-server-utils@0.7.3':
+  '@gleanwork/mcp-server-utils@0.7.4':
     dependencies:
+      '@gleanwork/connect-mcp-server': 0.2.1
       dotenv: 16.5.0
       fs-extra: 11.3.0
       open: 10.1.2
       tldts: 7.0.8
       zod: 3.25.46
       zod-to-json-schema: 3.24.5(zod@3.25.46)
+    transitivePeerDependencies:
+      - supports-color
 
   '@humanfs/core@0.19.1': {}
 
