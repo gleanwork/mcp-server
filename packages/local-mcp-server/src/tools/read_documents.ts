@@ -56,10 +56,26 @@ function convertToAPIReadDocumentsRequest(input: ToolReadDocumentsRequest): GetD
  * @throws If the read documents request fails
  */
 export async function readDocuments(params: ToolReadDocumentsRequest) {
-  const mappedParams = convertToAPIReadDocumentsRequest(params);
-  const client = await getClient();
 
-  return await client.documents.retrieve(mappedParams);
+  const mappedParams = convertToAPIReadDocumentsRequest(params);
+
+  // There's a bug in the client SDK, so using fetch directly for now
+  // const client = await getClient();
+  // return await client.documents.retrieve(mappedParams);
+
+  console.error('client response', await client.documents.retrieve(mappedParams))
+
+  // DO NOT MERGE. This is a temporary fix to get the read documents tool working.
+  const response = await fetch(`https://${process.env.GLEAN_INSTANCE}-be.glean.com/rest/api/v1/getdocuments`, {
+    method: 'POST',
+    body: JSON.stringify(mappedParams),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.GLEAN_API_TOKEN}`,
+    },
+  });
+
+  return response.json();
 }
 
 /**
@@ -97,10 +113,6 @@ export function formatResponse(documentsResponse: any): string {
         content = doc.content;
       } else {
         content = 'No content available';
-      }
-
-      if (content.length > 2000) {
-        content = content.substring(0, 2000) + '...';
       }
 
       let metadata = '';

@@ -27,7 +27,7 @@ import {
   formatGleanError,
   isGleanError,
 } from '@gleanwork/mcp-server-utils/errors';
-import { VERSION } from './common/version';
+import { VERSION } from './common/version.js';
 
 export const TOOL_NAMES = {
   companySearch: 'company_search',
