@@ -263,18 +263,6 @@ function writeConfigFile(
       return;
     }
 
-    const hasConfig = clientConfig.hasExistingConfig
-      ? clientConfig.hasExistingConfig(existingConfig, options)
-      : false;
-
-    if (hasConfig) {
-      console.log(
-        `Glean MCP configuration already exists in ${clientConfig.displayName}.`,
-      );
-      console.log(`Configuration file: ${configFilePath}`);
-      return;
-    }
-
     existingConfig = clientConfig.updateConfig(
       existingConfig,
       newConfig,

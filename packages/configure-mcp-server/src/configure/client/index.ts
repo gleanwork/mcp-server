@@ -31,8 +31,10 @@ export interface MCPServerConfig {
  */
 export interface StandardMCPConfig {
   mcpServers: {
-    glean: MCPServerConfig;
-    [key: string]: MCPServerConfig;
+    glean?: MCPServerConfig;
+    glean_agents?: MCPServerConfig;
+    glean_local?: MCPServerConfig;
+    [key: string]: MCPServerConfig | undefined;
   };
 }
 
@@ -98,17 +100,6 @@ export interface MCPClientConfig {
   successMessage: (configPath: string, options?: ConfigureOptions) => string;
 
   /**
-   * Check if configuration exists in the existing config object
-   * @param existingConfig Existing configuration object from the config file
-   * @param options Additional options that may affect detection logic
-   * @returns boolean indicating if configuration exists
-   */
-  hasExistingConfig: (
-    existingConfig: ConfigFileContents,
-    options?: ConfigureOptions,
-  ) => boolean;
-
-  /**
    * Update existing configuration with new config
    * @param existingConfig Existing configuration object to update
    * @param newConfig New configuration to merge with existing
@@ -154,7 +145,7 @@ export function createConfigTemplate(
   if (isLocal) {
     return {
       mcpServers: {
-        glean: {
+        glean_local: {
           command: 'npx',
           args: ['-y', '@gleanwork/local-mcp-server'],
           env,
@@ -170,6 +161,7 @@ export function createConfigTemplate(
     instanceOrUrl,
     options?.agents ? 'agents' : 'default',
   );
+  const mcpServerName = options?.agents ? 'glean_agents' : 'glean';
   const args = ['-y', '@gleanwork/connect-mcp-server', serverUrl];
   if (usingOAuth) {
     args.push('--header', 'X-Glean-Auth-Type:OAUTH');
@@ -177,7 +169,7 @@ export function createConfigTemplate(
 
   return {
     mcpServers: {
-      glean: {
+      [mcpServerName]: {
         command: 'npx',
         args,
         env,
@@ -247,16 +239,6 @@ export function createBaseClient(
     successMessage: (configPath) =>
       createSuccessMessage(displayName, configPath, instructions),
 
-    hasExistingConfig: (existingConfig: ConfigFileContents) => {
-      const standardConfig = existingConfig as StandardMCPConfig;
-      return (
-        standardConfig.mcpServers?.glean?.command === 'npx' &&
-        standardConfig.mcpServers?.glean?.args?.includes(
-          '@gleanwork/local-mcp-server',
-        )
-      );
-    },
-
     updateConfig: (
       existingConfig: ConfigFileContents,
       newConfig: MCPConfig,
@@ -265,7 +247,11 @@ export function createBaseClient(
       const result = { ...existingConfig } as ConfigFileContents &
         StandardMCPConfig;
       result.mcpServers = result.mcpServers || {};
-      result.mcpServers.glean = standardNewConfig.mcpServers.glean;
+      for (const serverName of ['glean', 'glean_local', 'glean_agents']) {
+        if (serverName in standardNewConfig.mcpServers) {
+          result.mcpServers[serverName] = standardNewConfig.mcpServers[serverName];
+        }
+      }
       return result;
     },
   };
