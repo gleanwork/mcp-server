@@ -86,6 +86,10 @@ export function loadTokens(): Tokens | null {
 }
 
 export function saveTokens(tokens: Tokens) {
+  const existingTokens = loadTokens();
+  if(tokens.refreshToken === undefined) {
+    tokens.refreshToken = existingTokens?.refreshToken;
+  }
   saveTokensToXDGState(tokens);
 }
 

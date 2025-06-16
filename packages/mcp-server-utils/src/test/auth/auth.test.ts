@@ -432,6 +432,33 @@ describe('auth', () => {
         /ERR_A_11: Cannot refresh OAuth access token when using glean-token configuration/,
       );
     });
+
+    it('keeps old refresh token when refresh response only includes access token', async () => {
+      tokenStore.saveTokens(new tokenStore.Tokens(validTokens));
+      server.use(
+        http.post(tokenEndpoint, async () =>
+          HttpResponse.json({
+            access_token: 'new-access',
+            expires_in: 3600,
+            token_type: 'Bearer',
+          }),
+        ),
+      );
+      const { forceRefreshTokens } = authModule;
+      await forceRefreshTokens();
+      expect(saveTokensSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          accessToken: 'new-access',
+        }),
+      );
+
+      expect(normalizeTokens(tokenStore.loadTokens())).toMatchInlineSnapshot(`
+        Tokens {
+          "accessToken": "new-access",
+          "refreshToken": "refresh-123",
+        }
+      `);
+    });
   });
 
   describe('validateAuthorization', () => {
