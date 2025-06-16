@@ -198,7 +198,7 @@ describe('CLI', () => {
     expect(result.stdout).toMatchInlineSnapshot(`""`);
   });
 
-  for (let command of ['local', 'remote']) {
+  for (const command of ['local', 'remote']) {
     describe(command, () => {
       it('fails when only token provided without OAuth enabled', async () => {
         const result = await runBin(
