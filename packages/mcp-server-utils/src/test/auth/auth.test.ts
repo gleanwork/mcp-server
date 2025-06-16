@@ -77,6 +77,23 @@ function readMcpRemoteTokens(mcpAuthDir: string): Record<string, unknown> {
 }
 
 describe('auth', () => {
+  const tokenEndpoint = 'https://auth.example.com/token';
+  const validTokensJSON = {
+    accessToken: 'old-access',
+    refreshToken: 'refresh-123',
+    expiresAt: Date.now() + 10000,
+  };
+  const validTokens = {
+    ...validTokensJSON,
+    expiresAt: new Date(validTokensJSON.expiresAt),
+  };
+  const refreshedResponse = {
+    access_token: 'new-access',
+    refresh_token: 'refresh-456',
+    expires_in: 3600,
+    token_type: 'Bearer',
+  };
+
   let tmpDir: string;
   let originalXdgStateHome: string | undefined;
 
@@ -326,18 +343,6 @@ describe('auth', () => {
   });
 
   describe('forceRefreshTokens', () => {
-    const tokenEndpoint = 'https://auth.example.com/token';
-    const validTokens = {
-      accessToken: 'old-access',
-      refreshToken: 'refresh-123',
-      expiresAt: Date.now() + 10000,
-    };
-    const refreshedResponse = {
-      access_token: 'new-access',
-      refresh_token: 'refresh-456',
-      expires_in: 3600,
-      token_type: 'Bearer',
-    };
     let loadTokensSpy: ReturnType<typeof vi.spyOn>;
     let saveTokensSpy: ReturnType<typeof vi.spyOn>;
     let getConfig: any;
@@ -366,7 +371,7 @@ describe('auth', () => {
     });
 
     it('refreshes token and saves new tokens on success', async () => {
-      loadTokensSpy.mockReturnValue(validTokens);
+      tokenStore.saveTokens(new tokenStore.Tokens(validTokens));
       server.use(
         http.post(tokenEndpoint, async () =>
           HttpResponse.json(refreshedResponse),
@@ -374,16 +379,17 @@ describe('auth', () => {
       );
       const { forceRefreshTokens } = authModule;
       await forceRefreshTokens();
-      expect(saveTokensSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          accessToken: 'new-access',
-          refreshToken: 'refresh-456',
-        }),
-      );
+
+      // when the response includes an updated refresh token we save the new refresh token
+      expect(normalizeTokens(tokenStore.loadTokens())).toMatchInlineSnapshot(`
+        Tokens {
+          "accessToken": "new-access",
+          "refreshToken": "refresh-456",
+        }
+      `);
     });
 
     it('throws if no tokens are saved', async () => {
-      loadTokensSpy.mockReturnValue(null);
       const { forceRefreshTokens } = authModule;
       await expect(forceRefreshTokens()).rejects.toThrow(
         'ERR_A_12: Cannot refresh: unable to locate refresh token.',
@@ -392,7 +398,7 @@ describe('auth', () => {
 
     it('throws if no refresh token is present', async () => {
       loadTokensSpy.mockReturnValue({
-        ...validTokens,
+        ...validTokensJSON,
         refreshToken: undefined,
       });
       const { forceRefreshTokens } = authModule;
@@ -402,7 +408,8 @@ describe('auth', () => {
     });
 
     it('throws with server error message if refresh fails', async () => {
-      loadTokensSpy.mockReturnValue(validTokens);
+      tokenStore.saveTokens(new tokenStore.Tokens(validTokens));
+
       server.use(
         http.post(tokenEndpoint, async () =>
           HttpResponse.json({ error: 'invalid_grant' }, { status: 400 }),
@@ -477,9 +484,10 @@ describe('auth', () => {
     });
 
     it('returns true for non-expired tokens (no refresh)', async () => {
-      loadTokensSpy.mockReturnValue(validTokens);
-      const { ensureAuthTokenPresence: validateAuthorization } = authModule;
-      const result = await validateAuthorization();
+      tokenStore.saveTokens(new tokenStore.Tokens(validTokens));
+      saveTokensSpy.mockReset();
+      const { ensureAuthTokenPresence } = authModule;
+      const result = await ensureAuthTokenPresence();
       expect(result).toBe(true);
       expect(saveTokensSpy).not.toHaveBeenCalled();
     });
@@ -628,18 +636,6 @@ describe('auth', () => {
   });
 
   describe('forceRefreshTokens with clientSecret', () => {
-    const tokenEndpoint = 'https://auth.example.com/token';
-    const validTokens = {
-      accessToken: 'old-access',
-      refreshToken: 'refresh-123',
-      expiresAt: Date.now() + 10000,
-    };
-    const refreshedResponse = {
-      access_token: 'new-access',
-      refresh_token: 'refresh-456',
-      expires_in: 3600,
-      token_type: 'Bearer',
-    };
     let loadTokensSpy: ReturnType<typeof vi.spyOn>;
     let saveTokensSpy: ReturnType<typeof vi.spyOn>;
     let getConfig: any;
@@ -666,7 +662,8 @@ describe('auth', () => {
     });
 
     it('includes client_secret in refresh token request body if present', async () => {
-      loadTokensSpy.mockReturnValue(validTokens);
+      tokenStore.saveTokens(new tokenStore.Tokens(validTokens));
+
       let requestBody: string | undefined;
       server.use(
         http.post(tokenEndpoint, async ({ request }) => {
@@ -688,7 +685,8 @@ describe('auth', () => {
         issuer: 'https://auth.example.com',
         authorizationEndpoint: 'https://auth.example.com/device',
       });
-      loadTokensSpy.mockReturnValue(validTokens);
+      tokenStore.saveTokens(new tokenStore.Tokens(validTokens));
+
       let requestBody: string | undefined;
       server.use(
         http.post(tokenEndpoint, async ({ request }) => {
@@ -759,12 +757,6 @@ describe('auth', () => {
       authorizationEndpoint: 'https://auth.example.com/device',
       tokenEndpoint: 'https://auth.example.com/token',
     };
-    const validTokens = {
-      accessToken: 'access-123',
-      refreshToken: 'refresh-456',
-      expiresAt: Date.now() + 3600 * 1000,
-      isExpired: () => false,
-    };
     const validOAuthMetadata = {
       clientId: 'client-123',
       clientSecret: 'secret-xyz',
@@ -820,7 +812,7 @@ describe('auth', () => {
 
     it('throws if tokens are missing', async () => {
       loadOAuthMetadataSpy.mockReturnValue(validOAuthMetadata);
-      loadTokensSpy.mockReturnValue(null);
+      // nothing writen to tokens.json
       await expect(
         authModule.setupMcpRemote({ target: 'default' }),
       ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -830,7 +822,7 @@ describe('auth', () => {
 
     it('writes client info and tokens for default target', async () => {
       loadOAuthMetadataSpy.mockReturnValue(validOAuthMetadata);
-      loadTokensSpy.mockReturnValue(validTokens);
+      tokenStore.saveTokens(new tokenStore.Tokens(validTokens));
 
       const { setupMcpRemote } = authModule;
       await setupMcpRemote({ target: 'default' });
@@ -851,9 +843,9 @@ describe('auth', () => {
       const tokens = readMcpRemoteTokens(mcpAuthDir);
       expect(tokens).toMatchInlineSnapshot(`
         {
-          "access_token": "access-123",
+          "access_token": "old-access",
           "expires_in": 1,
-          "refresh_token": "refresh-456",
+          "refresh_token": "refresh-123",
           "token_type": "Bearer",
         }
       `);
@@ -861,7 +853,7 @@ describe('auth', () => {
 
     it('writes client info and tokens for agents target', async () => {
       loadOAuthMetadataSpy.mockReturnValue(validOAuthMetadata);
-      loadTokensSpy.mockReturnValue(validTokens);
+      tokenStore.saveTokens(new tokenStore.Tokens(validTokens));
 
       const { setupMcpRemote } = authModule;
       await setupMcpRemote({ target: 'agents' });
@@ -882,9 +874,9 @@ describe('auth', () => {
       const tokens = readMcpRemoteTokens(mcpAuthDir);
       expect(tokens).toMatchInlineSnapshot(`
         {
-          "access_token": "access-123",
+          "access_token": "old-access",
           "expires_in": 1,
-          "refresh_token": "refresh-456",
+          "refresh_token": "refresh-123",
           "token_type": "Bearer",
         }
       `);
@@ -913,3 +905,11 @@ describe('auth', () => {
     });
   });
 });
+
+function normalizeTokens(tokens: tokenStore.Tokens | null) {
+  if (tokens === null) {
+    return null;
+  }
+  delete tokens.expiresAt;
+  return tokens;
+}
