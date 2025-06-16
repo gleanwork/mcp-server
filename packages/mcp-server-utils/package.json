@@ -83,6 +83,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
+    "@gleanwork/connect-mcp-server": "^0.2.0",
     "dotenv": "^16.3.1",
     "fs-extra": "^11.3.0",
     "open": "^10.1.1",
@@ -94,7 +95,6 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.23.0",
     "@gleanwork/api-client": "0.6.1",
-    "@gleanwork/connect-mcp-server": "^0.2.0",
     "@gleanwork/mcp-test-utils": "workspace:*",
     "@release-it-plugins/lerna-changelog": "^7.0.0",
     "@types/node": "^22.14.0",
