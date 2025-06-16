@@ -63,8 +63,6 @@ export async function readDocuments(params: ToolReadDocumentsRequest) {
   // const client = await getClient();
   // return await client.documents.retrieve(mappedParams);
 
-  console.error('client response', await client.documents.retrieve(mappedParams))
-
   // DO NOT MERGE. This is a temporary fix to get the read documents tool working.
   const response = await fetch(`https://${process.env.GLEAN_INSTANCE}-be.glean.com/rest/api/v1/getdocuments`, {
     method: 'POST',
