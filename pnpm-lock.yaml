@@ -48,11 +48,11 @@ importers:
   packages/configure-mcp-server:
     dependencies:
       '@gleanwork/local-mcp-server':
-        specifier: 0.7.4
-        version: 0.7.4
+        specifier: 0.7.5
+        version: 0.7.5
       '@gleanwork/mcp-server-utils':
-        specifier: 0.7.4
-        version: 0.7.4
+        specifier: 0.7.5
+        version: 0.7.5
       dotenv:
         specifier: ^16.3.1
         version: 16.5.0
@@ -145,8 +145,8 @@ importers:
         specifier: 0.6.1
         version: 0.6.1(zod@3.25.65)
       '@gleanwork/mcp-server-utils':
-        specifier: 0.7.4
-        version: 0.7.4
+        specifier: 0.7.5
+        version: 0.7.5
       '@modelcontextprotocol/sdk':
         specifier: ^1.12.3
         version: 1.12.3
@@ -617,13 +617,13 @@ packages:
     resolution: {integrity: sha512-PRzf+BVqp7ObN/7523kag3LyEYtn0/juY3NkCuaR0FNYu4NKvQaMgAfj8LTfhVIA2OlGJ64o1U5Em8Uh0UZ4Tw==}
     hasBin: true
 
-  '@gleanwork/local-mcp-server@0.7.4':
-    resolution: {integrity: sha512-nYahZUqjSTKcT0GIcr2x/mvuzYs+mdo6HumjejbnXTAkddkGzbOv2HNRx3eRd/5ZUXBddmx3/CdROG6FJQ8K7w==}
+  '@gleanwork/local-mcp-server@0.7.5':
+    resolution: {integrity: sha512-XEo4Vdozl/Y3F/bM1NiMbhIoGSQTstjof8A89Uw+OpObB0wLYwuirVF64K5Fvp+wToEAataDMx8cg22Kn4SksA==}
     engines: {node: '>=20'}
     hasBin: true
 
-  '@gleanwork/mcp-server-utils@0.7.4':
-    resolution: {integrity: sha512-tf265mqQ+M1vhnMukpebPE6pZ/5LlkBq2lJaRlTN1kI0lGGAvHn93w3dVcex87cfrbHvT2hIrbMxu62El7BKeg==}
+  '@gleanwork/mcp-server-utils@0.7.5':
+    resolution: {integrity: sha512-wiweZksSk8+V19SqUTz6+7C8jFA/cpyauBURpVSd0vpKNoCocekmSitGMJ8dQ2liIfPzSfEtRFHoWVxmu3ixLA==}
     engines: {node: '>=20'}
 
   '@humanfs/core@0.19.1':
@@ -707,10 +707,6 @@ packages:
 
   '@jridgewell/sourcemap-codec@1.5.0':
     resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
-
-  '@modelcontextprotocol/sdk@1.12.1':
-    resolution: {integrity: sha512-KG1CZhZfWg+u8pxeM/mByJDScJSrjjxLc8fwQqbsS8xCjBmQfMNEBTotYdNanKekepnfRI85GtgQlctLFpcYPw==}
-    engines: {node: '>=18'}
 
   '@modelcontextprotocol/sdk@1.12.3':
     resolution: {integrity: sha512-DyVYSOafBvk3/j1Oka4z5BWT8o4AFmoNyZY9pALOm7Lh3GZglR71Co4r4dEUoqDWdDazIZQHBe7J2Nwkg6gHgQ==}
@@ -4177,11 +4173,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@gleanwork/local-mcp-server@0.7.4':
+  '@gleanwork/local-mcp-server@0.7.5':
     dependencies:
       '@gleanwork/api-client': 0.6.1(zod@3.25.65)
-      '@gleanwork/mcp-server-utils': 0.7.4
-      '@modelcontextprotocol/sdk': 1.12.1
+      '@gleanwork/mcp-server-utils': 0.7.5
+      '@modelcontextprotocol/sdk': 1.12.3
       dotenv: 16.5.0
       meow: 13.2.0
       open: 10.1.2
@@ -4194,7 +4190,7 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@gleanwork/mcp-server-utils@0.7.4':
+  '@gleanwork/mcp-server-utils@0.7.5':
     dependencies:
       '@gleanwork/connect-mcp-server': 0.2.1
       dotenv: 16.5.0
@@ -4275,22 +4271,6 @@ snapshots:
       wrap-ansi-cjs: wrap-ansi@7.0.0
 
   '@jridgewell/sourcemap-codec@1.5.0': {}
-
-  '@modelcontextprotocol/sdk@1.12.1':
-    dependencies:
-      ajv: 6.12.6
-      content-type: 1.0.5
-      cors: 2.8.5
-      cross-spawn: 7.0.6
-      eventsource: 3.0.7
-      express: 5.1.0
-      express-rate-limit: 7.5.0(express@5.1.0)
-      pkce-challenge: 5.0.0
-      raw-body: 3.0.0
-      zod: 3.25.65
-      zod-to-json-schema: 3.24.5(zod@3.25.65)
-    transitivePeerDependencies:
-      - supports-color
 
   '@modelcontextprotocol/sdk@1.12.3':
     dependencies:
