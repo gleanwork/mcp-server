@@ -69,19 +69,3 @@ function hasCommonAuthResponseFields(json: any): boolean {
     'interval' in json
   );
 }
-
-// https://github.com/gleanwork/typescript-sdk/blob/0fcb3efd3405a2d96af549ba5b6490fd9ffbb292/src/shared/auth.ts#L106-L111
-export interface McpRemoteClientInfo {
-  client_id: string;
-  client_secret?: string;
-  redirect_uris: string[];
-}
-
-// https://github.com/gleanwork/typescript-sdk/blob/0fcb3efd3405a2d96af549ba5b6490fd9ffbb292/src/shared/auth.ts#L62-L70
-export interface McpRemoteTokens {
-  access_token: string;
-  token_type: string;
-  expires_in?: number | undefined;
-  scope?: string | undefined;
-  refresh_token?: string | undefined;
-}
