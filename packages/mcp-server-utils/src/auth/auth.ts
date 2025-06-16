@@ -14,7 +14,7 @@ import {
   isBasicConfig,
   isGleanTokenConfig,
   isOAuthConfig,
- } from '../config/index.js';
+} from '../config/index.js';
 import { debug, error, trace } from '../log/logger.js';
 import { loadTokens, saveTokens, Tokens } from './token-store.js';
 import {
@@ -22,11 +22,14 @@ import {
   isAuthResponse,
   isAuthResponseWithURL,
   isTokenSuccess,
-  McpRemoteClientInfo,
-  McpRemoteTokens,
   TokenError,
   TokenResponse,
 } from './types.js';
+import type {
+  OAuthClientInformationFull,
+  OAuthTokens,
+} from '@modelcontextprotocol/sdk/shared/auth.js';
+
 import { loadOAuthMetadata, saveOAuthMetadata } from './oauth-cache.js';
 import { AuthError } from './error.js';
 import { AuthErrorCode } from './error.js';
@@ -128,7 +131,7 @@ export async function setupMcpRemote(opts: SetupMcpRemoteOptions) {
     );
   }
 
-  const mcpRemoteClientInfo: McpRemoteClientInfo = {
+  const mcpRemoteClientInfo: OAuthClientInformationFull = {
     client_id: clientData.clientId,
     // This is included just to pass runtime type checks in mcp-remote.  It
     // isn't used because we won't have native auth configured and won't go
@@ -145,7 +148,7 @@ export async function setupMcpRemote(opts: SetupMcpRemoteOptions) {
     mcpRemoteClientInfo,
   );
 
-  const mcpRemoteTokens: McpRemoteTokens = {
+  const mcpRemoteTokens: OAuthTokens = {
     access_token: tokens.accessToken,
     refresh_token: tokens.refreshToken,
     token_type: 'Bearer',
