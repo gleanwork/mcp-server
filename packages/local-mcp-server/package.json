@@ -1,6 +1,6 @@
 {
   "name": "@gleanwork/local-mcp-server",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "MCP server for Glean API integration",
   "keywords": [
     "mcp",
@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "@gleanwork/api-client": "0.6.1",
-    "@gleanwork/mcp-server-utils": "0.7.3",
+    "@gleanwork/mcp-server-utils": "0.7.4",
     "@modelcontextprotocol/sdk": "^1.7.0",
     "dotenv": "^16.3.1",
     "meow": "^13.2.0",
