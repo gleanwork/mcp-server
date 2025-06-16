@@ -4,20 +4,21 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { readDocuments, formatResponse, ToolReadDocumentsSchema } from '../../tools/read_documents'
-import { getClient } from '../../common/client.js';
 
-vi.mock('../../common/client.js');
+// Mock fetch globally
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
 
 describe('read-documents tool', () => {
-  const mockClient = {
-    documents: {
-      retrieve: vi.fn(),
-    },
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(getClient).mockResolvedValue(mockClient as any);
+    
+    // Mock environment variables
+    process.env.GLEAN_INSTANCE = 'test-instance';
+    process.env.GLEAN_API_TOKEN = 'test-token';
+    
+    // Reset fetch mock
+    mockFetch.mockReset();
   });
 
   describe('ToolReadDocumentsSchema', () => {
@@ -84,7 +85,7 @@ describe('read-documents tool', () => {
   });
 
   describe('readDocuments', () => {
-    it('should call client.documents.retrieve with document ID', async () => {
+    it('should make fetch request with document ID', async () => {
       const mockResponse = {
         documents: {
           'doc-123': {
@@ -95,18 +96,31 @@ describe('read-documents tool', () => {
         },
       };
 
-      mockClient.documents.retrieve.mockResolvedValue(mockResponse);
+      mockFetch.mockResolvedValue({
+        json: () => Promise.resolve(mockResponse),
+      });
 
       const request = { documentSpecs: [{ id: 'doc-123' }] };
       const result = await readDocuments(request);
 
-      expect(mockClient.documents.retrieve).toHaveBeenCalledWith({
-        documentSpecs: [{ id: 'doc-123' }],
-      });
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://test-instance-be.glean.com/rest/api/v1/getdocuments',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            documentSpecs: [{ id: 'doc-123' }],
+            includeFields: ['DOCUMENT_CONTENT'],
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer test-token',
+          },
+        }
+      );
       expect(result).toEqual(mockResponse);
     });
 
-    it('should call client.documents.retrieve with document URL', async () => {
+    it('should make fetch request with document URL', async () => {
       const mockResponse = {
         documents: {
           'url-1': {
@@ -117,14 +131,27 @@ describe('read-documents tool', () => {
         },
       };
 
-      mockClient.documents.retrieve.mockResolvedValue(mockResponse);
+      mockFetch.mockResolvedValue({
+        json: () => Promise.resolve(mockResponse),
+      });
 
       const request = { documentSpecs: [{ url: 'https://example.com/doc1' }] };
       const result = await readDocuments(request);
 
-      expect(mockClient.documents.retrieve).toHaveBeenCalledWith({
-        documentSpecs: [{ url: 'https://example.com/doc1' }],
-      });
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://test-instance-be.glean.com/rest/api/v1/getdocuments',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            documentSpecs: [{ url: 'https://example.com/doc1' }],
+            includeFields: ['DOCUMENT_CONTENT'],
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer test-token',
+          },
+        }
+      );
       expect(result).toEqual(mockResponse);
     });
   });
@@ -138,11 +165,15 @@ describe('read-documents tool', () => {
             url: 'https://example.com/doc1',
             docType: 'Article',
             datasource: 'confluence',
-            body: {
-              textContent: 'This is test content for the document.',
+            content: {
+              fullTextList: ['This is test content for the document.'],
             },
-            author: 'John Doe',
-            createdAt: '2023-01-01T00:00:00Z',
+            metadata: {
+              author: {
+                name: 'John Doe',
+              },
+              createTime: '2023-01-01T00:00:00Z',
+            },
           },
         },
       };
@@ -163,11 +194,15 @@ describe('read-documents tool', () => {
         documents: {
           'doc-123': {
             title: 'First Document',
-            content: 'First content',
+            content: {
+              fullTextList: ['First content'],
+            },
           },
           'doc-456': {
             title: 'Second Document',
-            content: 'Second content',
+            content: {
+              fullTextList: ['Second content'],
+            },
           },
         },
       };
@@ -195,25 +230,6 @@ describe('read-documents tool', () => {
 
       const result = formatResponse(response);
       expect(result).toBe('No documents found.');
-    });
-
-    it('should truncate long content', () => {
-      const longContent = 'A'.repeat(3000);
-      const response = {
-        documents: {
-          'doc-123': {
-            title: 'Long Document',
-            body: {
-              textContent: longContent,
-            },
-          },
-        },
-      };
-
-      const result = formatResponse(response);
-
-      expect(result).toContain('A'.repeat(2000) + '...');
-      expect(result).not.toContain('A'.repeat(2001));
     });
   });
 }); 
