@@ -172,7 +172,7 @@ export function createConfigTemplate(
   );
   const args = ['-y', '@gleanwork/connect-mcp-server', serverUrl];
   if (usingOAuth) {
-    args.push('--header', 'X-Glean-Auth-Type: OAUTH');
+    args.push('--header', 'X-Glean-Auth-Type:OAUTH');
   }
 
   return {
@@ -288,12 +288,15 @@ async function loadClientModules() {
   try {
     const files = fs.readdirSync(clientDir);
 
+    const isJsOrTs = (file: string) =>
+      file.endsWith('.js') || file.endsWith('.ts');
     const clientFiles = files.filter(
-      (file) => file.endsWith('.js') && file !== 'index.js',
+      (file) =>
+        isJsOrTs(file) && file !== 'index.js' && !file.endsWith('.d.ts'),
     );
 
     for (const file of clientFiles) {
-      const clientName = path.basename(file, '.js');
+      const clientName = path.basename(path.basename(file, '.js'), '.ts');
 
       try {
         const clientModule = await import(`./${clientName}.js`);
