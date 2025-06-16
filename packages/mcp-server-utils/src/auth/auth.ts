@@ -1,3 +1,11 @@
+import readline from 'node:readline';
+
+import open from 'open';
+import {
+  getServerUrlHash,
+  writeJsonFile as writeMcpRemoteJSONFile,
+} from '@gleanwork/connect-mcp-server/lib';
+
 import {
   getConfig,
   GleanConfig,
@@ -7,20 +15,19 @@ import {
   isGleanTokenConfig,
   isOAuthConfig,
 } from '../config/config.js';
-
 import { debug, error, trace } from '../log/logger.js';
-import open from 'open';
-import readline from 'node:readline';
 import { loadTokens, saveTokens, Tokens } from './token-store.js';
 import {
   AuthResponse,
   isAuthResponse,
   isAuthResponseWithURL,
   isTokenSuccess,
+  McpRemoteClientInfo,
+  McpRemoteTokens,
   TokenError,
   TokenResponse,
 } from './types.js';
-import { saveOAuthMetadata } from './oauth-cache.js';
+import { loadOAuthMetadata, saveOAuthMetadata } from './oauth-cache.js';
 import { AuthError } from './error.js';
 import { AuthErrorCode } from './error.js';
 import { parse as parseDomain } from 'tldts';
@@ -69,6 +76,85 @@ export async function ensureAuthTokenPresence() {
   }
 
   return tokens !== null;
+}
+
+interface SetupMcpRemoteOptions {
+  target: 'agents' | 'default';
+}
+
+/**
+ * Set up mcp-remote.  Copies auth tokens and device flow client information to
+ * locations where mcp-remote will read them from.
+ *
+ * This function must only be called **after** a successful authentication
+ * (via, e.g. ensureAuthTokenPresence).
+ *
+ * Token expiration is set to 1 second to force mcp-remote to fetch a new
+ * access token with the refresh token.  Thereafter mcp-remote is taking over
+ * the refresh duties until the refresh token expires, at which point users
+ * must re-run the configuration.
+ */
+export async function setupMcpRemote(opts: SetupMcpRemoteOptions) {
+  const config = await getConfig();
+  if (isGleanTokenConfig(config)) {
+    throw new AuthError(
+      'Cannot setup MCP remote with Glean token configuration. Please use OAuth configuration instead.',
+      { code: AuthErrorCode.GleanTokenConfigUsedForOAuth },
+    );
+  }
+
+  const origin = new URL(config.baseUrl).origin;
+  const serverUrl =
+    opts.target === 'agents'
+      ? `${origin}/mcp/agents/sse`
+      : `${origin}/mcp/default/sse`;
+
+  const serverHash = getServerUrlHash(serverUrl);
+
+  trace(`setting up mcp-auth for server: ${serverUrl} hash: ${serverHash}`);
+
+  const clientData = loadOAuthMetadata();
+  if (clientData === null) {
+    throw new AuthError(
+      'Missing OAuth metadata required for MCP remote setup. Please authenticate first using OAuth.',
+      { code: AuthErrorCode.MissingOAuthMetadata },
+    );
+  }
+  const tokens = loadTokens();
+  if (tokens == null) {
+    throw new AuthError(
+      'Missing OAuth tokens required for MCP remote setup. Please authenticate first using OAuth.',
+      { code: AuthErrorCode.MissingOAuthTokens },
+    );
+  }
+
+  const mcpRemoteClientInfo: McpRemoteClientInfo = {
+    client_id: clientData.clientId,
+    // This is included just to pass runtime type checks in mcp-remote.  It
+    // isn't used because we won't have native auth configured and won't go
+    // through the auth grant flow.  But we still need to read the file to get
+    // the tokens and have mcp-remote go through the refresh flow.
+    redirect_uris: ['http://localhost:9999/cb'],
+  };
+  if (clientData?.clientSecret) {
+    mcpRemoteClientInfo.client_secret = clientData?.clientSecret;
+  }
+  await writeMcpRemoteJSONFile(
+    serverHash,
+    'client_info.json',
+    mcpRemoteClientInfo,
+  );
+
+  const mcpRemoteTokens: McpRemoteTokens = {
+    access_token: tokens.accessToken,
+    refresh_token: tokens.refreshToken,
+    token_type: 'Bearer',
+    // set short expiration for the access token mcp-remote will fetch a new
+    // one via the refresh token and then be responsible for continuously
+    // refreshing
+    expires_in: 1,
+  };
+  await writeMcpRemoteJSONFile(serverHash, 'tokens.json', mcpRemoteTokens);
 }
 
 /**

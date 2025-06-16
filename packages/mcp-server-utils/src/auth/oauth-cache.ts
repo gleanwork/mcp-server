@@ -84,8 +84,8 @@ function isCacheFresh(timestamp: Date) {
 
 function buildOAuthMetadataCacheFilePath() {
   const stateDir = getStateDir('glean');
-  const tokensFile = path.join(stateDir, 'oauth.json');
-  return tokensFile;
+  const oauthMetadataFile = path.join(stateDir, 'oauth.json');
+  return oauthMetadataFile;
 }
 
 function ensureOAuthMetadataCacheFilePath() {

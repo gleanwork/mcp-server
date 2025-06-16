@@ -16,7 +16,7 @@ export const cursorConfigPath: MCPConfigPath = {
  */
 const cursorClient = createBaseClient('Cursor', cursorConfigPath, [
   'Restart Cursor',
-  'Agent will now have access to Glean search and chat tools',
+  'Agent will now have access to Glean tools',
   "You'll be asked for approval when Agent uses these tools",
 ]);
 
