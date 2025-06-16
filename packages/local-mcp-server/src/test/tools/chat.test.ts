@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ChatResponse, Author } from '@gleanwork/api-client/models/components';
 import { chat, ToolChatSchema } from '../../tools/chat';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import '@gleanwork/test-utils/mocks/setup';
+import '@gleanwork/mcp-test-utils/mocks/setup';
 
 describe('Chat Tool', () => {
   beforeEach(() => {
