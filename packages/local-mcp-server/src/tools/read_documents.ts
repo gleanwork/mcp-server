@@ -11,6 +11,7 @@
 import { z } from 'zod';
 import { getClient } from '../common/client.js';
 import { GetDocumentsRequest, GetDocumentsRequestIncludeField } from '@gleanwork/api-client/models/components';
+import { getConfig, isGleanTokenConfig } from '@gleanwork/mcp-server-utils/config';
 
 /**
  * Schema for Glean read documents requests designed for LLM interaction
@@ -60,17 +61,20 @@ export async function readDocuments(params: ToolReadDocumentsRequest) {
   const mappedParams = convertToAPIReadDocumentsRequest(params);
 
   // There's a bug in the client SDK, so using fetch directly for now
-  // const client = await getClient();
-  // return await client.documents.retrieve(mappedParams);
+  // See https://github.com/gleanwork/api-client-typescript/issues/45
 
-  // DO NOT MERGE. This is a temporary fix to get the read documents tool working.
-  const response = await fetch(`https://${process.env.GLEAN_INSTANCE}-be.glean.com/rest/api/v1/getdocuments`, {
+  const config = await getConfig()
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+  if (isGleanTokenConfig(config)) {
+    headers['Authorization'] = `Bearer ${config.token}`;
+  }
+
+  const response = await fetch(`${config.baseUrl}/rest/api/v1/getdocuments`, {
     method: 'POST',
     body: JSON.stringify(mappedParams),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.GLEAN_API_TOKEN}`,
-    },
+    headers,
   });
 
   return response.json();

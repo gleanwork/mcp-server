@@ -5,19 +5,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { readDocuments, formatResponse, ToolReadDocumentsSchema } from '../../tools/read_documents'
 
-// Mock fetch globally
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
+
+vi.mock('@gleanwork/mcp-server-utils/config', () => ({
+  getConfig: vi.fn(),
+  isGleanTokenConfig: vi.fn(),
+}));
+
+import { getConfig, isGleanTokenConfig } from '@gleanwork/mcp-server-utils/config';
 
 describe('read-documents tool', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Mock environment variables
-    process.env.GLEAN_INSTANCE = 'test-instance';
-    process.env.GLEAN_API_TOKEN = 'test-token';
-    
-    // Reset fetch mock
     mockFetch.mockReset();
   });
 
@@ -100,6 +101,13 @@ describe('read-documents tool', () => {
         json: () => Promise.resolve(mockResponse),
       });
 
+      vi.mocked(getConfig).mockResolvedValue({
+        baseUrl: 'https://test-instance-be.glean.com',
+        token: 'test-token',
+        authType: 'token'
+      });
+      vi.mocked(isGleanTokenConfig).mockReturnValue(true);
+
       const request = { documentSpecs: [{ id: 'doc-123' }] };
       const result = await readDocuments(request);
 
@@ -135,6 +143,13 @@ describe('read-documents tool', () => {
         json: () => Promise.resolve(mockResponse),
       });
 
+      vi.mocked(getConfig).mockResolvedValue({
+        baseUrl: 'https://test-instance-be.glean.com',
+        token: 'test-token',
+        authType: 'token'
+      });
+      vi.mocked(isGleanTokenConfig).mockReturnValue(true);
+
       const request = { documentSpecs: [{ url: 'https://example.com/doc1' }] };
       const result = await readDocuments(request);
 
@@ -149,6 +164,50 @@ describe('read-documents tool', () => {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer test-token',
+          },
+        }
+      );
+      expect(result).toEqual(mockResponse);
+    });
+
+    it('should make fetch request without Authorization header when not using token config', async () => {
+      const mockResponse = {
+        documents: {
+          'doc-123': {
+            id: 'doc-123',
+            title: 'Test Document',
+            content: 'Test content',
+          },
+        },
+      };
+
+      mockFetch.mockResolvedValue({
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      vi.mocked(getConfig).mockResolvedValue({
+        baseUrl: 'https://test-instance-be.glean.com',
+        authType: 'oauth',
+        issuer: 'https://issuer.example.com',
+        clientId: 'client-id',
+        authorizationEndpoint: 'https://issuer.example.com/auth',
+        tokenEndpoint: 'https://issuer.example.com/token',
+      });
+      vi.mocked(isGleanTokenConfig).mockReturnValue(false);
+
+      const request = { documentSpecs: [{ id: 'doc-123' }] };
+      const result = await readDocuments(request);
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'https://test-instance-be.glean.com/rest/api/v1/getdocuments',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            documentSpecs: [{ id: 'doc-123' }],
+            includeFields: ['DOCUMENT_CONTENT'],
+          }),
+          headers: {
+            'Content-Type': 'application/json',
           },
         }
       );
