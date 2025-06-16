@@ -97,7 +97,7 @@
     "@gleanwork/api-client": "0.6.1",
     "@gleanwork/mcp-test-utils": "workspace:*",
     "@release-it-plugins/lerna-changelog": "^7.0.0",
-    "@types/node": "^22.14.0",
+    "@types/node": "^24.0.3",
     "@typescript-eslint/eslint-plugin": "^8.33.1",
     "@typescript-eslint/parser": "^8.27.0",
     "console-test-helpers": "^0.3.3",
