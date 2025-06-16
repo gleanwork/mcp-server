@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatResponse } from '../../tools/chat';
+import { formatResponse } from '../../tools/chat.js';
 
 describe('Chat Formatter', () => {
   it('should format chat responses correctly', () => {

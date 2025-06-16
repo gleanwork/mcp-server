@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   ToolPeopleProfileSearchSchema,
   peopleProfileSearch,
-} from '../../tools/people_profile_search';
+} from '../../tools/people_profile_search.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { ListEntitiesResponse } from '@gleanwork/api-client/models/components';
 import '@gleanwork/mcp-test-utils/mocks/setup';

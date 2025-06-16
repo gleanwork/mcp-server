@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ChatResponse, Author } from '@gleanwork/api-client/models/components';
-import { chat, ToolChatSchema } from '../../tools/chat';
+import { chat, ToolChatSchema } from '../../tools/chat.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import '@gleanwork/mcp-test-utils/mocks/setup';
 

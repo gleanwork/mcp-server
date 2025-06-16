@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SearchResponse } from '@gleanwork/api-client/models/components';
-import { ToolSearchSchema, search } from '../../tools/search';
+import { ToolSearchSchema, search } from '../../tools/search.js';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import '@gleanwork/mcp-test-utils/mocks/setup';
 

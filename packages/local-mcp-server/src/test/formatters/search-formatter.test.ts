@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatResponse } from '../../tools/search';
+import { formatResponse } from '../../tools/search.js';
 
 describe('Search Formatter', () => {
   it('should format search results correctly', () => {

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   getStateDir,
   ensureFileExistsWithLimitedPermissions,
-} from '../../xdg/xdg';
+} from '../../xdg/xdg.js';
 import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
