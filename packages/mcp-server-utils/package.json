@@ -10,7 +10,7 @@
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/gleanwork/mcp-server.git",
-    "directory": "packages/utils"
+    "directory": "packages/mcp-server-utils"
   },
   "license": "MIT",
   "author": "Steve Calvert <steve.calvert@glean.com>",
