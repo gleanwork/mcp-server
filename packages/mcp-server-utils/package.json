@@ -46,11 +46,6 @@
       "import": "./build/tools/search.js",
       "default": "./build/tools/search.js"
     },
-    "./tools/read-documents": {
-      "types": "./build/tools/read_documents.d.ts",
-      "import": "./build/tools/read_documents.js",
-      "default": "./build/tools/read_documents.js"
-    },
     "./util": {
       "types": "./build/util/index.d.ts",
       "import": "./build/util/index.js",

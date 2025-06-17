@@ -11,15 +11,43 @@ global.fetch = mockFetch;
 vi.mock('@gleanwork/mcp-server-utils/config', () => ({
   getConfig: vi.fn(),
   isGleanTokenConfig: vi.fn(),
+  isOAuthConfig: vi.fn(),
 }));
 
-import { getConfig, isGleanTokenConfig } from '@gleanwork/mcp-server-utils/config';
+vi.mock('@gleanwork/mcp-server-utils/auth', () => ({
+  ensureAuthTokenPresence: vi.fn(),
+  loadTokens: vi.fn(),
+  AuthError: class AuthError extends Error {
+    constructor(message: string, options?: { code?: string }) {
+      super(message);
+      this.name = 'AuthError';
+    }
+  },
+  AuthErrorCode: {
+    InvalidConfig: 'InvalidConfig',
+  },
+}));
+
+import { getConfig, isGleanTokenConfig, isOAuthConfig } from '@gleanwork/mcp-server-utils/config';
+import { ensureAuthTokenPresence, loadTokens } from '@gleanwork/mcp-server-utils/auth';
 
 describe('read-documents tool', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
     mockFetch.mockReset();
+    
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({}),
+      text: () => Promise.resolve(''),
+      headers: {
+        get: (name: string) => {
+          if (name === 'content-type') return 'application/json';
+          return null;
+        },
+      },
+    });
   });
 
   describe('ToolReadDocumentsSchema', () => {
@@ -98,15 +126,24 @@ describe('read-documents tool', () => {
       };
 
       mockFetch.mockResolvedValue({
+        ok: true,
         json: () => Promise.resolve(mockResponse),
+        text: () => Promise.resolve(''),
+        headers: {
+          get: (name: string) => {
+            if (name === 'content-type') return 'application/json';
+            return null;
+          },
+        },
       });
 
       vi.mocked(getConfig).mockResolvedValue({
-        baseUrl: 'https://test-instance-be.glean.com',
+        baseUrl: 'https://test-instance-be.glean.com/',
         token: 'test-token',
         authType: 'token'
       });
       vi.mocked(isGleanTokenConfig).mockReturnValue(true);
+      vi.mocked(isOAuthConfig).mockReturnValue(false);
 
       const request = { documentSpecs: [{ id: 'doc-123' }] };
       const result = await readDocuments(request);
@@ -140,15 +177,24 @@ describe('read-documents tool', () => {
       };
 
       mockFetch.mockResolvedValue({
+        ok: true,
         json: () => Promise.resolve(mockResponse),
+        text: () => Promise.resolve(''),
+        headers: {
+          get: (name: string) => {
+            if (name === 'content-type') return 'application/json';
+            return null;
+          },
+        },
       });
 
       vi.mocked(getConfig).mockResolvedValue({
-        baseUrl: 'https://test-instance-be.glean.com',
+        baseUrl: 'https://test-instance-be.glean.com/',
         token: 'test-token',
         authType: 'token'
       });
       vi.mocked(isGleanTokenConfig).mockReturnValue(true);
+      vi.mocked(isOAuthConfig).mockReturnValue(false);
 
       const request = { documentSpecs: [{ url: 'https://example.com/doc1' }] };
       const result = await readDocuments(request);
@@ -170,7 +216,7 @@ describe('read-documents tool', () => {
       expect(result).toEqual(mockResponse);
     });
 
-    it('should make fetch request without Authorization header when not using token config', async () => {
+    it('should make fetch request with OAuth authorization header when using OAuth config', async () => {
       const mockResponse = {
         documents: {
           'doc-123': {
@@ -182,11 +228,19 @@ describe('read-documents tool', () => {
       };
 
       mockFetch.mockResolvedValue({
+        ok: true,
         json: () => Promise.resolve(mockResponse),
+        text: () => Promise.resolve(''),
+        headers: {
+          get: (name: string) => {
+            if (name === 'content-type') return 'application/json';
+            return null;
+          },
+        },
       });
 
       vi.mocked(getConfig).mockResolvedValue({
-        baseUrl: 'https://test-instance-be.glean.com',
+        baseUrl: 'https://test-instance-be.glean.com/',
         authType: 'oauth',
         issuer: 'https://issuer.example.com',
         clientId: 'client-id',
@@ -194,6 +248,13 @@ describe('read-documents tool', () => {
         tokenEndpoint: 'https://issuer.example.com/token',
       });
       vi.mocked(isGleanTokenConfig).mockReturnValue(false);
+      vi.mocked(isOAuthConfig).mockReturnValue(true);
+      vi.mocked(ensureAuthTokenPresence).mockResolvedValue(true);
+      vi.mocked(loadTokens).mockReturnValue({
+        accessToken: 'oauth-access-token',
+        refreshToken: 'oauth-refresh-token',
+        isExpired: vi.fn().mockReturnValue(false),
+      } as any);
 
       const request = { documentSpecs: [{ id: 'doc-123' }] };
       const result = await readDocuments(request);
@@ -208,6 +269,8 @@ describe('read-documents tool', () => {
           }),
           headers: {
             'Content-Type': 'application/json',
+            'X-Glean-Auth-Type': 'OAUTH',
+            'Authorization': 'Bearer oauth-access-token',
           },
         }
       );
@@ -239,13 +302,19 @@ describe('read-documents tool', () => {
 
       const result = formatResponse(response);
 
-      expect(result).toContain('Retrieved 1 document:');
-      expect(result).toContain('[1] Test Document');
-      expect(result).toContain('Type: Article');
-      expect(result).toContain('Source: confluence');
-      expect(result).toContain('Author: John Doe');
-      expect(result).toContain('URL: https://example.com/doc1');
-      expect(result).toContain('This is test content for the document.');
+      expect(result).toMatchInlineSnapshot(`
+        "Retrieved 1 document:
+
+        [1] Test Document
+                Type: Article
+                Source: confluence
+                Author: John Doe
+        Created: 12/31/2022
+        URL: https://example.com/doc1
+
+                Content:
+                This is test content for the document."
+      `);
     });
 
     it('should format multiple documents response correctly', () => {
@@ -268,11 +337,27 @@ describe('read-documents tool', () => {
 
       const result = formatResponse(response);
 
-      expect(result).toContain('Retrieved 2 documents:');
-      expect(result).toContain('[1] First Document');
-      expect(result).toContain('[2] Second Document');
-      expect(result).toContain('First content');
-      expect(result).toContain('Second content');
+      expect(result).toMatchInlineSnapshot(`
+        "Retrieved 2 documents:
+
+        [1] First Document
+                Type: Document
+                Source: Unknown source
+                URL: 
+
+                Content:
+                First content
+
+        ---
+
+        [2] Second Document
+                Type: Document
+                Source: Unknown source
+                URL: 
+
+                Content:
+                Second content"
+      `);
     });
 
     it('should handle empty response', () => {
