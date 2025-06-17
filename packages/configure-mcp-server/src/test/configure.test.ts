@@ -228,9 +228,7 @@ describe('configure', () => {
               "X-Glean-Auth-Type:OAUTH",
             ],
             "command": "npx",
-            "env": {
-              "GLEAN_INSTANCE": "test-instance",
-            },
+            "env": {},
             "type": "stdio",
           },
         },
@@ -266,9 +264,7 @@ describe('configure', () => {
               "X-Glean-Auth-Type:OAUTH",
             ],
             "command": "npx",
-            "env": {
-              "GLEAN_INSTANCE": "test-instance",
-            },
+            "env": {},
             "type": "stdio",
           },
         },
@@ -295,5 +291,36 @@ describe('configure', () => {
 
     // Verify process.exit was called with code 1
     expect(process.exit).toHaveBeenCalledWith(1);
+  });
+
+  it('should include GLEAN_INSTANCE for local (non-remote) configurations', async () => {
+    const options = {
+      token: 'test-token',
+      instance: 'test-instance',
+      remote: false, // explicitly set to false to test local behavior
+    };
+
+    await configure('cursor', options);
+
+    const configPath = path.join(tempDir, '.cursor', 'mcp.json');
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    expect(config).toMatchInlineSnapshot(`
+      {
+        "mcpServers": {
+          "glean_local": {
+            "args": [
+              "-y",
+              "@gleanwork/local-mcp-server",
+            ],
+            "command": "npx",
+            "env": {
+              "GLEAN_API_TOKEN": "test-token",
+              "GLEAN_INSTANCE": "test-instance",
+            },
+            "type": "stdio",
+          },
+        },
+      }
+    `);
   });
 });
