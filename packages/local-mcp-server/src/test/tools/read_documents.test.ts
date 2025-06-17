@@ -301,15 +301,18 @@ describe('read-documents tool', () => {
       };
 
       const result = formatResponse(response);
+      
+      // Normalize date formatting to avoid timezone differences between environments
+      const normalizedResult = result.replace(/Created: \d{1,2}\/\d{1,2}\/\d{4}/, 'Created: [NORMALIZED_DATE]');
 
-      expect(result).toMatchInlineSnapshot(`
+      expect(normalizedResult).toMatchInlineSnapshot(`
         "Retrieved 1 document:
 
         [1] Test Document
                 Type: Article
                 Source: confluence
                 Author: John Doe
-        Created: 12/31/2022
+        Created: [NORMALIZED_DATE]
         URL: https://example.com/doc1
 
                 Content:
