@@ -13,14 +13,17 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
+      { text: 'Troubleshooting', link: '/troubleshooting' },
     ],
 
     sidebar: [
       {
         text: 'Getting Started',
-        items: [
-          { text: 'Introduction', link: '/' },
-        ],
+        items: [{ text: 'Introduction', link: '/' }],
+      },
+      {
+        text: 'Troubleshooting',
+        items: [{ text: 'General', link: '/troubleshooting' }],
       },
     ],
 
