@@ -26,16 +26,18 @@ export interface MCPServerConfig {
   env: Record<string, string>;
 }
 
+export interface MCPServersConfig {
+  glean?: MCPServerConfig;
+  glean_agents?: MCPServerConfig;
+  glean_local?: MCPServerConfig;
+  [key: string]: MCPServerConfig | undefined;
+}
+
 /**
  * Standard MCP configuration format (Claude, Cursor, Windsurf)
  */
 export interface StandardMCPConfig {
-  mcpServers: {
-    glean?: MCPServerConfig;
-    glean_agents?: MCPServerConfig;
-    glean_local?: MCPServerConfig;
-    [key: string]: MCPServerConfig | undefined;
-  };
+  mcpServers: MCPServersConfig;
 }
 
 /**
@@ -43,10 +45,7 @@ export interface StandardMCPConfig {
  */
 export interface VSCodeGlobalConfig {
   mcp: {
-    servers: {
-      glean: MCPServerConfig;
-      [key: string]: MCPServerConfig;
-    };
+    servers: MCPServersConfig;
   };
   [key: string]: unknown;
 }
@@ -55,10 +54,7 @@ export interface VSCodeGlobalConfig {
  * VS Code workspace configuration format
  */
 export interface VSCodeWorkspaceConfig {
-  servers: {
-    glean: MCPServerConfig;
-    [key: string]: MCPServerConfig;
-  };
+  servers: MCPServersConfig;
   [key: string]: unknown;
 }
 
@@ -121,6 +117,16 @@ export function createConfigTemplate(
   apiToken?: string,
   options?: ConfigureOptions,
 ): StandardMCPConfig {
+  return {
+    mcpServers: createMcpServersConfig(instanceOrUrl, apiToken, options),
+  };
+}
+
+export function createMcpServersConfig(
+  instanceOrUrl = '<glean instance name>',
+  apiToken?: string,
+  options?: ConfigureOptions,
+): MCPServersConfig {
   const env: Record<string, string> = {};
 
   // If it looks like a URL, use GLEAN_BASE_URL
@@ -144,12 +150,11 @@ export function createConfigTemplate(
   const isLocal = !options?.remote;
   if (isLocal) {
     return {
-      mcpServers: {
-        glean_local: {
-          command: 'npx',
-          args: ['-y', '@gleanwork/local-mcp-server'],
-          env,
-        },
+      glean_local: {
+        type: 'stdio',
+        command: 'npx',
+        args: ['-y', '@gleanwork/local-mcp-server'],
+        env,
       },
     };
   }
@@ -168,12 +173,11 @@ export function createConfigTemplate(
   }
 
   return {
-    mcpServers: {
-      [mcpServerName]: {
-        command: 'npx',
-        args,
-        env,
-      },
+    [mcpServerName]: {
+      command: 'npx',
+      args,
+      type: 'stdio',
+      env,
     },
   };
 }
@@ -246,15 +250,24 @@ export function createBaseClient(
       const standardNewConfig = newConfig as StandardMCPConfig;
       const result = { ...existingConfig } as ConfigFileContents &
         StandardMCPConfig;
-      result.mcpServers = result.mcpServers || {};
-      for (const serverName of ['glean', 'glean_local', 'glean_agents']) {
-        if (serverName in standardNewConfig.mcpServers) {
-          result.mcpServers[serverName] = standardNewConfig.mcpServers[serverName];
-        }
-      }
+
+      result.mcpServers = updateMcpServersConfig(result.mcpServers || {}, standardNewConfig.mcpServers)
       return result;
     },
   };
+}
+
+export function updateMcpServersConfig(
+  existingConfig: MCPServersConfig,
+  newConfig: MCPServersConfig,
+) {
+  const result = { ...existingConfig };
+  for (const serverName of ['glean', 'glean_local', 'glean_agents']) {
+    if (serverName in newConfig) {
+      result[serverName] = newConfig[serverName];
+    }
+  }
+  return result;
 }
 
 /**

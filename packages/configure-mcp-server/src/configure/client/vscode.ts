@@ -13,6 +13,8 @@ import {
   VSCodeWorkspaceConfig,
   MCPConfig,
   ConfigFileContents,
+  createMcpServersConfig,
+  updateMcpServersConfig,
 } from './index.js';
 import type { ConfigureOptions } from '../index.js';
 
@@ -51,34 +53,10 @@ function getVSCodeUserSettingsPath(homedir: string): string {
 function createVSCodeWorkspaceConfig(
   instanceOrUrl?: string,
   apiToken?: string,
+  options?: ConfigureOptions,
 ): VSCodeWorkspaceConfig {
-  const env: Record<string, string> = {};
-
-  if (
-    instanceOrUrl?.startsWith('http://') ||
-    instanceOrUrl?.startsWith('https://')
-  ) {
-    const baseUrl = instanceOrUrl.endsWith('/rest/api/v1')
-      ? instanceOrUrl
-      : `${instanceOrUrl}/rest/api/v1`;
-    env.GLEAN_BASE_URL = baseUrl;
-  } else if (instanceOrUrl) {
-    env.GLEAN_INSTANCE = instanceOrUrl;
-  }
-
-  if (apiToken) {
-    env.GLEAN_API_TOKEN = apiToken;
-  }
-
   return {
-    servers: {
-      glean: {
-        type: 'stdio',
-        command: 'npx',
-        args: ['-y', '@gleanwork/local-mcp-server'],
-        env,
-      },
-    },
+    servers: createMcpServersConfig(instanceOrUrl, apiToken, options),
   };
 }
 
@@ -110,38 +88,12 @@ vscodeClient.configTemplate = (
   options?: ConfigureOptions,
 ): MCPConfig => {
   if (options?.workspace) {
-    return createVSCodeWorkspaceConfig(instanceOrUrl, apiToken);
-  }
-
-  // Global configuration format
-  const env: Record<string, string> = {};
-
-  if (
-    instanceOrUrl?.startsWith('http://') ||
-    instanceOrUrl?.startsWith('https://')
-  ) {
-    const baseUrl = instanceOrUrl.endsWith('/rest/api/v1')
-      ? instanceOrUrl
-      : `${instanceOrUrl}/rest/api/v1`;
-    env.GLEAN_BASE_URL = baseUrl;
-  } else if (instanceOrUrl) {
-    env.GLEAN_INSTANCE = instanceOrUrl;
-  }
-
-  if (apiToken) {
-    env.GLEAN_API_TOKEN = apiToken;
+    return createVSCodeWorkspaceConfig(instanceOrUrl, apiToken, options);
   }
 
   return {
     mcp: {
-      servers: {
-        glean: {
-          type: 'stdio',
-          command: 'npx',
-          args: ['-y', '@gleanwork/local-mcp-server'],
-          env: env,
-        },
-      },
+      servers: createMcpServersConfig(instanceOrUrl, apiToken, options),
     },
   };
 };
@@ -193,8 +145,8 @@ vscodeClient.updateConfig = (
     const workspaceNewConfig = newConfig as VSCodeWorkspaceConfig;
     const result = { ...existingConfig } as ConfigFileContents &
       VSCodeWorkspaceConfig;
-    result.servers = result.servers || {};
-    result.servers.glean = workspaceNewConfig.servers.glean;
+
+    result.servers = updateMcpServersConfig(result.servers || {}, workspaceNewConfig.servers)
     return result;
   }
 
@@ -202,8 +154,7 @@ vscodeClient.updateConfig = (
   const result = { ...existingConfig } as ConfigFileContents &
     VSCodeGlobalConfig;
   result.mcp = result.mcp || { servers: {} };
-  result.mcp.servers = result.mcp.servers || {};
-  result.mcp.servers.glean = globalNewConfig.mcp.servers.glean;
+  result.mcp.servers = updateMcpServersConfig(result.mcp.servers || {}, globalNewConfig.mcp.servers)
   return result;
 };
 
