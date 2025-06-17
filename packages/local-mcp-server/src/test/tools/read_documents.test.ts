@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { readDocuments, formatResponse, ToolReadDocumentsSchema } from '../../tools/read_documents'
+import { readDocuments, formatResponse, ToolReadDocumentsSchema } from '../../tools/read_documents.js'
 
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
