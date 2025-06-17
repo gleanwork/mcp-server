@@ -5,6 +5,16 @@
 
 
 
+
+## v0.7.7 (2025-06-17)
+
+#### :rocket: Enhancement
+* `local-mcp-server`
+  * [#163](https://github.com/gleanwork/mcp-server/pull/163) [tool] Add read_documents MCP tool for retrieving documents by ID or URL ([@michael-li-glean](https://github.com/michael-li-glean))
+
+#### Committers: 1
+- Michael Li ([@michael-li-glean](https://github.com/michael-li-glean))
+
 ## v0.7.6 (2025-06-17)
 
 #### :rocket: Enhancement
