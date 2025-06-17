@@ -128,18 +128,22 @@ export function createMcpServersConfig(
   options?: ConfigureOptions,
 ): MCPServersConfig {
   const env: Record<string, string> = {};
+  const isLocal = !options?.remote;
 
-  // If it looks like a URL, use GLEAN_BASE_URL
-  if (
-    instanceOrUrl.startsWith('http://') ||
-    instanceOrUrl.startsWith('https://')
-  ) {
-    const baseUrl = instanceOrUrl.endsWith('/rest/api/v1')
-      ? instanceOrUrl
-      : `${instanceOrUrl}/rest/api/v1`;
-    env.GLEAN_BASE_URL = baseUrl;
-  } else {
-    env.GLEAN_INSTANCE = instanceOrUrl;
+  // For local servers, set the appropriate base URL or instance
+  if (isLocal) {
+    // If it looks like a URL, use GLEAN_BASE_URL
+    if (
+      instanceOrUrl.startsWith('http://') ||
+      instanceOrUrl.startsWith('https://')
+    ) {
+      const baseUrl = instanceOrUrl.endsWith('/rest/api/v1')
+        ? instanceOrUrl
+        : `${instanceOrUrl}/rest/api/v1`;
+      env.GLEAN_BASE_URL = baseUrl;
+    } else {
+      env.GLEAN_INSTANCE = instanceOrUrl;
+    }
   }
 
   // Only include GLEAN_API_TOKEN if a token is provided
@@ -147,7 +151,6 @@ export function createMcpServersConfig(
     env.GLEAN_API_TOKEN = apiToken;
   }
 
-  const isLocal = !options?.remote;
   if (isLocal) {
     return {
       glean_local: {

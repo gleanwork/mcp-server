@@ -1239,7 +1239,6 @@ Error configuring client: API token is required. Please provide a token with the
               ],
               "type": "stdio",
               "env": {
-                "GLEAN_INSTANCE": "test-domain",
                 "GLEAN_API_TOKEN": "glean_api_test"
               }
             }
@@ -1298,7 +1297,6 @@ Error configuring client: API token is required. Please provide a token with the
               ],
               "type": "stdio",
               "env": {
-                "GLEAN_INSTANCE": "test-domain",
                 "GLEAN_API_TOKEN": "glean_api_test"
               }
             }
@@ -1358,7 +1356,6 @@ Error configuring client: API token is required. Please provide a token with the
               ],
               "type": "stdio",
               "env": {
-                "GLEAN_INSTANCE": "test-domain",
                 "GLEAN_API_TOKEN": "glean_api_test"
               }
             }
@@ -1452,7 +1449,6 @@ Error configuring client: API token is required. Please provide a token with the
               "command": "npx",
               "env": {
                 "GLEAN_API_TOKEN": "test-token",
-                "GLEAN_INSTANCE": "test-instance",
               },
               "type": "stdio",
             },
@@ -1512,7 +1508,6 @@ Error configuring client: API token is required. Please provide a token with the
               "command": "npx",
               "env": {
                 "GLEAN_API_TOKEN": "env-token",
-                "GLEAN_INSTANCE": "env-instance",
               },
               "type": "stdio",
             },
@@ -1545,7 +1540,6 @@ Error configuring client: API token is required. Please provide a token with the
               "command": "npx",
               "env": {
                 "GLEAN_API_TOKEN": "process-env-token",
-                "GLEAN_INSTANCE": "process-env-instance",
               },
               "type": "stdio",
             },
@@ -1591,7 +1585,6 @@ Error configuring client: API token is required. Please provide a token with the
               "command": "npx",
               "env": {
                 "GLEAN_API_TOKEN": "flag-token",
-                "GLEAN_INSTANCE": "flag-instance",
               },
               "type": "stdio",
             },
@@ -1686,7 +1679,6 @@ Error configuring client: API token is required. Please provide a token with the
                 ],
                 "type": "stdio",
                 "env": {
-                  "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
                 }
               }
@@ -1760,7 +1752,6 @@ Error configuring client: API token is required. Please provide a token with the
                 ],
                 "type": "stdio",
                 "env": {
-                  "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
                 }
               }
@@ -1832,7 +1823,6 @@ Error configuring client: API token is required. Please provide a token with the
                 ],
                 "type": "stdio",
                 "env": {
-                  "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
                 }
               }
@@ -1894,7 +1884,6 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "env": {
                   "GLEAN_API_TOKEN": "glean_api_test",
-                  "GLEAN_INSTANCE": "test-domain",
                 },
                 "type": "stdio",
               },
@@ -1907,7 +1896,6 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "env": {
                   "GLEAN_API_TOKEN": "glean_api_test",
-                  "GLEAN_INSTANCE": "test-domain",
                 },
                 "type": "stdio",
               },
@@ -1978,7 +1966,6 @@ Error configuring client: API token is required. Please provide a token with the
                 ],
                 "type": "stdio",
                 "env": {
-                  "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
                 }
               }
@@ -2054,7 +2041,6 @@ Error configuring client: API token is required. Please provide a token with the
                 ],
                 "type": "stdio",
                 "env": {
-                  "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
                 }
               }
@@ -2126,7 +2112,6 @@ Error configuring client: API token is required. Please provide a token with the
                 ],
                 "type": "stdio",
                 "env": {
-                  "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
                 }
               }
@@ -2188,7 +2173,6 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "env": {
                   "GLEAN_API_TOKEN": "glean_api_test",
-                  "GLEAN_INSTANCE": "test-domain",
                 },
                 "type": "stdio",
               },
@@ -2201,7 +2185,6 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "env": {
                   "GLEAN_API_TOKEN": "glean_api_test",
-                  "GLEAN_INSTANCE": "test-domain",
                 },
                 "type": "stdio",
               },
@@ -2273,7 +2256,6 @@ Error configuring client: API token is required. Please provide a token with the
                 ],
                 "type": "stdio",
                 "env": {
-                  "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
                 }
               }
@@ -2348,7 +2330,6 @@ Error configuring client: API token is required. Please provide a token with the
                 ],
                 "type": "stdio",
                 "env": {
-                  "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
                 }
               }
@@ -2421,7 +2402,6 @@ Error configuring client: API token is required. Please provide a token with the
                 ],
                 "type": "stdio",
                 "env": {
-                  "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
                 }
               }
@@ -2483,7 +2463,6 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "env": {
                   "GLEAN_API_TOKEN": "glean_api_test",
-                  "GLEAN_INSTANCE": "test-domain",
                 },
                 "type": "stdio",
               },
@@ -2496,7 +2475,6 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "env": {
                   "GLEAN_API_TOKEN": "glean_api_test",
-                  "GLEAN_INSTANCE": "test-domain",
                 },
                 "type": "stdio",
               },
@@ -2587,7 +2565,6 @@ Error configuring client: API token is required. Please provide a token with the
                   "command": "npx",
                   "env": {
                     "GLEAN_API_TOKEN": "glean_api_test",
-                    "GLEAN_INSTANCE": "test-domain",
                   },
                   "type": "stdio",
                 },
@@ -2649,7 +2626,6 @@ Error configuring client: API token is required. Please provide a token with the
                   "command": "npx",
                   "env": {
                     "GLEAN_API_TOKEN": "glean_api_test",
-                    "GLEAN_INSTANCE": "test-domain",
                   },
                   "type": "stdio",
                 },
@@ -2722,7 +2698,6 @@ Error configuring client: API token is required. Please provide a token with the
                   ],
                   "type": "stdio",
                   "env": {
-                    "GLEAN_INSTANCE": "test-domain",
                     "GLEAN_API_TOKEN": "glean_api_test"
                   }
                 }
@@ -2792,7 +2767,6 @@ Error configuring client: API token is required. Please provide a token with the
                   "command": "npx",
                   "env": {
                     "GLEAN_API_TOKEN": "glean_api_test",
-                    "GLEAN_INSTANCE": "test-domain",
                   },
                   "type": "stdio",
                 },
@@ -2805,7 +2779,6 @@ Error configuring client: API token is required. Please provide a token with the
                   "command": "npx",
                   "env": {
                     "GLEAN_API_TOKEN": "glean_api_test",
-                    "GLEAN_INSTANCE": "test-domain",
                   },
                   "type": "stdio",
                 },
