@@ -8,10 +8,10 @@
  * @module tools/read-documents
  */
 
-import { z } from 'zod';
-import { getClient } from '../common/client.js';
 import { GetDocumentsRequest, GetDocumentsRequestIncludeField } from '@gleanwork/api-client/models/components';
-import { getConfig, isGleanTokenConfig } from '@gleanwork/mcp-server-utils/config';
+import { AuthError, AuthErrorCode, ensureAuthTokenPresence, loadTokens } from '@gleanwork/mcp-server-utils/auth';
+import { getConfig, isGleanTokenConfig, isOAuthConfig } from '@gleanwork/mcp-server-utils/config';
+import { z } from 'zod';
 
 /**
  * Schema for Glean read documents requests designed for LLM interaction
@@ -63,19 +63,57 @@ export async function readDocuments(params: ToolReadDocumentsRequest) {
   // There's a bug in the client SDK, so using fetch directly for now
   // See https://github.com/gleanwork/api-client-typescript/issues/45
 
-  const config = await getConfig()
+  const config = await getConfig({ discoverOAuth: true });
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   }
-  if (isGleanTokenConfig(config)) {
+  if (isOAuthConfig(config)) {
+    if (!(await ensureAuthTokenPresence())) {
+      throw new AuthError(
+        'No OAuth tokens found. Please run `npx @gleanwork/configure-mcp-server auth` to authenticate.',
+        { code: AuthErrorCode.InvalidConfig },
+      );
+    }
+
+    const tokens = loadTokens();
+    if (tokens === null) {
+      throw new AuthError(
+        'No OAuth tokens found. Please run `npx @gleanwork/configure-mcp-server auth` to authenticate.',
+        { code: AuthErrorCode.InvalidConfig },
+      );
+    }
+    headers['X-Glean-Auth-Type'] = 'OAUTH';
+    headers['Authorization'] = `Bearer ${tokens?.accessToken}`;
+  } else if (isGleanTokenConfig(config)) {
     headers['Authorization'] = `Bearer ${config.token}`;
+    
+    const { actAs } = config;
+    if (actAs) {
+      headers['X-Glean-Act-As'] = actAs;
+    }
+  } else {
+    throw new AuthError(
+      'Missing or invalid Glean configuration. Please check that your environment variables are set correctly (e.g. GLEAN_INSTANCE or GLEAN_SUBDOMAIN).',
+      { code: AuthErrorCode.InvalidConfig },
+    );
   }
 
-  const response = await fetch(`${config.baseUrl}/rest/api/v1/getdocuments`, {
+  const response = await fetch(`${config.baseUrl}rest/api/v1/getdocuments`, {
     method: 'POST',
     body: JSON.stringify(mappedParams),
     headers,
   });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+  }
+
+  const contentType = response.headers.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    const responseText = await response.text();
+    throw new Error(`Expected JSON response but got ${contentType}: ${responseText}`);
+  }
 
   return response.json();
 }
