@@ -202,7 +202,6 @@ describe('configure', () => {
   });
 
   it('should handle OAuth flow when no token is provided', async () => {
-    process.env.GLEAN_OAUTH_ENABLED = 'true';
     const options: ConfigureOptions = {
       instance: 'test-instance',
       remote: true,
@@ -237,7 +236,6 @@ describe('configure', () => {
   });
 
   it('should handle OAuth flow with agents target', async () => {
-    process.env.GLEAN_OAUTH_ENABLED = 'true';
     const options = {
       instance: 'test-instance',
       remote: true,
@@ -273,7 +271,6 @@ describe('configure', () => {
   });
 
   it('should throw error when OAuth flow fails', async () => {
-    process.env.GLEAN_OAUTH_ENABLED = 'true';
     vi.mocked(ensureAuthTokenPresence).mockResolvedValue(false);
 
     const options = {
