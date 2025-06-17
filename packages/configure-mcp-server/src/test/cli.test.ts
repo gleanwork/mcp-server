@@ -395,6 +395,7 @@ describe('CLI', () => {
                 "GLEAN_API_TOKEN": "test-token",
                 "GLEAN_INSTANCE": "test-instance",
               },
+              "type": "stdio",
             },
           },
         }
@@ -446,6 +447,7 @@ describe('CLI', () => {
                 "GLEAN_API_TOKEN": "env-token",
                 "GLEAN_INSTANCE": "env-instance",
               },
+              "type": "stdio",
             },
           },
         }
@@ -477,6 +479,7 @@ describe('CLI', () => {
                 "GLEAN_API_TOKEN": "process-env-token",
                 "GLEAN_INSTANCE": "process-env-instance",
               },
+              "type": "stdio",
             },
           },
         }
@@ -520,6 +523,7 @@ describe('CLI', () => {
                 "GLEAN_API_TOKEN": "flag-token",
                 "GLEAN_INSTANCE": "flag-instance",
               },
+              "type": "stdio",
             },
           },
         }
@@ -602,6 +606,7 @@ Error configuring client: API token is required. Please provide a token with the
           "{
             "mcpServers": {
               "glean_local": {
+                "type": "stdio",
                 "command": "npx",
                 "args": [
                   "-y",
@@ -624,6 +629,12 @@ Error configuring client: API token is required. Please provide a token with the
               enabled: true,
             },
           },
+          mcpServers: {
+            "github-remote": {
+              url: "https://api.githubcopilot.com/mcp",
+              authorization_token: "Bearer $MY_TOKEN"
+            }
+          }
         };
 
         createConfigFile(configFilePath, existingConfig);
@@ -672,7 +683,12 @@ Error configuring client: API token is required. Please provide a token with the
               }
             },
             "mcpServers": {
+              "github-remote": {
+                "url": "https://api.githubcopilot.com/mcp",
+                "authorization_token": "Bearer $MY_TOKEN"
+              },
               "glean_local": {
+                "type": "stdio",
                 "command": "npx",
                 "args": [
                   "-y",
@@ -741,6 +757,7 @@ Error configuring client: API token is required. Please provide a token with the
           "{
             "mcpServers": {
               "glean_local": {
+                "type": "stdio",
                 "command": "npx",
                 "args": [
                   "-y",
@@ -757,7 +774,19 @@ Error configuring client: API token is required. Please provide a token with the
       });
 
       it("adds config to existing file that doesn't have Glean config", async () => {
-        const existingConfig = {};
+        const existingConfig = {
+          'some-other-config': {
+            options: {
+              enabled: true,
+            },
+          },
+          mcpServers: {
+            "github-remote": {
+              url: "https://api.githubcopilot.com/mcp",
+              authorization_token: "Bearer $MY_TOKEN"
+            }
+          }
+        };
 
         createConfigFile(configFilePath, existingConfig);
 
@@ -799,8 +828,18 @@ Error configuring client: API token is required. Please provide a token with the
         expect(fs.existsSync(configFilePath)).toBe(true);
         expect(configFileContents).toMatchInlineSnapshot(`
           "{
+            "some-other-config": {
+              "options": {
+                "enabled": true
+              }
+            },
             "mcpServers": {
+              "github-remote": {
+                "url": "https://api.githubcopilot.com/mcp",
+                "authorization_token": "Bearer $MY_TOKEN"
+              },
               "glean_local": {
+                "type": "stdio",
                 "command": "npx",
                 "args": [
                   "-y",
@@ -870,6 +909,7 @@ Error configuring client: API token is required. Please provide a token with the
           "{
             "mcpServers": {
               "glean_local": {
+                "type": "stdio",
                 "command": "npx",
                 "args": [
                   "-y",
@@ -892,6 +932,12 @@ Error configuring client: API token is required. Please provide a token with the
               enabled: true,
             },
           },
+          mcpServers: {
+            "github-remote": {
+              url: "https://api.githubcopilot.com/mcp",
+              authorization_token: "Bearer $MY_TOKEN"
+            }
+          }
         };
 
         createConfigFile(configFilePath, existingConfig);
@@ -941,7 +987,12 @@ Error configuring client: API token is required. Please provide a token with the
               }
             },
             "mcpServers": {
+              "github-remote": {
+                "url": "https://api.githubcopilot.com/mcp",
+                "authorization_token": "Bearer $MY_TOKEN"
+              },
               "glean_local": {
+                "type": "stdio",
                 "command": "npx",
                 "args": [
                   "-y",
@@ -1026,31 +1077,38 @@ Error configuring client: API token is required. Please provide a token with the
         // Normalize JSON to avoid platform-specific escaping issues
         const parsedContents = JSON.parse(configFileContents);
         expect(parsedContents).toMatchInlineSnapshot(`
-        {
-          "mcp": {
-            "servers": {
-              "glean": {
-                "args": [
-                  "-y",
-                  "@gleanwork/local-mcp-server",
-                ],
-                "command": "npx",
-                "env": {
-                  "GLEAN_API_TOKEN": "glean_api_test",
-                  "GLEAN_INSTANCE": "test-domain",
+          {
+            "mcp": {
+              "servers": {
+                "glean_local": {
+                  "args": [
+                    "-y",
+                    "@gleanwork/local-mcp-server",
+                  ],
+                  "command": "npx",
+                  "env": {
+                    "GLEAN_API_TOKEN": "glean_api_test",
+                    "GLEAN_INSTANCE": "test-domain",
+                  },
+                  "type": "stdio",
                 },
-                "type": "stdio",
               },
             },
-          },
-        }
-      `);
+          }
+        `);
       });
 
       it("adds config to existing file that doesn't have Glean config", async () => {
         const existingConfig = {
           'editor.fontSize': 14,
           'workbench.colorTheme': 'Default Dark+',
+          mcp: {
+            servers: {
+            "github-remote": {
+              url: "https://api.githubcopilot.com/mcp",
+              authorization_token: "Bearer $MY_TOKEN"
+            }}
+          }
         };
 
         createConfigFile(configFilePath, existingConfig);
@@ -1085,27 +1143,31 @@ Error configuring client: API token is required. Please provide a token with the
         const parsedConfig = JSON.parse(configFileContents);
 
         expect(parsedConfig).toMatchInlineSnapshot(`
-        {
-          "editor.fontSize": 14,
-          "mcp": {
-            "servers": {
-              "glean": {
-                "args": [
-                  "-y",
-                  "@gleanwork/local-mcp-server",
-                ],
-                "command": "npx",
-                "env": {
-                  "GLEAN_API_TOKEN": "glean_api_test",
-                  "GLEAN_INSTANCE": "test-domain",
+          {
+            "editor.fontSize": 14,
+            "mcp": {
+              "servers": {
+                "github-remote": {
+                  "authorization_token": "Bearer $MY_TOKEN",
+                  "url": "https://api.githubcopilot.com/mcp",
                 },
-                "type": "stdio",
+                "glean_local": {
+                  "args": [
+                    "-y",
+                    "@gleanwork/local-mcp-server",
+                  ],
+                  "command": "npx",
+                  "env": {
+                    "GLEAN_API_TOKEN": "glean_api_test",
+                    "GLEAN_INSTANCE": "test-domain",
+                  },
+                  "type": "stdio",
+                },
               },
             },
-          },
-          "workbench.colorTheme": "Default Dark+",
-        }
-      `);
+            "workbench.colorTheme": "Default Dark+",
+          }
+        `);
       });
     });
   });
@@ -1166,23 +1228,24 @@ Error configuring client: API token is required. Please provide a token with the
 
       expect(fs.existsSync(configFilePath)).toBe(true);
       expect(configFileContents).toMatchInlineSnapshot(`
-          "{
-            "mcpServers": {
-              "glean": {
-                "command": "npx",
-                "args": [
-                  "-y",
-                  "@gleanwork/connect-mcp-server",
-                  "https://test-domain-be.glean.com/mcp/default/sse"
-                ],
-                "env": {
-                  "GLEAN_INSTANCE": "test-domain",
-                  "GLEAN_API_TOKEN": "glean_api_test"
-                }
+        "{
+          "mcpServers": {
+            "glean": {
+              "command": "npx",
+              "args": [
+                "-y",
+                "@gleanwork/connect-mcp-server",
+                "https://test-domain-be.glean.com/mcp/default/sse"
+              ],
+              "type": "stdio",
+              "env": {
+                "GLEAN_INSTANCE": "test-domain",
+                "GLEAN_API_TOKEN": "glean_api_test"
               }
             }
-          }"
-        `);
+          }
+        }"
+      `);
     });
 
     it('configures the default mcp server', async () => {
@@ -1224,23 +1287,24 @@ Error configuring client: API token is required. Please provide a token with the
 
       expect(fs.existsSync(configFilePath)).toBe(true);
       expect(configFileContents).toMatchInlineSnapshot(`
-          "{
-            "mcpServers": {
-              "glean": {
-                "command": "npx",
-                "args": [
-                  "-y",
-                  "@gleanwork/connect-mcp-server",
-                  "https://test-domain-be.glean.com/mcp/default/sse"
-                ],
-                "env": {
-                  "GLEAN_INSTANCE": "test-domain",
-                  "GLEAN_API_TOKEN": "glean_api_test"
-                }
+        "{
+          "mcpServers": {
+            "glean": {
+              "command": "npx",
+              "args": [
+                "-y",
+                "@gleanwork/connect-mcp-server",
+                "https://test-domain-be.glean.com/mcp/default/sse"
+              ],
+              "type": "stdio",
+              "env": {
+                "GLEAN_INSTANCE": "test-domain",
+                "GLEAN_API_TOKEN": "glean_api_test"
               }
             }
-          }"
-        `);
+          }
+        }"
+      `);
     });
 
     it('configures the agents mcp server', async () => {
@@ -1292,6 +1356,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "@gleanwork/connect-mcp-server",
                 "https://test-domain-be.glean.com/mcp/agents/sse"
               ],
+              "type": "stdio",
               "env": {
                 "GLEAN_INSTANCE": "test-domain",
                 "GLEAN_API_TOKEN": "glean_api_test"
@@ -1389,6 +1454,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "GLEAN_API_TOKEN": "test-token",
                 "GLEAN_INSTANCE": "test-instance",
               },
+              "type": "stdio",
             },
           },
         }
@@ -1448,6 +1514,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "GLEAN_API_TOKEN": "env-token",
                 "GLEAN_INSTANCE": "env-instance",
               },
+              "type": "stdio",
             },
           },
         }
@@ -1480,6 +1547,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "GLEAN_API_TOKEN": "process-env-token",
                 "GLEAN_INSTANCE": "process-env-instance",
               },
+              "type": "stdio",
             },
           },
         }
@@ -1525,6 +1593,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "GLEAN_API_TOKEN": "flag-token",
                 "GLEAN_INSTANCE": "flag-instance",
               },
+              "type": "stdio",
             },
           },
         }
@@ -1615,6 +1684,7 @@ Error configuring client: API token is required. Please provide a token with the
                   "@gleanwork/connect-mcp-server",
                   "https://test-domain-be.glean.com/mcp/default/sse"
                 ],
+                "type": "stdio",
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
@@ -1688,6 +1758,7 @@ Error configuring client: API token is required. Please provide a token with the
                   "@gleanwork/connect-mcp-server",
                   "https://test-domain-be.glean.com/mcp/default/sse"
                 ],
+                "type": "stdio",
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
@@ -1759,6 +1830,7 @@ Error configuring client: API token is required. Please provide a token with the
                   "@gleanwork/connect-mcp-server",
                   "https://test-domain-be.glean.com/mcp/default/sse"
                 ],
+                "type": "stdio",
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
@@ -1766,6 +1838,81 @@ Error configuring client: API token is required. Please provide a token with the
               }
             }
           }"
+        `);
+      });
+
+      it('configures both default and agents remote servers', async () => {
+        // First, configure the default remote server
+        const result1 = await runBin(
+          'remote',
+          '--client',
+          'cursor',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+            },
+          },
+        );
+
+        expect(result1.exitCode).toEqual(0);
+
+        // Then, add the agents remote server to the same config
+        const result2 = await runBin(
+          'remote',
+          '--client',
+          'cursor',
+          '--agents',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+            },
+          },
+        );
+
+        expect(result2.exitCode).toEqual(0);
+
+        // Verify both servers are configured
+        const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+        const parsedConfig = JSON.parse(configFileContents);
+        expect(parsedConfig).toMatchInlineSnapshot(`
+          {
+            "mcpServers": {
+              "glean": {
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/default/sse",
+                ],
+                "command": "npx",
+                "env": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                  "GLEAN_INSTANCE": "test-domain",
+                },
+                "type": "stdio",
+              },
+              "glean_agents": {
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/agents/sse",
+                ],
+                "command": "npx",
+                "env": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                  "GLEAN_INSTANCE": "test-domain",
+                },
+                "type": "stdio",
+              },
+            },
+          }
         `);
       });
     });
@@ -1829,6 +1976,7 @@ Error configuring client: API token is required. Please provide a token with the
                   "@gleanwork/connect-mcp-server",
                   "https://test-domain-be.glean.com/mcp/default/sse"
                 ],
+                "type": "stdio",
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
@@ -1904,6 +2052,7 @@ Error configuring client: API token is required. Please provide a token with the
                   "@gleanwork/connect-mcp-server",
                   "https://test-domain-be.glean.com/mcp/default/sse"
                 ],
+                "type": "stdio",
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
@@ -1975,6 +2124,7 @@ Error configuring client: API token is required. Please provide a token with the
                   "@gleanwork/connect-mcp-server",
                   "https://test-domain-be.glean.com/mcp/default/sse"
                 ],
+                "type": "stdio",
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
@@ -1982,6 +2132,81 @@ Error configuring client: API token is required. Please provide a token with the
               }
             }
           }"
+        `);
+      });
+
+      it('configures both default and agents remote servers', async () => {
+        // First, configure the default remote server
+        const result1 = await runBin(
+          'remote',
+          '--client',
+          'claude',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+            },
+          },
+        );
+
+        expect(result1.exitCode).toEqual(0);
+
+        // Then, add the agents remote server to the same config
+        const result2 = await runBin(
+          'remote',
+          '--client',
+          'claude',
+          '--agents',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+            },
+          },
+        );
+
+        expect(result2.exitCode).toEqual(0);
+
+        // Verify both servers are configured
+        const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+        const parsedConfig = JSON.parse(configFileContents);
+        expect(parsedConfig).toMatchInlineSnapshot(`
+          {
+            "mcpServers": {
+              "glean": {
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/default/sse",
+                ],
+                "command": "npx",
+                "env": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                  "GLEAN_INSTANCE": "test-domain",
+                },
+                "type": "stdio",
+              },
+              "glean_agents": {
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/agents/sse",
+                ],
+                "command": "npx",
+                "env": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                  "GLEAN_INSTANCE": "test-domain",
+                },
+                "type": "stdio",
+              },
+            },
+          }
         `);
       });
     });
@@ -2046,6 +2271,7 @@ Error configuring client: API token is required. Please provide a token with the
                   "@gleanwork/connect-mcp-server",
                   "https://test-domain-be.glean.com/mcp/default/sse"
                 ],
+                "type": "stdio",
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
@@ -2120,6 +2346,7 @@ Error configuring client: API token is required. Please provide a token with the
                   "@gleanwork/connect-mcp-server",
                   "https://test-domain-be.glean.com/mcp/default/sse"
                 ],
+                "type": "stdio",
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
@@ -2192,6 +2419,7 @@ Error configuring client: API token is required. Please provide a token with the
                   "@gleanwork/connect-mcp-server",
                   "https://test-domain-be.glean.com/mcp/default/sse"
                 ],
+                "type": "stdio",
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
@@ -2199,6 +2427,81 @@ Error configuring client: API token is required. Please provide a token with the
               }
             }
           }"
+        `);
+      });
+
+      it('configures both default and agents remote servers', async () => {
+        // First, configure the default remote server
+        const result1 = await runBin(
+          'remote',
+          '--client',
+          'windsurf',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+            },
+          },
+        );
+
+        expect(result1.exitCode).toEqual(0);
+
+        // Then, add the agents remote server to the same config
+        const result2 = await runBin(
+          'remote',
+          '--client',
+          'windsurf',
+          '--agents',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+            },
+          },
+        );
+
+        expect(result2.exitCode).toEqual(0);
+
+        // Verify both servers are configured
+        const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+        const parsedConfig = JSON.parse(configFileContents);
+        expect(parsedConfig).toMatchInlineSnapshot(`
+          {
+            "mcpServers": {
+              "glean": {
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/default/sse",
+                ],
+                "command": "npx",
+                "env": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                  "GLEAN_INSTANCE": "test-domain",
+                },
+                "type": "stdio",
+              },
+              "glean_agents": {
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/agents/sse",
+                ],
+                "command": "npx",
+                "env": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                  "GLEAN_INSTANCE": "test-domain",
+                },
+                "type": "stdio",
+              },
+            },
+          }
         `);
       });
     });
@@ -2272,25 +2575,26 @@ Error configuring client: API token is required. Please provide a token with the
         // Normalize JSON to avoid platform-specific escaping issues
         const parsedContents = JSON.parse(configFileContents);
         expect(parsedContents).toMatchInlineSnapshot(`
-        {
-          "mcp": {
-            "servers": {
-              "glean": {
-                "args": [
-                  "-y",
-                  "@gleanwork/local-mcp-server",
-                ],
-                "command": "npx",
-                "env": {
-                  "GLEAN_API_TOKEN": "glean_api_test",
-                  "GLEAN_INSTANCE": "test-domain",
+          {
+            "mcp": {
+              "servers": {
+                "glean": {
+                  "args": [
+                    "-y",
+                    "@gleanwork/connect-mcp-server",
+                    "https://test-domain-be.glean.com/mcp/default/sse",
+                  ],
+                  "command": "npx",
+                  "env": {
+                    "GLEAN_API_TOKEN": "glean_api_test",
+                    "GLEAN_INSTANCE": "test-domain",
+                  },
+                  "type": "stdio",
                 },
-                "type": "stdio",
               },
             },
-          },
-        }
-      `);
+          }
+        `);
       });
 
       it("adds config to existing file that doesn't have Glean config", async () => {
@@ -2332,27 +2636,28 @@ Error configuring client: API token is required. Please provide a token with the
         const parsedConfig = JSON.parse(configFileContents);
 
         expect(parsedConfig).toMatchInlineSnapshot(`
-        {
-          "editor.fontSize": 14,
-          "mcp": {
-            "servers": {
-              "glean": {
-                "args": [
-                  "-y",
-                  "@gleanwork/local-mcp-server",
-                ],
-                "command": "npx",
-                "env": {
-                  "GLEAN_API_TOKEN": "glean_api_test",
-                  "GLEAN_INSTANCE": "test-domain",
+          {
+            "editor.fontSize": 14,
+            "mcp": {
+              "servers": {
+                "glean": {
+                  "args": [
+                    "-y",
+                    "@gleanwork/connect-mcp-server",
+                    "https://test-domain-be.glean.com/mcp/default/sse",
+                  ],
+                  "command": "npx",
+                  "env": {
+                    "GLEAN_API_TOKEN": "glean_api_test",
+                    "GLEAN_INSTANCE": "test-domain",
+                  },
+                  "type": "stdio",
                 },
-                "type": "stdio",
               },
             },
-          },
-          "workbench.colorTheme": "Default Dark+",
-        }
-      `);
+            "workbench.colorTheme": "Default Dark+",
+          }
+        `);
       });
 
       it('updates configurations from local to remote', async () => {
@@ -2409,12 +2714,13 @@ Error configuring client: API token is required. Please provide a token with the
             "mcp": {
               "servers": {
                 "glean": {
-                  "type": "stdio",
                   "command": "npx",
                   "args": [
                     "-y",
-                    "@gleanwork/local-mcp-server"
+                    "@gleanwork/connect-mcp-server",
+                    "https://test-domain-be.glean.com/mcp/default/sse"
                   ],
+                  "type": "stdio",
                   "env": {
                     "GLEAN_INSTANCE": "test-domain",
                     "GLEAN_API_TOKEN": "glean_api_test"
@@ -2423,6 +2729,89 @@ Error configuring client: API token is required. Please provide a token with the
               }
             }
           }"
+        `);
+      });
+
+      it('configures both default and agents remote servers', async () => {
+        // First, configure the default remote server
+        const result1 = await runBin(
+          'remote',
+          '--client',
+          'vscode',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
+            },
+          },
+        );
+
+        expect(result1.exitCode).toEqual(0);
+
+        // Then, add the agents remote server to the same config
+        const result2 = await runBin(
+          'remote',
+          '--client',
+          'vscode',
+          '--agents',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
+            },
+          },
+        );
+
+        expect(result2.exitCode).toEqual(0);
+
+        // Verify both servers are configured
+        const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+        const parsedConfig = JSON.parse(configFileContents);
+        expect(parsedConfig).toMatchInlineSnapshot(`
+          {
+            "mcp": {
+              "servers": {
+                "glean": {
+                  "args": [
+                    "-y",
+                    "@gleanwork/connect-mcp-server",
+                    "https://test-domain-be.glean.com/mcp/default/sse",
+                  ],
+                  "command": "npx",
+                  "env": {
+                    "GLEAN_API_TOKEN": "glean_api_test",
+                    "GLEAN_INSTANCE": "test-domain",
+                  },
+                  "type": "stdio",
+                },
+                "glean_agents": {
+                  "args": [
+                    "-y",
+                    "@gleanwork/connect-mcp-server",
+                    "https://test-domain-be.glean.com/mcp/agents/sse",
+                  ],
+                  "command": "npx",
+                  "env": {
+                    "GLEAN_API_TOKEN": "glean_api_test",
+                    "GLEAN_INSTANCE": "test-domain",
+                  },
+                  "type": "stdio",
+                },
+              },
+            },
+          }
         `);
       });
     });

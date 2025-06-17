@@ -99,6 +99,7 @@ describe('configure', () => {
               "GLEAN_API_TOKEN": "test-token",
               "GLEAN_INSTANCE": "test-instance",
             },
+            "type": "stdio",
           },
         },
       }
@@ -131,6 +132,7 @@ describe('configure', () => {
               "GLEAN_API_TOKEN": "test-token",
               "GLEAN_BASE_URL": "https://example.com/rest/api/v1",
             },
+            "type": "stdio",
           },
         },
       }
@@ -161,6 +163,7 @@ describe('configure', () => {
               "GLEAN_API_TOKEN": "env-token",
               "GLEAN_INSTANCE": "env-instance",
             },
+            "type": "stdio",
           },
         },
       }
@@ -191,6 +194,7 @@ describe('configure', () => {
               "GLEAN_API_TOKEN": "env-file-token",
               "GLEAN_INSTANCE": "env-file-instance",
             },
+            "type": "stdio",
           },
         },
       }
@@ -227,6 +231,7 @@ describe('configure', () => {
             "env": {
               "GLEAN_INSTANCE": "test-instance",
             },
+            "type": "stdio",
           },
         },
       }
@@ -264,6 +269,7 @@ describe('configure', () => {
             "env": {
               "GLEAN_INSTANCE": "test-instance",
             },
+            "type": "stdio",
           },
         },
       }
