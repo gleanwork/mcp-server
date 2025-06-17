@@ -128,10 +128,6 @@ To use it:
 3. Open the Chat view (Ctrl+Alt+I or ⌃⌘I) and select "Agent" mode from the dropdown
 4. Click the "Tools" button to see and use Glean tools in Agent mode
 5. You'll be asked for approval when Agent uses these tools
-
-Notes:
-- You may need to set your Glean instance and API token if they weren't provided during configuration
-- User settings are at: ${configPath}
 `;
 };
 

@@ -338,10 +338,6 @@ describe('CLI', () => {
           1. Restart Cursor
           2. Agent will now have access to Glean tools
           3. You'll be asked for approval when Agent uses these tools
-
-          Notes:
-          - You may need to set your Glean instance and API token if they weren't provided during configuration
-          - Configuration is at: <TMP_DIR>/.cursor/mcp.json
           "
         `);
     });
@@ -373,10 +369,6 @@ describe('CLI', () => {
           1. Restart Cursor
           2. Agent will now have access to Glean tools
           3. You'll be asked for approval when Agent uses these tools
-
-          Notes:
-          - You may need to set your Glean instance and API token if they weren't provided during configuration
-          - Configuration is at: <TMP_DIR>/.cursor/mcp.json
           "
         `);
 
@@ -425,10 +417,6 @@ describe('CLI', () => {
           1. Restart Cursor
           2. Agent will now have access to Glean tools
           3. You'll be asked for approval when Agent uses these tools
-
-          Notes:
-          - You may need to set your Glean instance and API token if they weren't provided during configuration
-          - Configuration is at: <TMP_DIR>/.cursor/mcp.json
           "
         `);
 
@@ -592,10 +580,6 @@ Error configuring client: API token is required. Please provide a token with the
             1. Restart Cursor
             2. Agent will now have access to Glean tools
             3. You'll be asked for approval when Agent uses these tools
-
-            Notes:
-            - You may need to set your Glean instance and API token if they weren't provided during configuration
-            - Configuration is at: <TMP_DIR>/.cursor/mcp.json
             "
           `);
 
@@ -665,10 +649,6 @@ Error configuring client: API token is required. Please provide a token with the
             1. Restart Cursor
             2. Agent will now have access to Glean tools
             3. You'll be asked for approval when Agent uses these tools
-
-            Notes:
-            - You may need to set your Glean instance and API token if they weren't provided during configuration
-            - Configuration is at: <TMP_DIR>/.cursor/mcp.json
             "
           `);
 
@@ -743,10 +723,6 @@ Error configuring client: API token is required. Please provide a token with the
             1. Restart Claude Desktop
             2. You should see a hammer icon in the input box, indicating MCP tools are available
             3. Click the hammer to see available tools
-
-            Notes:
-            - You may need to set your Glean instance and API token if they weren't provided during configuration
-            - Configuration is at: <TMP_DIR>/Claude/claude_desktop_config.json
             "
           `);
 
@@ -816,10 +792,6 @@ Error configuring client: API token is required. Please provide a token with the
             1. Restart Claude Desktop
             2. You should see a hammer icon in the input box, indicating MCP tools are available
             3. Click the hammer to see available tools
-
-            Notes:
-            - You may need to set your Glean instance and API token if they weren't provided during configuration
-            - Configuration is at: <TMP_DIR>/Claude/claude_desktop_config.json
             "
           `);
 
@@ -885,22 +857,18 @@ Error configuring client: API token is required. Please provide a token with the
         expect(result.exitCode).toEqual(0);
         expect(normalizeOutput(result.stdout, project.baseDir))
           .toMatchInlineSnapshot(`
-          "Configuring Glean MCP for Windsurf...
-          Created new configuration file at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
+            "Configuring Glean MCP for Windsurf...
+            Created new configuration file at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
 
-          Windsurf MCP configuration has been configured to: <TMP_DIR>/.codeium/windsurf/mcp_config.json
+            Windsurf MCP configuration has been configured to: <TMP_DIR>/.codeium/windsurf/mcp_config.json
 
-          To use it:
-          1. Open Windsurf Settings > Advanced Settings
-          2. Scroll to the Cascade section
-          3. Press the refresh button after configuration
-          4. You should now see Glean in your available MCP servers
-
-          Notes:
-          - You may need to set your Glean instance and API token if they weren't provided during configuration
-          - Configuration is at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
-          "
-        `);
+            To use it:
+            1. Open Windsurf Settings > Advanced Settings
+            2. Scroll to the Cascade section
+            3. Press the refresh button after configuration
+            4. You should now see Glean in your available MCP servers
+            "
+          `);
 
         const configFileContents = fs.readFileSync(configFilePath, 'utf8');
 
@@ -959,22 +927,18 @@ Error configuring client: API token is required. Please provide a token with the
         expect(result.exitCode).toEqual(0);
         expect(normalizeOutput(result.stdout, project.baseDir))
           .toMatchInlineSnapshot(`
-          "Configuring Glean MCP for Windsurf...
-          Updated configuration file at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
+            "Configuring Glean MCP for Windsurf...
+            Updated configuration file at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
 
-          Windsurf MCP configuration has been configured to: <TMP_DIR>/.codeium/windsurf/mcp_config.json
+            Windsurf MCP configuration has been configured to: <TMP_DIR>/.codeium/windsurf/mcp_config.json
 
-          To use it:
-          1. Open Windsurf Settings > Advanced Settings
-          2. Scroll to the Cascade section
-          3. Press the refresh button after configuration
-          4. You should now see Glean in your available MCP servers
-
-          Notes:
-          - You may need to set your Glean instance and API token if they weren't provided during configuration
-          - Configuration is at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
-          "
-        `);
+            To use it:
+            1. Open Windsurf Settings > Advanced Settings
+            2. Scroll to the Cascade section
+            3. Press the refresh button after configuration
+            4. You should now see Glean in your available MCP servers
+            "
+          `);
 
         const configFileContents = fs.readFileSync(configFilePath, 'utf8');
 
@@ -1066,10 +1030,17 @@ Error configuring client: API token is required. Please provide a token with the
         const normalized = normalizeOutput(result.stdout, project.baseDir);
 
         expect(normalized).toMatchInlineSnapshot(`
-        "Configuring Glean MCP for VS Code...
-        Created new configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
-        "
-      `);
+          "Configuring Glean MCP for VS Code...
+          Created new configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
+
+          To use it:
+          1. Enable MCP support in VS Code by adding "chat.mcp.enabled": true to your user settings
+          2. Restart VS Code
+          3. Open the Chat view (Ctrl+Alt+I or ⌃⌘I) and select "Agent" mode from the dropdown
+          4. Click the "Tools" button to see and use Glean tools in Agent mode
+          5. You'll be asked for approval when Agent uses these tools
+          "
+        `);
 
         const configFileContents = fs.readFileSync(configFilePath, 'utf8');
 
@@ -1134,10 +1105,17 @@ Error configuring client: API token is required. Please provide a token with the
         const normalized = normalizeOutput(result.stdout, project.baseDir);
 
         expect(normalized).toMatchInlineSnapshot(`
-        "Configuring Glean MCP for VS Code...
-        Updated configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
-        "
-      `);
+          "Configuring Glean MCP for VS Code...
+          Updated configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
+
+          To use it:
+          1. Enable MCP support in VS Code by adding "chat.mcp.enabled": true to your user settings
+          2. Restart VS Code
+          3. Open the Chat view (Ctrl+Alt+I or ⌃⌘I) and select "Agent" mode from the dropdown
+          4. Click the "Tools" button to see and use Glean tools in Agent mode
+          5. You'll be asked for approval when Agent uses these tools
+          "
+        `);
 
         const configFileContents = fs.readFileSync(configFilePath, 'utf8');
         const parsedConfig = JSON.parse(configFileContents);
@@ -1217,10 +1195,6 @@ Error configuring client: API token is required. Please provide a token with the
           1. Restart Cursor
           2. Agent will now have access to Glean tools
           3. You'll be asked for approval when Agent uses these tools
-
-          Notes:
-          - You may need to set your Glean instance and API token if they weren't provided during configuration
-          - Configuration is at: <TMP_DIR>/.cursor/mcp.json
           "
         `);
 
@@ -1275,10 +1249,6 @@ Error configuring client: API token is required. Please provide a token with the
           1. Restart Cursor
           2. Agent will now have access to Glean tools
           3. You'll be asked for approval when Agent uses these tools
-
-          Notes:
-          - You may need to set your Glean instance and API token if they weren't provided during configuration
-          - Configuration is at: <TMP_DIR>/.cursor/mcp.json
           "
         `);
 
@@ -1334,10 +1304,6 @@ Error configuring client: API token is required. Please provide a token with the
           1. Restart Cursor
           2. Agent will now have access to Glean tools
           3. You'll be asked for approval when Agent uses these tools
-
-          Notes:
-          - You may need to set your Glean instance and API token if they weren't provided during configuration
-          - Configuration is at: <TMP_DIR>/.cursor/mcp.json
           "
         `);
 
@@ -1392,10 +1358,6 @@ Error configuring client: API token is required. Please provide a token with the
           1. Restart Cursor
           2. Agent will now have access to Glean tools
           3. You'll be asked for approval when Agent uses these tools
-
-          Notes:
-          - You may need to set your Glean instance and API token if they weren't provided during configuration
-          - Configuration is at: <TMP_DIR>/.cursor/mcp.json
           "
         `);
     });
@@ -1428,10 +1390,6 @@ Error configuring client: API token is required. Please provide a token with the
           1. Restart Cursor
           2. Agent will now have access to Glean tools
           3. You'll be asked for approval when Agent uses these tools
-
-          Notes:
-          - You may need to set your Glean instance and API token if they weren't provided during configuration
-          - Configuration is at: <TMP_DIR>/.cursor/mcp.json
           "
         `);
 
@@ -1487,10 +1445,6 @@ Error configuring client: API token is required. Please provide a token with the
           1. Restart Cursor
           2. Agent will now have access to Glean tools
           3. You'll be asked for approval when Agent uses these tools
-
-          Notes:
-          - You may need to set your Glean instance and API token if they weren't provided during configuration
-          - Configuration is at: <TMP_DIR>/.cursor/mcp.json
           "
         `);
 
@@ -1657,10 +1611,6 @@ Error configuring client: API token is required. Please provide a token with the
             1. Restart Cursor
             2. Agent will now have access to Glean tools
             3. You'll be asked for approval when Agent uses these tools
-
-            Notes:
-            - You may need to set your Glean instance and API token if they weren't provided during configuration
-            - Configuration is at: <TMP_DIR>/.cursor/mcp.json
             "
           `);
 
@@ -1725,10 +1675,6 @@ Error configuring client: API token is required. Please provide a token with the
             1. Restart Cursor
             2. Agent will now have access to Glean tools
             3. You'll be asked for approval when Agent uses these tools
-
-            Notes:
-            - You may need to set your Glean instance and API token if they weren't provided during configuration
-            - Configuration is at: <TMP_DIR>/.cursor/mcp.json
             "
           `);
 
@@ -1803,10 +1749,6 @@ Error configuring client: API token is required. Please provide a token with the
             1. Restart Cursor
             2. Agent will now have access to Glean tools
             3. You'll be asked for approval when Agent uses these tools
-
-            Notes:
-            - You may need to set your Glean instance and API token if they weren't provided during configuration
-            - Configuration is at: <TMP_DIR>/.cursor/mcp.json
             "
           `);
 
@@ -1944,10 +1886,6 @@ Error configuring client: API token is required. Please provide a token with the
             1. Restart Claude Desktop
             2. You should see a hammer icon in the input box, indicating MCP tools are available
             3. Click the hammer to see available tools
-
-            Notes:
-            - You may need to set your Glean instance and API token if they weren't provided during configuration
-            - Configuration is at: <TMP_DIR>/Claude/claude_desktop_config.json
             "
           `);
 
@@ -2013,10 +1951,6 @@ Error configuring client: API token is required. Please provide a token with the
             1. Restart Claude Desktop
             2. You should see a hammer icon in the input box, indicating MCP tools are available
             3. Click the hammer to see available tools
-
-            Notes:
-            - You may need to set your Glean instance and API token if they weren't provided during configuration
-            - Configuration is at: <TMP_DIR>/Claude/claude_desktop_config.json
             "
           `);
 
@@ -2092,10 +2026,6 @@ Error configuring client: API token is required. Please provide a token with the
             1. Restart Claude Desktop
             2. You should see a hammer icon in the input box, indicating MCP tools are available
             3. Click the hammer to see available tools
-
-            Notes:
-            - You may need to set your Glean instance and API token if they weren't provided during configuration
-            - Configuration is at: <TMP_DIR>/Claude/claude_desktop_config.json
             "
           `);
 
@@ -2224,22 +2154,18 @@ Error configuring client: API token is required. Please provide a token with the
         expect(result.exitCode).toEqual(0);
         expect(normalizeOutput(result.stdout, project.baseDir))
           .toMatchInlineSnapshot(`
-          "Configuring Glean MCP for Windsurf...
-          Created new configuration file at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
+            "Configuring Glean MCP for Windsurf...
+            Created new configuration file at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
 
-          Windsurf MCP configuration has been configured to: <TMP_DIR>/.codeium/windsurf/mcp_config.json
+            Windsurf MCP configuration has been configured to: <TMP_DIR>/.codeium/windsurf/mcp_config.json
 
-          To use it:
-          1. Open Windsurf Settings > Advanced Settings
-          2. Scroll to the Cascade section
-          3. Press the refresh button after configuration
-          4. You should now see Glean in your available MCP servers
-
-          Notes:
-          - You may need to set your Glean instance and API token if they weren't provided during configuration
-          - Configuration is at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
-          "
-        `);
+            To use it:
+            1. Open Windsurf Settings > Advanced Settings
+            2. Scroll to the Cascade section
+            3. Press the refresh button after configuration
+            4. You should now see Glean in your available MCP servers
+            "
+          `);
 
         const configFileContents = fs.readFileSync(configFilePath, 'utf8');
 
@@ -2293,22 +2219,18 @@ Error configuring client: API token is required. Please provide a token with the
         expect(result.exitCode).toEqual(0);
         expect(normalizeOutput(result.stdout, project.baseDir))
           .toMatchInlineSnapshot(`
-          "Configuring Glean MCP for Windsurf...
-          Updated configuration file at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
+            "Configuring Glean MCP for Windsurf...
+            Updated configuration file at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
 
-          Windsurf MCP configuration has been configured to: <TMP_DIR>/.codeium/windsurf/mcp_config.json
+            Windsurf MCP configuration has been configured to: <TMP_DIR>/.codeium/windsurf/mcp_config.json
 
-          To use it:
-          1. Open Windsurf Settings > Advanced Settings
-          2. Scroll to the Cascade section
-          3. Press the refresh button after configuration
-          4. You should now see Glean in your available MCP servers
-
-          Notes:
-          - You may need to set your Glean instance and API token if they weren't provided during configuration
-          - Configuration is at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
-          "
-        `);
+            To use it:
+            1. Open Windsurf Settings > Advanced Settings
+            2. Scroll to the Cascade section
+            3. Press the refresh button after configuration
+            4. You should now see Glean in your available MCP servers
+            "
+          `);
 
         const configFileContents = fs.readFileSync(configFilePath, 'utf8');
 
@@ -2382,10 +2304,6 @@ Error configuring client: API token is required. Please provide a token with the
             2. Scroll to the Cascade section
             3. Press the refresh button after configuration
             4. You should now see Glean in your available MCP servers
-
-            Notes:
-            - You may need to set your Glean instance and API token if they weren't provided during configuration
-            - Configuration is at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
             "
           `);
 
@@ -2542,10 +2460,17 @@ Error configuring client: API token is required. Please provide a token with the
         const normalized = normalizeOutput(result.stdout, project.baseDir);
 
         expect(normalized).toMatchInlineSnapshot(`
-        "Configuring Glean MCP for VS Code...
-        Created new configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
-        "
-      `);
+          "Configuring Glean MCP for VS Code...
+          Created new configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
+
+          To use it:
+          1. Enable MCP support in VS Code by adding "chat.mcp.enabled": true to your user settings
+          2. Restart VS Code
+          3. Open the Chat view (Ctrl+Alt+I or ⌃⌘I) and select "Agent" mode from the dropdown
+          4. Click the "Tools" button to see and use Glean tools in Agent mode
+          5. You'll be asked for approval when Agent uses these tools
+          "
+        `);
 
         const configFileContents = fs.readFileSync(configFilePath, 'utf8');
 
@@ -2604,10 +2529,17 @@ Error configuring client: API token is required. Please provide a token with the
         const normalized = normalizeOutput(result.stdout, project.baseDir);
 
         expect(normalized).toMatchInlineSnapshot(`
-        "Configuring Glean MCP for VS Code...
-        Updated configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
-        "
-      `);
+          "Configuring Glean MCP for VS Code...
+          Updated configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
+
+          To use it:
+          1. Enable MCP support in VS Code by adding "chat.mcp.enabled": true to your user settings
+          2. Restart VS Code
+          3. Open the Chat view (Ctrl+Alt+I or ⌃⌘I) and select "Agent" mode from the dropdown
+          4. Click the "Tools" button to see and use Glean tools in Agent mode
+          5. You'll be asked for approval when Agent uses these tools
+          "
+        `);
 
         const configFileContents = fs.readFileSync(configFilePath, 'utf8');
         const parsedConfig = JSON.parse(configFileContents);
@@ -2680,6 +2612,13 @@ Error configuring client: API token is required. Please provide a token with the
         expect(normalized).toMatchInlineSnapshot(`
           "Configuring Glean MCP for VS Code...
           Updated configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
+
+          To use it:
+          1. Enable MCP support in VS Code by adding "chat.mcp.enabled": true to your user settings
+          2. Restart VS Code
+          3. Open the Chat view (Ctrl+Alt+I or ⌃⌘I) and select "Agent" mode from the dropdown
+          4. Click the "Tools" button to see and use Glean tools in Agent mode
+          5. You'll be asked for approval when Agent uses these tools
           "
         `);
 

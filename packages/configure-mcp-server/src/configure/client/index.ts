@@ -219,10 +219,6 @@ ${clientName} MCP configuration has been configured to: ${configPath}
 
 To use it:
 ${instructions.map((instr, i) => `${i + 1}. ${instr}`).join('\n')}
-
-Notes:
-- You may need to set your Glean instance and API token if they weren't provided during configuration
-- Configuration is at: ${configPath}
 `;
 }
 
