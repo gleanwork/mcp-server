@@ -18,7 +18,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.29.0",
-    "@release-it-plugins/workspaces": "^4.2.0",
+    "@release-it-plugins/workspaces": "^4.2.1",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^8.34.1",
     "eslint": "^8.56.0",
