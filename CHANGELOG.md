@@ -4,6 +4,38 @@
 
 
 
+
+## v0.7.6 (2025-06-17)
+
+#### :rocket: Enhancement
+* `configure-mcp-server`
+  * [#182](https://github.com/gleanwork/mcp-server/pull/182) Enable OAuth by default (without environment variable) ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### :bug: Bug Fix
+* `configure-mcp-server`
+  * [#177](https://github.com/gleanwork/mcp-server/pull/177) fix: Don't include GLEAN_INSTANCE for remote ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+  * [#180](https://github.com/gleanwork/mcp-server/pull/180) fix: vscode configuration of remote MCP Servers ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+  * [#178](https://github.com/gleanwork/mcp-server/pull/178) Ensure configuring with `remote` resets `glean` server to new remote path ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+  * [#176](https://github.com/gleanwork/mcp-server/pull/176) Fix clients (like Cursor) that do not handle spaces in MCP server arguments ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### :memo: Documentation
+* Other
+  * [#183](https://github.com/gleanwork/mcp-server/pull/183) docs: Add troubleshooting guide ([@rwjblue-glean](https://github.com/rwjblue-glean))
+* `configure-mcp-server`
+  * [#181](https://github.com/gleanwork/mcp-server/pull/181) feat: rework success message ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### :house: Internal
+* Other
+  * [#179](https://github.com/gleanwork/mcp-server/pull/179) docs: Add a basic vitepress site ([@rwjblue-glean](https://github.com/rwjblue-glean))
+  * [#175](https://github.com/gleanwork/mcp-server/pull/175) chore(deps): Sync @typescript-eslint/eslint-plugin in root ([@rwjblue-glean](https://github.com/rwjblue-glean))
+  * [#174](https://github.com/gleanwork/mcp-server/pull/174) fix(release): Ensure `pnpm-lock.yaml` is updated on release ([@rwjblue-glean](https://github.com/rwjblue-glean))
+* `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`, `mcp-test-utils`
+  * [#173](https://github.com/gleanwork/mcp-server/pull/173) fix: add missing import extensions ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### Committers: 2
+- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+- Robert Jackson ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
 ## v0.7.5 (2025-06-16)
 
 #### :bug: Bug Fix
