@@ -56,6 +56,18 @@ node packages/local-server/build/index.js
 
 Input and output follow the JSON-RPC 2.0 protocol, with each message on a new line.
 
+## Documentation
+
+### Running Documentation Locally
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm docs:dev
+```
+
 ## Making Changes
 
 1. Fork the repository
