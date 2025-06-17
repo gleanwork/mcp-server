@@ -163,36 +163,6 @@ describe('VS Code MCP Client', () => {
     );
     expect(message).toContain(configPath);
   });
-
-  it('should detect existing global config correctly', () => {
-    const existingConfig = {
-      mcp: {
-        servers: {
-          glean: {
-            command: 'npx',
-            args: ['-y', '@gleanwork/local-mcp-server'],
-          },
-        },
-      },
-    };
-
-    expect(vscodeClient.hasExistingConfig(existingConfig)).toBe(true);
-  });
-
-  it('should detect existing workspace config correctly', () => {
-    const existingConfig = {
-      servers: {
-        glean: {
-          command: 'npx',
-          args: ['-y', '@gleanwork/local-mcp-server'],
-        },
-      },
-    };
-
-    const options: ConfigureOptions = { workspace: true };
-    expect(vscodeClient.hasExistingConfig(existingConfig, options)).toBe(true);
-  });
-
   it('should update global config correctly', () => {
     const existingConfig = { someOtherConfig: true };
     const newConfig: MCPConfig = {

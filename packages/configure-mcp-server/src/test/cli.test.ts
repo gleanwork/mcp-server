@@ -383,22 +383,22 @@ describe('CLI', () => {
       const configFileContents = fs.readFileSync(configFilePath, 'utf8');
       const parsedConfig = JSON.parse(configFileContents);
       expect(parsedConfig).toMatchInlineSnapshot(`
-      {
-        "mcpServers": {
-          "glean": {
-            "args": [
-              "-y",
-              "@gleanwork/local-mcp-server",
-            ],
-            "command": "npx",
-            "env": {
-              "GLEAN_API_TOKEN": "test-token",
-              "GLEAN_INSTANCE": "test-instance",
+        {
+          "mcpServers": {
+            "glean_local": {
+              "args": [
+                "-y",
+                "@gleanwork/local-mcp-server",
+              ],
+              "command": "npx",
+              "env": {
+                "GLEAN_API_TOKEN": "test-token",
+                "GLEAN_INSTANCE": "test-instance",
+              },
             },
           },
-        },
-      }
-    `);
+        }
+      `);
     });
 
     it('uses token auth when both token and instance provided via env file', async () => {
@@ -434,22 +434,22 @@ describe('CLI', () => {
       const configFileContents = fs.readFileSync(configFilePath, 'utf8');
       const parsedConfig = JSON.parse(configFileContents);
       expect(parsedConfig).toMatchInlineSnapshot(`
-      {
-        "mcpServers": {
-          "glean": {
-            "args": [
-              "-y",
-              "@gleanwork/local-mcp-server",
-            ],
-            "command": "npx",
-            "env": {
-              "GLEAN_API_TOKEN": "env-token",
-              "GLEAN_INSTANCE": "env-instance",
+        {
+          "mcpServers": {
+            "glean_local": {
+              "args": [
+                "-y",
+                "@gleanwork/local-mcp-server",
+              ],
+              "command": "npx",
+              "env": {
+                "GLEAN_API_TOKEN": "env-token",
+                "GLEAN_INSTANCE": "env-instance",
+              },
             },
           },
-        },
-      }
-    `);
+        }
+      `);
     });
 
     it('uses token auth when both token and instance provided via environment variables', async () => {
@@ -465,22 +465,22 @@ describe('CLI', () => {
       const configFileContents = fs.readFileSync(configFilePath, 'utf8');
       const parsedConfig = JSON.parse(configFileContents);
       expect(parsedConfig).toMatchInlineSnapshot(`
-      {
-        "mcpServers": {
-          "glean": {
-            "args": [
-              "-y",
-              "@gleanwork/local-mcp-server",
-            ],
-            "command": "npx",
-            "env": {
-              "GLEAN_API_TOKEN": "process-env-token",
-              "GLEAN_INSTANCE": "process-env-instance",
+        {
+          "mcpServers": {
+            "glean_local": {
+              "args": [
+                "-y",
+                "@gleanwork/local-mcp-server",
+              ],
+              "command": "npx",
+              "env": {
+                "GLEAN_API_TOKEN": "process-env-token",
+                "GLEAN_INSTANCE": "process-env-instance",
+              },
             },
           },
-        },
-      }
-    `);
+        }
+      `);
     });
 
     it('prioritizes flags over env file when both provided', async () => {
@@ -508,22 +508,22 @@ describe('CLI', () => {
       const configFileContents = fs.readFileSync(configFilePath, 'utf8');
       const parsedConfig = JSON.parse(configFileContents);
       expect(parsedConfig).toMatchInlineSnapshot(`
-      {
-        "mcpServers": {
-          "glean": {
-            "args": [
-              "-y",
-              "@gleanwork/local-mcp-server",
-            ],
-            "command": "npx",
-            "env": {
-              "GLEAN_API_TOKEN": "flag-token",
-              "GLEAN_INSTANCE": "flag-instance",
+        {
+          "mcpServers": {
+            "glean_local": {
+              "args": [
+                "-y",
+                "@gleanwork/local-mcp-server",
+              ],
+              "command": "npx",
+              "env": {
+                "GLEAN_API_TOKEN": "flag-token",
+                "GLEAN_INSTANCE": "flag-instance",
+              },
             },
           },
-        },
-      }
-    `);
+        }
+      `);
     });
 
     it('warns when env file path does not exist', async () => {
@@ -599,22 +599,22 @@ Error configuring client: API token is required. Please provide a token with the
 
         expect(fs.existsSync(configFilePath)).toBe(true);
         expect(configFileContents).toMatchInlineSnapshot(`
-        "{
-          "mcpServers": {
-            "glean": {
-              "command": "npx",
-              "args": [
-                "-y",
-                "@gleanwork/local-mcp-server"
-              ],
-              "env": {
-                "GLEAN_INSTANCE": "test-domain",
-                "GLEAN_API_TOKEN": "glean_api_test"
+          "{
+            "mcpServers": {
+              "glean_local": {
+                "command": "npx",
+                "args": [
+                  "-y",
+                  "@gleanwork/local-mcp-server"
+                ],
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
+                }
               }
             }
-          }
-        }"
-      `);
+          }"
+        `);
       });
 
       it("adds config to existing file that doesn't have Glean config", async () => {
@@ -665,71 +665,27 @@ Error configuring client: API token is required. Please provide a token with the
 
         expect(fs.existsSync(configFilePath)).toBe(true);
         expect(configFileContents).toMatchInlineSnapshot(`
-        "{
-          "some-other-config": {
-            "options": {
-              "enabled": true
-            }
-          },
-          "mcpServers": {
-            "glean": {
-              "command": "npx",
-              "args": [
-                "-y",
-                "@gleanwork/local-mcp-server"
-              ],
-              "env": {
-                "GLEAN_INSTANCE": "test-domain",
-                "GLEAN_API_TOKEN": "glean_api_test"
+          "{
+            "some-other-config": {
+              "options": {
+                "enabled": true
+              }
+            },
+            "mcpServers": {
+              "glean_local": {
+                "command": "npx",
+                "args": [
+                  "-y",
+                  "@gleanwork/local-mcp-server"
+                ],
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
+                }
               }
             }
-          }
-        }"
-      `);
-      });
-
-      it("doesn't modify existing file that already has Glean config", async () => {
-        const existingConfig = {
-          mcpServers: {
-            glean: {
-              command: 'npx',
-              args: ['-y', '@gleanwork/local-mcp-server'],
-              env: {
-                GLEAN_API_TOKEN: 'glean_api_existing',
-                GLEAN_INSTANCE: 'existing-domain',
-              },
-            },
-          },
-        };
-
-        createConfigFile(configFilePath, existingConfig);
-
-        const configBefore = fs.readFileSync(configFilePath, 'utf8');
-
-        const result = await runBin(
-          '--client',
-          'cursor',
-          '--token',
-          'glean_api_test',
-          '--instance',
-          'test-domain',
-          {
-            env: {
-              GLEAN_MCP_CONFIG_DIR: project.baseDir,
-            },
-          },
-        );
-
-        expect(result.exitCode).toEqual(0);
-        expect(normalizeOutput(result.stdout, project.baseDir))
-          .toMatchInlineSnapshot(`
-          "Configuring Glean MCP for Cursor...
-          Glean MCP configuration already exists in Cursor.
-          Configuration file: <TMP_DIR>/.cursor/mcp.json"
+          }"
         `);
-
-        const configAfter = fs.readFileSync(configFilePath, 'utf8');
-        expect(configAfter).toBe(configBefore);
       });
     });
 
@@ -782,33 +738,26 @@ Error configuring client: API token is required. Please provide a token with the
 
         expect(fs.existsSync(configFilePath)).toBe(true);
         expect(configFileContents).toMatchInlineSnapshot(`
-        "{
-          "mcpServers": {
-            "glean": {
-              "command": "npx",
-              "args": [
-                "-y",
-                "@gleanwork/local-mcp-server"
-              ],
-              "env": {
-                "GLEAN_INSTANCE": "test-domain",
-                "GLEAN_API_TOKEN": "glean_api_test"
+          "{
+            "mcpServers": {
+              "glean_local": {
+                "command": "npx",
+                "args": [
+                  "-y",
+                  "@gleanwork/local-mcp-server"
+                ],
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
+                }
               }
             }
-          }
-        }"
-      `);
+          }"
+        `);
       });
 
       it("adds config to existing file that doesn't have Glean config", async () => {
-        const existingConfig = {
-          tools: [
-            {
-              name: 'some-other-tool',
-              description: 'Another tool',
-            },
-          ],
-        };
+        const existingConfig = {};
 
         createConfigFile(configFilePath, existingConfig);
 
@@ -849,72 +798,22 @@ Error configuring client: API token is required. Please provide a token with the
 
         expect(fs.existsSync(configFilePath)).toBe(true);
         expect(configFileContents).toMatchInlineSnapshot(`
-        "{
-          "tools": [
-            {
-              "name": "some-other-tool",
-              "description": "Another tool"
-            }
-          ],
-          "mcpServers": {
-            "glean": {
-              "command": "npx",
-              "args": [
-                "-y",
-                "@gleanwork/local-mcp-server"
-              ],
-              "env": {
-                "GLEAN_INSTANCE": "test-domain",
-                "GLEAN_API_TOKEN": "glean_api_test"
+          "{
+            "mcpServers": {
+              "glean_local": {
+                "command": "npx",
+                "args": [
+                  "-y",
+                  "@gleanwork/local-mcp-server"
+                ],
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
+                }
               }
             }
-          }
-        }"
-      `);
-      });
-
-      it("doesn't modify existing file that already has Glean config", async () => {
-        const existingConfig = {
-          mcpServers: {
-            glean: {
-              command: 'npx',
-              args: ['-y', '@gleanwork/local-mcp-server'],
-              env: {
-                GLEAN_API_TOKEN: 'glean_api_existing',
-                GLEAN_INSTANCE: 'existing-domain',
-              },
-            },
-          },
-        };
-
-        createConfigFile(configFilePath, existingConfig);
-
-        const configBefore = fs.readFileSync(configFilePath, 'utf8');
-
-        const result = await runBin(
-          '--client',
-          'claude',
-          '--token',
-          'glean_api_test',
-          '--instance',
-          'test-domain',
-          {
-            env: {
-              GLEAN_MCP_CONFIG_DIR: project.baseDir,
-            },
-          },
-        );
-
-        expect(result.exitCode).toEqual(0);
-        expect(normalizeOutput(result.stdout, project.baseDir))
-          .toMatchInlineSnapshot(`
-          "Configuring Glean MCP for Claude Desktop...
-          Glean MCP configuration already exists in Claude Desktop.
-          Configuration file: <TMP_DIR>/Claude/claude_desktop_config.json"
+          }"
         `);
-
-        const configAfter = fs.readFileSync(configFilePath, 'utf8');
-        expect(configAfter).toBe(configBefore);
       });
     });
 
@@ -968,22 +867,22 @@ Error configuring client: API token is required. Please provide a token with the
 
         expect(fs.existsSync(configFilePath)).toBe(true);
         expect(configFileContents).toMatchInlineSnapshot(`
-        "{
-          "mcpServers": {
-            "glean": {
-              "command": "npx",
-              "args": [
-                "-y",
-                "@gleanwork/local-mcp-server"
-              ],
-              "env": {
-                "GLEAN_INSTANCE": "test-domain",
-                "GLEAN_API_TOKEN": "glean_api_test"
+          "{
+            "mcpServers": {
+              "glean_local": {
+                "command": "npx",
+                "args": [
+                  "-y",
+                  "@gleanwork/local-mcp-server"
+                ],
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
+                }
               }
             }
-          }
-        }"
-      `);
+          }"
+        `);
       });
 
       it("adds config to existing file that doesn't have Glean config", async () => {
@@ -1035,71 +934,27 @@ Error configuring client: API token is required. Please provide a token with the
 
         expect(fs.existsSync(configFilePath)).toBe(true);
         expect(configFileContents).toMatchInlineSnapshot(`
-        "{
-          "some-other-config": {
-            "options": {
-              "enabled": true
-            }
-          },
-          "mcpServers": {
-            "glean": {
-              "command": "npx",
-              "args": [
-                "-y",
-                "@gleanwork/local-mcp-server"
-              ],
-              "env": {
-                "GLEAN_INSTANCE": "test-domain",
-                "GLEAN_API_TOKEN": "glean_api_test"
+          "{
+            "some-other-config": {
+              "options": {
+                "enabled": true
+              }
+            },
+            "mcpServers": {
+              "glean_local": {
+                "command": "npx",
+                "args": [
+                  "-y",
+                  "@gleanwork/local-mcp-server"
+                ],
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
+                }
               }
             }
-          }
-        }"
-      `);
-      });
-
-      it("doesn't modify existing file that already has Glean config", async () => {
-        const existingConfig = {
-          mcpServers: {
-            glean: {
-              command: 'npx',
-              args: ['-y', '@gleanwork/local-mcp-server'],
-              env: {
-                GLEAN_API_TOKEN: 'glean_api_existing',
-                GLEAN_INSTANCE: 'existing-domain',
-              },
-            },
-          },
-        };
-
-        createConfigFile(configFilePath, existingConfig);
-
-        const configBefore = fs.readFileSync(configFilePath, 'utf8');
-
-        const result = await runBin(
-          '--client',
-          'windsurf',
-          '--token',
-          'glean_api_test',
-          '--instance',
-          'test-domain',
-          {
-            env: {
-              GLEAN_MCP_CONFIG_DIR: project.baseDir,
-            },
-          },
-        );
-
-        expect(result.exitCode).toEqual(0);
-        expect(normalizeOutput(result.stdout, project.baseDir))
-          .toMatchInlineSnapshot(`
-          "Configuring Glean MCP for Windsurf...
-          Glean MCP configuration already exists in Windsurf.
-          Configuration file: <TMP_DIR>/.codeium/windsurf/mcp_config.json"
+          }"
         `);
-
-        const configAfter = fs.readFileSync(configFilePath, 'utf8');
-        expect(configAfter).toBe(configBefore);
       });
     });
 
@@ -1252,58 +1107,6 @@ Error configuring client: API token is required. Please provide a token with the
         }
       `);
       });
-
-      it("doesn't modify existing file that already has Glean config", async () => {
-        const existingConfig = {
-          'editor.fontSize': 14,
-          mcp: {
-            servers: {
-              glean: {
-                type: 'stdio',
-                command: 'npx',
-                args: ['-y', '@gleanwork/local-mcp-server'],
-                env: {
-                  GLEAN_INSTANCE: 'existing-domain',
-                  GLEAN_API_TOKEN: 'glean_api_existing',
-                },
-              },
-            },
-          },
-        };
-
-        createConfigFile(configFilePath, existingConfig);
-
-        const configBefore = fs.readFileSync(configFilePath, 'utf8');
-
-        const result = await runBin(
-          '--client',
-          'vscode',
-          '--token',
-          'glean_api_test',
-          '--instance',
-          'test-domain',
-          {
-            env: {
-              GLEAN_MCP_CONFIG_DIR: project.baseDir,
-              HOME: project.baseDir,
-              USERPROFILE: project.baseDir,
-              APPDATA: project.baseDir,
-            },
-          },
-        );
-
-        expect(result.exitCode).toEqual(0);
-        const normalized = normalizeOutput(result.stdout, project.baseDir);
-
-        expect(normalized).toMatchInlineSnapshot(`
-        "Configuring Glean MCP for VS Code...
-        Glean MCP configuration already exists in VS Code.
-        Configuration file: <VS_CODE_CONFIG_DIR>/settings.json"
-      `);
-
-        const configAfter = fs.readFileSync(configFilePath, 'utf8');
-        expect(configAfter).toBe(configBefore);
-      });
     });
   });
 
@@ -1340,7 +1143,7 @@ Error configuring client: API token is required. Please provide a token with the
         connect after configuration.
 
         "
-      `)
+      `);
       expect(normalizeOutput(result.stdout, project.baseDir))
         .toMatchInlineSnapshot(`
           "Configuring Glean MCP for Cursor...
@@ -1482,7 +1285,7 @@ Error configuring client: API token is required. Please provide a token with the
       expect(configFileContents).toMatchInlineSnapshot(`
         "{
           "mcpServers": {
-            "glean": {
+            "glean_agents": {
               "command": "npx",
               "args": [
                 "-y",
@@ -1895,7 +1698,7 @@ Error configuring client: API token is required. Please provide a token with the
         `);
       });
 
-      it("doesn't modify existing file that already has Glean config", async () => {
+      it('updates configurations from local to remote', async () => {
         const existingConfig = {
           mcpServers: {
             glean: {
@@ -1910,8 +1713,6 @@ Error configuring client: API token is required. Please provide a token with the
         };
 
         createConfigFile(configFilePath, existingConfig);
-
-        const configBefore = fs.readFileSync(configFilePath, 'utf8');
 
         const result = await runBin(
           'remote',
@@ -1931,13 +1732,41 @@ Error configuring client: API token is required. Please provide a token with the
         expect(result.exitCode).toEqual(0);
         expect(normalizeOutput(result.stdout, project.baseDir))
           .toMatchInlineSnapshot(`
-          "Configuring Glean MCP for Cursor...
-          Glean MCP configuration already exists in Cursor.
-          Configuration file: <TMP_DIR>/.cursor/mcp.json"
-        `);
+            "Configuring Glean MCP for Cursor...
+            Updated configuration file at: <TMP_DIR>/.cursor/mcp.json
+
+            Cursor MCP configuration has been configured to: <TMP_DIR>/.cursor/mcp.json
+
+            To use it:
+            1. Restart Cursor
+            2. Agent will now have access to Glean tools
+            3. You'll be asked for approval when Agent uses these tools
+
+            Notes:
+            - You may need to set your Glean instance and API token if they weren't provided during configuration
+            - Configuration is at: <TMP_DIR>/.cursor/mcp.json
+            "
+          `);
 
         const configAfter = fs.readFileSync(configFilePath, 'utf8');
-        expect(configAfter).toBe(configBefore);
+        expect(configAfter).toMatchInlineSnapshot(`
+          "{
+            "mcpServers": {
+              "glean": {
+                "command": "npx",
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/default/sse"
+                ],
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
+                }
+              }
+            }
+          }"
+        `);
       });
     });
 
@@ -2085,7 +1914,7 @@ Error configuring client: API token is required. Please provide a token with the
         `);
       });
 
-      it("doesn't modify existing file that already has Glean config", async () => {
+      it('updates configurations from local to remote', async () => {
         const existingConfig = {
           mcpServers: {
             glean: {
@@ -2100,8 +1929,6 @@ Error configuring client: API token is required. Please provide a token with the
         };
 
         createConfigFile(configFilePath, existingConfig);
-
-        const configBefore = fs.readFileSync(configFilePath, 'utf8');
 
         const result = await runBin(
           'remote',
@@ -2121,13 +1948,41 @@ Error configuring client: API token is required. Please provide a token with the
         expect(result.exitCode).toEqual(0);
         expect(normalizeOutput(result.stdout, project.baseDir))
           .toMatchInlineSnapshot(`
-          "Configuring Glean MCP for Claude Desktop...
-          Glean MCP configuration already exists in Claude Desktop.
-          Configuration file: <TMP_DIR>/Claude/claude_desktop_config.json"
-        `);
+            "Configuring Glean MCP for Claude Desktop...
+            Updated configuration file at: <TMP_DIR>/Claude/claude_desktop_config.json
+
+            Claude Desktop MCP configuration has been configured to: <TMP_DIR>/Claude/claude_desktop_config.json
+
+            To use it:
+            1. Restart Claude Desktop
+            2. You should see a hammer icon in the input box, indicating MCP tools are available
+            3. Click the hammer to see available tools
+
+            Notes:
+            - You may need to set your Glean instance and API token if they weren't provided during configuration
+            - Configuration is at: <TMP_DIR>/Claude/claude_desktop_config.json
+            "
+          `);
 
         const configAfter = fs.readFileSync(configFilePath, 'utf8');
-        expect(configAfter).toBe(configBefore);
+        expect(configAfter).toMatchInlineSnapshot(`
+          "{
+            "mcpServers": {
+              "glean": {
+                "command": "npx",
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/default/sse"
+                ],
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
+                }
+              }
+            }
+          }"
+        `);
       });
     });
 
@@ -2275,7 +2130,7 @@ Error configuring client: API token is required. Please provide a token with the
         `);
       });
 
-      it("doesn't modify existing file that already has Glean config", async () => {
+      it('updates configurations from local to remote', async () => {
         const existingConfig = {
           mcpServers: {
             glean: {
@@ -2290,8 +2145,6 @@ Error configuring client: API token is required. Please provide a token with the
         };
 
         createConfigFile(configFilePath, existingConfig);
-
-        const configBefore = fs.readFileSync(configFilePath, 'utf8');
 
         const result = await runBin(
           'remote',
@@ -2311,13 +2164,42 @@ Error configuring client: API token is required. Please provide a token with the
         expect(result.exitCode).toEqual(0);
         expect(normalizeOutput(result.stdout, project.baseDir))
           .toMatchInlineSnapshot(`
-          "Configuring Glean MCP for Windsurf...
-          Glean MCP configuration already exists in Windsurf.
-          Configuration file: <TMP_DIR>/.codeium/windsurf/mcp_config.json"
-        `);
+            "Configuring Glean MCP for Windsurf...
+            Updated configuration file at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
+
+            Windsurf MCP configuration has been configured to: <TMP_DIR>/.codeium/windsurf/mcp_config.json
+
+            To use it:
+            1. Open Windsurf Settings > Advanced Settings
+            2. Scroll to the Cascade section
+            3. Press the refresh button after configuration
+            4. You should now see Glean in your available MCP servers
+
+            Notes:
+            - You may need to set your Glean instance and API token if they weren't provided during configuration
+            - Configuration is at: <TMP_DIR>/.codeium/windsurf/mcp_config.json
+            "
+          `);
 
         const configAfter = fs.readFileSync(configFilePath, 'utf8');
-        expect(configAfter).toBe(configBefore);
+        expect(configAfter).toMatchInlineSnapshot(`
+          "{
+            "mcpServers": {
+              "glean": {
+                "command": "npx",
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/default/sse"
+                ],
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
+                }
+              }
+            }
+          }"
+        `);
       });
     });
 
@@ -2473,7 +2355,7 @@ Error configuring client: API token is required. Please provide a token with the
       `);
       });
 
-      it("doesn't modify existing file that already has Glean config", async () => {
+      it('updates configurations from local to remote', async () => {
         const existingConfig = {
           'editor.fontSize': 14,
           mcp: {
@@ -2492,8 +2374,6 @@ Error configuring client: API token is required. Please provide a token with the
         };
 
         createConfigFile(configFilePath, existingConfig);
-
-        const configBefore = fs.readFileSync(configFilePath, 'utf8');
 
         const result = await runBin(
           'remote',
@@ -2517,13 +2397,33 @@ Error configuring client: API token is required. Please provide a token with the
         const normalized = normalizeOutput(result.stdout, project.baseDir);
 
         expect(normalized).toMatchInlineSnapshot(`
-        "Configuring Glean MCP for VS Code...
-        Glean MCP configuration already exists in VS Code.
-        Configuration file: <VS_CODE_CONFIG_DIR>/settings.json"
-      `);
+          "Configuring Glean MCP for VS Code...
+          Updated configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
+          "
+        `);
 
         const configAfter = fs.readFileSync(configFilePath, 'utf8');
-        expect(configAfter).toBe(configBefore);
+        expect(configAfter).toMatchInlineSnapshot(`
+          "{
+            "editor.fontSize": 14,
+            "mcp": {
+              "servers": {
+                "glean": {
+                  "type": "stdio",
+                  "command": "npx",
+                  "args": [
+                    "-y",
+                    "@gleanwork/local-mcp-server"
+                  ],
+                  "env": {
+                    "GLEAN_INSTANCE": "test-domain",
+                    "GLEAN_API_TOKEN": "glean_api_test"
+                  }
+                }
+              }
+            }
+          }"
+        `);
       });
     });
   });

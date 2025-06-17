@@ -183,30 +183,6 @@ Notes:
 `;
 };
 
-// Override hasExistingConfig to handle workspace vs global format
-vscodeClient.hasExistingConfig = (
-  existingConfig: ConfigFileContents,
-  options?: ConfigureOptions,
-) => {
-  if (options?.workspace) {
-    const workspaceConfig = existingConfig as VSCodeWorkspaceConfig;
-    return (
-      workspaceConfig.servers?.glean?.command === 'npx' &&
-      workspaceConfig.servers?.glean?.args?.includes(
-        '@gleanwork/local-mcp-server',
-      )
-    );
-  }
-
-  const globalConfig = existingConfig as VSCodeGlobalConfig;
-  return (
-    globalConfig.mcp?.servers?.glean?.command === 'npx' &&
-    globalConfig.mcp?.servers?.glean?.args?.includes(
-      '@gleanwork/local-mcp-server',
-    )
-  );
-};
-
 // Override updateConfig to handle workspace vs global format
 vscodeClient.updateConfig = (
   existingConfig: ConfigFileContents,

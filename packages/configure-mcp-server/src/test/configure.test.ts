@@ -89,7 +89,7 @@ describe('configure', () => {
     expect(config).toMatchInlineSnapshot(`
       {
         "mcpServers": {
-          "glean": {
+          "glean_local": {
             "args": [
               "-y",
               "@gleanwork/local-mcp-server",
@@ -121,7 +121,7 @@ describe('configure', () => {
     expect(config).toMatchInlineSnapshot(`
       {
         "mcpServers": {
-          "glean": {
+          "glean_local": {
             "args": [
               "-y",
               "@gleanwork/local-mcp-server",
@@ -151,7 +151,7 @@ describe('configure', () => {
     expect(config).toMatchInlineSnapshot(`
       {
         "mcpServers": {
-          "glean": {
+          "glean_local": {
             "args": [
               "-y",
               "@gleanwork/local-mcp-server",
@@ -181,7 +181,7 @@ describe('configure', () => {
     expect(config).toMatchInlineSnapshot(`
       {
         "mcpServers": {
-          "glean": {
+          "glean_local": {
             "args": [
               "-y",
               "@gleanwork/local-mcp-server",
@@ -252,7 +252,7 @@ describe('configure', () => {
     expect(config).toMatchInlineSnapshot(`
       {
         "mcpServers": {
-          "glean": {
+          "glean_agents": {
             "args": [
               "-y",
               "@gleanwork/connect-mcp-server",
