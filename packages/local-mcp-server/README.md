@@ -12,6 +12,7 @@ The Glean MCP Server is a [Model Context Protocol (MCP)](https://modelcontextpro
 - **Company Search**: Access Glean's powerful content search capabilities
 - **People Profile Search**: Access Glean's people directory
 - **Chat**: Interact with Glean's AI assistant
+- **Read Documents**: Retrieve documents from Glean by ID or URL
 - **MCP Compliant**: Implements the Model Context Protocol specification
 
 ## Tools
@@ -28,6 +29,9 @@ The Glean MCP Server is a [Model Context Protocol (MCP)](https://modelcontextpro
 
   Search Glean's People directory to find employee information.
 
+- ### read_documents
+
+  Read documents from Glean by providing document IDs or URLs. This tool allows you to retrieve the full content of specific documents for detailed analysis or reference.
 
 ## MCP Client Configuration
 
