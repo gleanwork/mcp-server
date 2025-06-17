@@ -191,7 +191,7 @@ export async function configure(client: string, options: ConfigureOptions) {
       );
     }
 
-    // For OAuth flow (requires GLEAN_OAUTH_ENABLED and instance/URL)
+    // For OAuth flow 
     if (!instanceOrUrl) {
       throw new Error('Instance or URL is required for OAuth configuration');
     }

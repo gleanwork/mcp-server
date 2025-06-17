@@ -57,7 +57,7 @@ describe('CLI', () => {
   beforeEach(async () => {
     originalEnv = { ...process.env };
 
-    delete process.env.GLEAN_OAUTH_ENABLED;
+    process.env.GLEAN_OAUTH_DISABLED = 'true';
     delete process.env.GLEAN_BETA_ENABLED;
     delete process.env.GLEAN_API_TOKEN;
     delete process.env.GLEAN_INSTANCE;
