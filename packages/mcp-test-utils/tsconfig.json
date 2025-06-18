@@ -5,6 +5,7 @@
     "target": "es2017",
     "module": "nodenext",
     "lib": ["es2022"],
+    "rootDir": "./src",
     "outDir": "./build",
     "declaration": true,
     "declarationMap": true,
