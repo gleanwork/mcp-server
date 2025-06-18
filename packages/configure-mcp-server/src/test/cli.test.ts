@@ -1175,9 +1175,6 @@ Error configuring client: API token is required. Please provide a token with the
       expect(result.exitCode).toEqual(0);
       expect(result.stderr).toMatchInlineSnapshot(`
         "
-
-        @gleanwork/configure-mcp-server remote called without GLEAN_ENABLE_BETA=true
-
         Please note Glean-hosted MCP servers are in private beta.  Make sure your
         instance is opted into the private beta or your assistant won't be able to
         connect after configuration.
