@@ -18,7 +18,6 @@
     "lint:package-json": "sort-package-json",
     "lint:ts": "tsc --noEmit",
     "prepare": "pnpm run build",
-    "release": "release-it",
     "watch": "tsc -w"
   },
   "devDependencies": {
