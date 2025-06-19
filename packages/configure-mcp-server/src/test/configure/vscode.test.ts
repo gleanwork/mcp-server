@@ -1,9 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import vscodeClient from '../../configure/client/vscode.js';
-import type {
-  ConfigureOptions,
-  MCPConfig,
-} from '../../configure/index.js';
+import type { ConfigureOptions, MCPConfig } from '../../configure/index.js';
 import os from 'os';
 import path from 'path';
 
@@ -100,7 +97,7 @@ describe('VS Code MCP Client', () => {
           },
         },
       }
-    `)
+    `);
   });
 
   it('should generate a valid VS Code workspace config template with instance (local)', () => {
@@ -128,7 +125,7 @@ describe('VS Code MCP Client', () => {
           },
         },
       }
-    `)
+    `);
   });
 
   it('should generate a valid VS Code workspace config template with instance (remote: default)', () => {
@@ -156,11 +153,15 @@ describe('VS Code MCP Client', () => {
           },
         },
       }
-    `)
+    `);
   });
 
   it('should generate a valid VS Code workspace config template with instance (remote: agents)', () => {
-    const options: ConfigureOptions = { workspace: true, remote: true, agents: true };
+    const options: ConfigureOptions = {
+      workspace: true,
+      remote: true,
+      agents: true,
+    };
     const config = vscodeClient.configTemplate(
       'example-instance',
       'test-token',
@@ -184,7 +185,7 @@ describe('VS Code MCP Client', () => {
           },
         },
       }
-    `)
+    `);
   });
 
   it('should generate a valid VS Code MCP config template with URL', () => {
@@ -310,7 +311,7 @@ describe('VS Code MCP Client', () => {
           },
         },
       }
-    `)
+    `);
   });
 
   it('should generate global config when workspace option is false', () => {
@@ -340,6 +341,6 @@ describe('VS Code MCP Client', () => {
           },
         },
       }
-    `)
+    `);
   });
 });

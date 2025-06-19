@@ -19,7 +19,10 @@ import {
   MCPConfig,
   ConfigFileContents,
 } from './client/index.js';
-import { ensureAuthTokenPresence, setupMcpRemote } from '@gleanwork/mcp-server-utils/auth';
+import {
+  ensureAuthTokenPresence,
+  setupMcpRemote,
+} from '@gleanwork/mcp-server-utils/auth';
 import { trace, error } from '@gleanwork/mcp-server-utils/logger';
 import { validateInstance } from '@gleanwork/mcp-server-utils/util';
 import { VERSION } from '../common/version.js';
@@ -192,7 +195,7 @@ export async function configure(client: string, options: ConfigureOptions) {
       );
     }
 
-    // For OAuth flow 
+    // For OAuth flow
     if (!instanceOrUrl) {
       throw new Error('Instance or URL is required for OAuth configuration');
     }
@@ -215,7 +218,7 @@ export async function configure(client: string, options: ConfigureOptions) {
     }
 
     await setupMcpRemote({
-      target: options.agents ? 'agents' : 'default'
+      target: options.agents ? 'agents' : 'default',
     });
 
     const newConfig = clientConfig.configTemplate(
@@ -249,7 +252,7 @@ function writeConfigFile(
     try {
       existingConfig = isYaml
         ? (yaml.parse(fileContent) as ConfigFileContents)
-        : ((JSON.parse(fileContent) as ConfigFileContents));
+        : (JSON.parse(fileContent) as ConfigFileContents);
     } catch (error: any) {
       const backupPath = `${configFilePath}.backup-${Date.now()}`;
 

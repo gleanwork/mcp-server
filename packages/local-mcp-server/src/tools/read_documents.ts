@@ -8,9 +8,21 @@
  * @module tools/read-documents
  */
 
-import { GetDocumentsRequest, GetDocumentsRequestIncludeField } from '@gleanwork/api-client/models/components';
-import { AuthError, AuthErrorCode, ensureAuthTokenPresence, loadTokens } from '@gleanwork/mcp-server-utils/auth';
-import { getConfig, isGleanTokenConfig, isOAuthConfig } from '@gleanwork/mcp-server-utils/config';
+import {
+  GetDocumentsRequest,
+  GetDocumentsRequestIncludeField,
+} from '@gleanwork/api-client/models/components';
+import {
+  AuthError,
+  AuthErrorCode,
+  ensureAuthTokenPresence,
+  loadTokens,
+} from '@gleanwork/mcp-server-utils/auth';
+import {
+  getConfig,
+  isGleanTokenConfig,
+  isOAuthConfig,
+} from '@gleanwork/mcp-server-utils/config';
 import { z } from 'zod';
 
 /**
@@ -19,19 +31,18 @@ import { z } from 'zod';
 export const ToolReadDocumentsSchema = z.object({
   documentSpecs: z
     .array(
-      z.object({
-        id: z.string().describe('Glean Document ID').optional(),
-        url: z.string().describe('Document URL').optional(),
-      }).refine(
-        (data) => data.id || data.url,
-        {
-          message: "Either id or url must be provided for each document spec",
-          path: ["id", "url"],
-        }
-      )
+      z
+        .object({
+          id: z.string().describe('Glean Document ID').optional(),
+          url: z.string().describe('Document URL').optional(),
+        })
+        .refine((data) => data.id || data.url, {
+          message: 'Either id or url must be provided for each document spec',
+          path: ['id', 'url'],
+        }),
     )
     .describe('List of document specifications to retrieve')
-    .min(1, "At least one document spec must be provided"),
+    .min(1, 'At least one document spec must be provided'),
 });
 
 export type ToolReadDocumentsRequest = z.infer<typeof ToolReadDocumentsSchema>;
@@ -42,7 +53,9 @@ export type ToolReadDocumentsRequest = z.infer<typeof ToolReadDocumentsSchema>;
  * @param input Simplified read documents request parameters
  * @returns Glean API compatible read documents request
  */
-function convertToAPIReadDocumentsRequest(input: ToolReadDocumentsRequest): GetDocumentsRequest {
+function convertToAPIReadDocumentsRequest(
+  input: ToolReadDocumentsRequest,
+): GetDocumentsRequest {
   return {
     documentSpecs: input.documentSpecs,
     includeFields: [GetDocumentsRequestIncludeField.DocumentContent],
@@ -57,7 +70,6 @@ function convertToAPIReadDocumentsRequest(input: ToolReadDocumentsRequest): GetD
  * @throws If the read documents request fails
  */
 export async function readDocuments(params: ToolReadDocumentsRequest) {
-
   const mappedParams = convertToAPIReadDocumentsRequest(params);
 
   // There's a bug in the client SDK, so using fetch directly for now
@@ -66,7 +78,7 @@ export async function readDocuments(params: ToolReadDocumentsRequest) {
   const config = await getConfig({ discoverOAuth: true });
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-  }
+  };
   if (isOAuthConfig(config)) {
     if (!(await ensureAuthTokenPresence())) {
       throw new AuthError(
@@ -86,7 +98,7 @@ export async function readDocuments(params: ToolReadDocumentsRequest) {
     headers['Authorization'] = `Bearer ${tokens?.accessToken}`;
   } else if (isGleanTokenConfig(config)) {
     headers['Authorization'] = `Bearer ${config.token}`;
-    
+
     const { actAs } = config;
     if (actAs) {
       headers['X-Glean-Act-As'] = actAs;
@@ -106,13 +118,17 @@ export async function readDocuments(params: ToolReadDocumentsRequest) {
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`API request failed with status ${response.status}: ${errorText}`);
+    throw new Error(
+      `API request failed with status ${response.status}: ${errorText}`,
+    );
   }
 
   const contentType = response.headers.get('content-type');
   if (!contentType || !contentType.includes('application/json')) {
     const responseText = await response.text();
-    throw new Error(`Expected JSON response but got ${contentType}: ${responseText}`);
+    throw new Error(
+      `Expected JSON response but got ${contentType}: ${responseText}`,
+    );
   }
 
   return response.json();
@@ -134,7 +150,7 @@ export function formatResponse(documentsResponse: any): string {
   }
 
   const documents = Object.values(documentsResponse.documents) as any[];
-  
+
   if (documents.length === 0) {
     return 'No documents found.';
   }
@@ -145,9 +161,13 @@ export function formatResponse(documentsResponse: any): string {
       const url = doc.url || '';
       const docType = doc.docType || 'Document';
       const datasource = doc.datasource || 'Unknown source';
-      
+
       let content = '';
-      if (doc.content && doc.content.fullTextList && Array.isArray(doc.content.fullTextList)) {
+      if (
+        doc.content &&
+        doc.content.fullTextList &&
+        Array.isArray(doc.content.fullTextList)
+      ) {
         content = doc.content.fullTextList.join('\n');
       } else if (doc.content && typeof doc.content === 'string') {
         content = doc.content;
@@ -179,4 +199,4 @@ export function formatResponse(documentsResponse: any): string {
   const totalDocuments = documents.length;
 
   return `Retrieved ${totalDocuments} document${totalDocuments === 1 ? '' : 's'}:\n\n${formattedDocuments}`;
-} 
+}

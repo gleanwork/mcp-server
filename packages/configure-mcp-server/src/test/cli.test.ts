@@ -633,11 +633,11 @@ Error configuring client: API token is required. Please provide a token with the
             },
           },
           mcpServers: {
-            "github-remote": {
-              url: "https://api.githubcopilot.com/mcp",
-              authorization_token: "Bearer $MY_TOKEN"
-            }
-          }
+            'github-remote': {
+              url: 'https://api.githubcopilot.com/mcp',
+              authorization_token: 'Bearer $MY_TOKEN',
+            },
+          },
         };
 
         createConfigFile(configFilePath, existingConfig);
@@ -782,11 +782,11 @@ Error configuring client: API token is required. Please provide a token with the
             },
           },
           mcpServers: {
-            "github-remote": {
-              url: "https://api.githubcopilot.com/mcp",
-              authorization_token: "Bearer $MY_TOKEN"
-            }
-          }
+            'github-remote': {
+              url: 'https://api.githubcopilot.com/mcp',
+              authorization_token: 'Bearer $MY_TOKEN',
+            },
+          },
         };
 
         createConfigFile(configFilePath, existingConfig);
@@ -932,11 +932,11 @@ Error configuring client: API token is required. Please provide a token with the
             },
           },
           mcpServers: {
-            "github-remote": {
-              url: "https://api.githubcopilot.com/mcp",
-              authorization_token: "Bearer $MY_TOKEN"
-            }
-          }
+            'github-remote': {
+              url: 'https://api.githubcopilot.com/mcp',
+              authorization_token: 'Bearer $MY_TOKEN',
+            },
+          },
         };
 
         createConfigFile(configFilePath, existingConfig);
@@ -1254,11 +1254,12 @@ Error configuring client: API token is required. Please provide a token with the
           'workbench.colorTheme': 'Default Dark+',
           mcp: {
             servers: {
-            "github-remote": {
-              url: "https://api.githubcopilot.com/mcp",
-              authorization_token: "Bearer $MY_TOKEN"
-            }}
-          }
+              'github-remote': {
+                url: 'https://api.githubcopilot.com/mcp',
+                authorization_token: 'Bearer $MY_TOKEN',
+              },
+            },
+          },
         };
 
         createConfigFile(configFilePath, existingConfig);

@@ -210,7 +210,7 @@ export function createMcpServersConfig(
 
 export function buildMcpServerName(options: ConfigureOptions) {
   const isLocal = !options?.remote;
-  if(isLocal) {
+  if (isLocal) {
     return 'glean_local';
   }
 
@@ -282,7 +282,10 @@ export function createBaseClient(
       const result = { ...existingConfig } as ConfigFileContents &
         StandardMCPConfig;
 
-      result.mcpServers = updateMcpServersConfig(result.mcpServers || {}, standardNewConfig.mcpServers)
+      result.mcpServers = updateMcpServersConfig(
+        result.mcpServers || {},
+        standardNewConfig.mcpServers,
+      );
       return result;
     },
   };
