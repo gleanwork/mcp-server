@@ -1,3 +1,6 @@
 build
+/docs/.vitepress/dist
+/docs/.vitepress/cache
+/docs/.vitepress/.temp
 node_modules
-package-log.json
+pnpm-lock.yaml

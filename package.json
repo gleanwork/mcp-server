@@ -12,7 +12,7 @@
     "lint": "npm-run-all --sequential lint:*",
     "lint:workspaces": "pnpm -r lint",
     "lint:package-json": "sort-package-json",
-    "format": "pnpm -r format",
+    "format": "prettier --write --ignore-unknown .",
     "release": "pnpm exec release-it",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
