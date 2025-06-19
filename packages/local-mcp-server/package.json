@@ -1,6 +1,6 @@
 {
   "name": "@gleanwork/local-mcp-server",
-  "version": "0.7.8",
+  "version": "0.7.9",
   "description": "MCP server for Glean API integration",
   "keywords": [
     "mcp",

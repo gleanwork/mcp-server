@@ -1,3 +1,22 @@
+
+## v0.7.9 (2025-06-19)
+
+#### :rocket: Enhancement
+* `configure-mcp-server`
+  * [#191](https://github.com/gleanwork/mcp-server/pull/191) Add support for Goose as a client ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### :house: Internal
+* `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`, `mcp-test-utils`
+  * [#194](https://github.com/gleanwork/mcp-server/pull/194) chore: Fixup prettier configuration and enable format on merge ([@rwjblue-glean](https://github.com/rwjblue-glean))
+* `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`
+  * [#193](https://github.com/gleanwork/mcp-server/pull/193) chore: `pnpm -r format` ([@rwjblue-glean](https://github.com/rwjblue-glean))
+* Other
+  * [#192](https://github.com/gleanwork/mcp-server/pull/192) chore(release): Ensure releaser has ran `pnpm login` ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+#### Committers: 2
+- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+- Robert Jackson ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
 ## v0.7.8 (2025-06-19)
 
 #### :rocket: Enhancement
