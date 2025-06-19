@@ -51,11 +51,6 @@
       "import": "./build/util/index.js",
       "default": "./build/util/index.js"
     },
-    "./util/launch-warning-checker": {
-      "types": "./build/util/launch-warning-checker.d.ts",
-      "import": "./build/util/launch-warning-checker.js",
-      "default": "./build/util/launch-warning-checker.js"
-    },
     "./logger": {
       "types": "./build/log/logger.d.ts",
       "import": "./build/log/logger.js",

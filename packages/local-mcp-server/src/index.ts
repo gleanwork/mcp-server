@@ -12,7 +12,7 @@ import meow from 'meow';
 import { runServer } from './server.js';
 import { Logger, trace, LogLevel } from '@gleanwork/mcp-server-utils/logger';
 import { VERSION } from './common/version.js';
-import { checkAndOpenLaunchWarning } from '@gleanwork/mcp-server-utils/util/launch-warning-checker';
+import { checkAndOpenLaunchWarning } from '@gleanwork/mcp-server-utils/util';
 
 /**
  * Main function to handle command line arguments and run the server

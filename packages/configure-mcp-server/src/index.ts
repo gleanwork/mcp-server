@@ -35,7 +35,7 @@ import {
 } from '@gleanwork/mcp-server-utils/auth';
 import { chat, formatResponse } from '@gleanwork/local-mcp-server/tools/chat';
 import { VERSION } from './common/version.js';
-import { checkAndOpenLaunchWarning } from '@gleanwork/mcp-server-utils/util/launch-warning-checker';
+import { checkAndOpenLaunchWarning } from '@gleanwork/mcp-server-utils/util';
 
 /**
  * Main function to handle command line arguments and branch between configure and auth modes
