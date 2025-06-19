@@ -84,4 +84,3 @@ MIT License - see the [LICENSE](LICENSE) file for details
 - Documentation: [docs.glean.com](https://docs.glean.com)
 - Issues: [GitHub Issues](https://github.com/gleanwork/mcp-server/issues)
 - Email: [support@glean.com](mailto:support@glean.com)
-

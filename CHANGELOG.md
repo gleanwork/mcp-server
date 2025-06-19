@@ -1,152 +1,162 @@
-
-
-
-
-
-
-
-
-
 ## v0.7.8 (2025-06-19)
 
 #### :rocket: Enhancement
-* `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`, `mcp-test-utils`
-  * [#188](https://github.com/gleanwork/mcp-server/pull/188) Add functionality to provide warnings based on version ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+- `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`, `mcp-test-utils`
+  - [#188](https://github.com/gleanwork/mcp-server/pull/188) Add functionality to provide warnings based on version ([@rwjblue-glean](https://github.com/rwjblue-glean))
 
 #### :memo: Documentation
-* `configure-mcp-server`
-  * [#184](https://github.com/gleanwork/mcp-server/pull/184) docs(beta): remove env flag notice ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+- `configure-mcp-server`
+  - [#184](https://github.com/gleanwork/mcp-server/pull/184) docs(beta): remove env flag notice ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 
 #### :house: Internal
-* Other
-  * [#190](https://github.com/gleanwork/mcp-server/pull/190) chore(release): Fix publishing ([@rwjblue-glean](https://github.com/rwjblue-glean))
-  * [#187](https://github.com/gleanwork/mcp-server/pull/187) fix(ci): Re-roll lockfile ([@rwjblue-glean](https://github.com/rwjblue-glean))
-* `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`, `mcp-test-utils`
-  * [#189](https://github.com/gleanwork/mcp-server/pull/189) fix(build): explicitly set rootDir ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
-  * [#185](https://github.com/gleanwork/mcp-server/pull/185) fix(release): Fixup the release process ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+- Other
+  - [#190](https://github.com/gleanwork/mcp-server/pull/190) chore(release): Fix publishing ([@rwjblue-glean](https://github.com/rwjblue-glean))
+  - [#187](https://github.com/gleanwork/mcp-server/pull/187) fix(ci): Re-roll lockfile ([@rwjblue-glean](https://github.com/rwjblue-glean))
+- `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`, `mcp-test-utils`
+  - [#189](https://github.com/gleanwork/mcp-server/pull/189) fix(build): explicitly set rootDir ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+  - [#185](https://github.com/gleanwork/mcp-server/pull/185) fix(release): Fixup the release process ([@rwjblue-glean](https://github.com/rwjblue-glean))
 
 #### Committers: 2
+
 - David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 - Robert Jackson ([@rwjblue-glean](https://github.com/rwjblue-glean))
-
 
 ## v0.7.7 (2025-06-17)
 
 #### :rocket: Enhancement
-* `local-mcp-server`
-  * [#163](https://github.com/gleanwork/mcp-server/pull/163) [tool] Add read_documents MCP tool for retrieving documents by ID or URL ([@michael-li-glean](https://github.com/michael-li-glean))
+
+- `local-mcp-server`
+  - [#163](https://github.com/gleanwork/mcp-server/pull/163) [tool] Add read_documents MCP tool for retrieving documents by ID or URL ([@michael-li-glean](https://github.com/michael-li-glean))
 
 #### Committers: 1
+
 - Michael Li ([@michael-li-glean](https://github.com/michael-li-glean))
 
 ## v0.7.6 (2025-06-17)
 
 #### :rocket: Enhancement
-* `configure-mcp-server`
-  * [#182](https://github.com/gleanwork/mcp-server/pull/182) Enable OAuth by default (without environment variable) ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+- `configure-mcp-server`
+  - [#182](https://github.com/gleanwork/mcp-server/pull/182) Enable OAuth by default (without environment variable) ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 
 #### :bug: Bug Fix
-* `configure-mcp-server`
-  * [#177](https://github.com/gleanwork/mcp-server/pull/177) fix: Don't include GLEAN_INSTANCE for remote ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
-  * [#180](https://github.com/gleanwork/mcp-server/pull/180) fix: vscode configuration of remote MCP Servers ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
-  * [#178](https://github.com/gleanwork/mcp-server/pull/178) Ensure configuring with `remote` resets `glean` server to new remote path ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
-  * [#176](https://github.com/gleanwork/mcp-server/pull/176) Fix clients (like Cursor) that do not handle spaces in MCP server arguments ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+- `configure-mcp-server`
+  - [#177](https://github.com/gleanwork/mcp-server/pull/177) fix: Don't include GLEAN_INSTANCE for remote ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+  - [#180](https://github.com/gleanwork/mcp-server/pull/180) fix: vscode configuration of remote MCP Servers ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+  - [#178](https://github.com/gleanwork/mcp-server/pull/178) Ensure configuring with `remote` resets `glean` server to new remote path ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+  - [#176](https://github.com/gleanwork/mcp-server/pull/176) Fix clients (like Cursor) that do not handle spaces in MCP server arguments ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 
 #### :memo: Documentation
-* Other
-  * [#183](https://github.com/gleanwork/mcp-server/pull/183) docs: Add troubleshooting guide ([@rwjblue-glean](https://github.com/rwjblue-glean))
-* `configure-mcp-server`
-  * [#181](https://github.com/gleanwork/mcp-server/pull/181) feat: rework success message ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+- Other
+  - [#183](https://github.com/gleanwork/mcp-server/pull/183) docs: Add troubleshooting guide ([@rwjblue-glean](https://github.com/rwjblue-glean))
+- `configure-mcp-server`
+  - [#181](https://github.com/gleanwork/mcp-server/pull/181) feat: rework success message ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 
 #### :house: Internal
-* Other
-  * [#179](https://github.com/gleanwork/mcp-server/pull/179) docs: Add a basic vitepress site ([@rwjblue-glean](https://github.com/rwjblue-glean))
-  * [#175](https://github.com/gleanwork/mcp-server/pull/175) chore(deps): Sync @typescript-eslint/eslint-plugin in root ([@rwjblue-glean](https://github.com/rwjblue-glean))
-  * [#174](https://github.com/gleanwork/mcp-server/pull/174) fix(release): Ensure `pnpm-lock.yaml` is updated on release ([@rwjblue-glean](https://github.com/rwjblue-glean))
-* `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`, `mcp-test-utils`
-  * [#173](https://github.com/gleanwork/mcp-server/pull/173) fix: add missing import extensions ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+- Other
+  - [#179](https://github.com/gleanwork/mcp-server/pull/179) docs: Add a basic vitepress site ([@rwjblue-glean](https://github.com/rwjblue-glean))
+  - [#175](https://github.com/gleanwork/mcp-server/pull/175) chore(deps): Sync @typescript-eslint/eslint-plugin in root ([@rwjblue-glean](https://github.com/rwjblue-glean))
+  - [#174](https://github.com/gleanwork/mcp-server/pull/174) fix(release): Ensure `pnpm-lock.yaml` is updated on release ([@rwjblue-glean](https://github.com/rwjblue-glean))
+- `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`, `mcp-test-utils`
+  - [#173](https://github.com/gleanwork/mcp-server/pull/173) fix: add missing import extensions ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 
 #### Committers: 2
+
 - David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 - Robert Jackson ([@rwjblue-glean](https://github.com/rwjblue-glean))
 
 ## v0.7.5 (2025-06-16)
 
 #### :bug: Bug Fix
-* `mcp-server-utils`
-  * [#171](https://github.com/gleanwork/mcp-server/pull/171) fix(auth): keep unexpired refresh tokens ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+- `mcp-server-utils`
+  - [#171](https://github.com/gleanwork/mcp-server/pull/171) fix(auth): keep unexpired refresh tokens ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 
 #### :house: Internal
-* Other
-  * [#172](https://github.com/gleanwork/mcp-server/pull/172) chore(release-it): Correctly disable `npm` integration ([@rwjblue-glean](https://github.com/rwjblue-glean))
-* `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`, `mcp-test-utils`
-  * [#170](https://github.com/gleanwork/mcp-server/pull/170) chore: extract common eslint configuration ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
-* `mcp-server-utils`
-  * [#169](https://github.com/gleanwork/mcp-server/pull/169) chore: use upstream types ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+- Other
+  - [#172](https://github.com/gleanwork/mcp-server/pull/172) chore(release-it): Correctly disable `npm` integration ([@rwjblue-glean](https://github.com/rwjblue-glean))
+- `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`, `mcp-test-utils`
+  - [#170](https://github.com/gleanwork/mcp-server/pull/170) chore: extract common eslint configuration ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+- `mcp-server-utils`
+  - [#169](https://github.com/gleanwork/mcp-server/pull/169) chore: use upstream types ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 
 #### Committers: 2
+
 - David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 - Robert Jackson ([@rwjblue-glean](https://github.com/rwjblue-glean))
-
 
 ## v0.7.1 (2025-05-29)
 
 #### :bug: Bug Fix
-* [#132](https://github.com/gleanwork/mcp-server/pull/132) fix(cli): Fixes .env file and process.env support in configure ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+- [#132](https://github.com/gleanwork/mcp-server/pull/132) fix(cli): Fixes .env file and process.env support in configure ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
 
 #### Committers: 1
-- Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
 
+- Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
 
 ## v0.7.0 (2025-05-23)
 
 #### :rocket: Enhancement
-* [#126](https://github.com/gleanwork/mcp-server/pull/126) feat: Implements local configuration for vscode (to complement the global one) ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
-* [#125](https://github.com/gleanwork/mcp-server/pull/125) feat(configure): add VS Code MCP client support ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+
+- [#126](https://github.com/gleanwork/mcp-server/pull/126) feat: Implements local configuration for vscode (to complement the global one) ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+- [#125](https://github.com/gleanwork/mcp-server/pull/125) feat(configure): add VS Code MCP client support ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
 
 #### Committers: 3
+
 - David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 - Robert Jackson ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
 - Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
-
 
 ## v0.6.1 (2025-05-15)
 
 #### :rocket: Enhancement
-* [#107](https://github.com/gleanwork/mcp-server/pull/107) fix: Making preflight validation message more clear ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+- [#107](https://github.com/gleanwork/mcp-server/pull/107) fix: Making preflight validation message more clear ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
 
 #### Committers: 1
-- Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
 
+- Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
 
 ## v0.6.0 (2025-05-14)
 
 #### :rocket: Enhancement
-* [#105](https://github.com/gleanwork/mcp-server/pull/105) Add `--instance` preflight validation for `npx @gleanwork/mcp-server configure` ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
-* [#104](https://github.com/gleanwork/mcp-server/pull/104) Add `--instance` and `--token` options to `npx @gleanwork/mcp-server server` ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
-* [#102](https://github.com/gleanwork/mcp-server/pull/102) Add explicit `npx @gleanwork/mcp-server server` command (as the default) ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+
+- [#105](https://github.com/gleanwork/mcp-server/pull/105) Add `--instance` preflight validation for `npx @gleanwork/mcp-server configure` ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+- [#104](https://github.com/gleanwork/mcp-server/pull/104) Add `--instance` and `--token` options to `npx @gleanwork/mcp-server server` ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+- [#102](https://github.com/gleanwork/mcp-server/pull/102) Add explicit `npx @gleanwork/mcp-server server` command (as the default) ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
 
 #### :bug: Bug Fix
-* [#103](https://github.com/gleanwork/mcp-server/pull/103) Fix short flag for `--instance` in `npx @gleanwork/mcp-server server` to be `-i` ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+
+- [#103](https://github.com/gleanwork/mcp-server/pull/103) Fix short flag for `--instance` in `npx @gleanwork/mcp-server server` to be `-i` ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
 
 #### :house: Internal
-* [#101](https://github.com/gleanwork/mcp-server/pull/101) build(tooling): migrate from volta to mise ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
-* [#99](https://github.com/gleanwork/mcp-server/pull/99) feat(auth-test): readability ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
-* [#98](https://github.com/gleanwork/mcp-server/pull/98) fix(test): Run auth tests isolated ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+- [#101](https://github.com/gleanwork/mcp-server/pull/101) build(tooling): migrate from volta to mise ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
+- [#99](https://github.com/gleanwork/mcp-server/pull/99) feat(auth-test): readability ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+- [#98](https://github.com/gleanwork/mcp-server/pull/98) fix(test): Run auth tests isolated ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 
 #### Committers: 2
+
 - David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 - Robert Jackson ([@robert-jackson-glean](https://github.com/robert-jackson-glean))
-
 
 ## v0.5.0 (2025-05-12)
 
 #### :boom: Breaking Change
-* [#97](https://github.com/gleanwork/mcp-server/pull/97) chore: Bumping node, pinning to lowest version, updating ci matrix ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+- [#97](https://github.com/gleanwork/mcp-server/pull/97) chore: Bumping node, pinning to lowest version, updating ci matrix ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
 
 #### Committers: 1
-- Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
 
+- Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
 
 ## v0.4.0 (2025-05-11)
 
