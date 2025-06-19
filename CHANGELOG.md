@@ -6,6 +6,30 @@
 
 
 
+
+## v0.7.8 (2025-06-19)
+
+#### :rocket: Enhancement
+* `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`, `mcp-test-utils`
+  * [#188](https://github.com/gleanwork/mcp-server/pull/188) Add functionality to provide warnings based on version ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+#### :memo: Documentation
+* `configure-mcp-server`
+  * [#184](https://github.com/gleanwork/mcp-server/pull/184) docs(beta): remove env flag notice ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### :house: Internal
+* Other
+  * [#190](https://github.com/gleanwork/mcp-server/pull/190) chore(release): Fix publishing ([@rwjblue-glean](https://github.com/rwjblue-glean))
+  * [#187](https://github.com/gleanwork/mcp-server/pull/187) fix(ci): Re-roll lockfile ([@rwjblue-glean](https://github.com/rwjblue-glean))
+* `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`, `mcp-test-utils`
+  * [#189](https://github.com/gleanwork/mcp-server/pull/189) fix(build): explicitly set rootDir ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+  * [#185](https://github.com/gleanwork/mcp-server/pull/185) fix(release): Fixup the release process ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+#### Committers: 2
+- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+- Robert Jackson ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+
 ## v0.7.7 (2025-06-17)
 
 #### :rocket: Enhancement
