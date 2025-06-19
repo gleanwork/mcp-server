@@ -18,8 +18,8 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1(release-it@19.0.3(@types/node@24.0.3))
       '@release-it-plugins/workspaces':
-        specifier: ^5.0.0
-        version: 5.0.0(release-it@19.0.3(@types/node@24.0.3))
+        specifier: ^5.0.1
+        version: 5.0.1(release-it@19.0.3(@types/node@24.0.3))
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.33.1
         version: 8.34.1(@typescript-eslint/parser@8.34.1(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3)
@@ -1126,8 +1126,8 @@ packages:
     peerDependencies:
       release-it: ^17.0.0 || ^18.0.0 || ^19.0.0
 
-  '@release-it-plugins/workspaces@5.0.0':
-    resolution: {integrity: sha512-7jVkpDgrrj+lr1VpyGIFa7jky/10KpuVSFItLWV6bqn52Hx4vziP0bymUm2FainG64xyMFWfa52kNAqXiNUFTA==}
+  '@release-it-plugins/workspaces@5.0.1':
+    resolution: {integrity: sha512-LDfEU58y33IJzZ0OpXxlif7vbtp7Emm3yy+uDt4BwjwvUV/NPUktWzPJEiNFCUkiq+auOC9Tk7NY7tAyGAKHKw==}
     engines: {node: '>= 20'}
     peerDependencies:
       release-it: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -5030,10 +5030,11 @@ snapshots:
       - bluebird
       - supports-color
 
-  '@release-it-plugins/workspaces@5.0.0(release-it@19.0.3(@types/node@24.0.3))':
+  '@release-it-plugins/workspaces@5.0.1(release-it@19.0.3(@types/node@24.0.3))':
     dependencies:
       detect-indent: 6.1.0
       detect-newline: 3.1.0
+      execa: 8.0.1
       release-it: 19.0.3(@types/node@24.0.3)
       semver: 7.7.2
       url-join: 4.0.1
