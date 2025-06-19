@@ -13,7 +13,7 @@ cd mcp-server
 
 1. Ensure `node` and `pnpm` are installed. This project has a built-in
    [mise](http://mise.jdx.dev/) config file that you can use if you'd like
-(though it is not required):
+   (though it is not required):
 
 ```
 mise trust

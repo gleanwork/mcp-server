@@ -5,7 +5,7 @@
 [![npm version](https://badge.fury.io/js/@gleanwork%2Fmcp-server.svg)](https://badge.fury.io/js/@gleanwork%2Fmcp-server)
 [![License](https://img.shields.io/npm/l/@gleanwork%2Fmcp-server.svg)](https://github.com/gleanwork/mcp-server/blob/main/LICENSE)
 
-This monorepo contains packages for Glean's local MCP server.  For more details see the READMEs of the individual packages.
+This monorepo contains packages for Glean's local MCP server. For more details see the READMEs of the individual packages.
 
 - [@gleanwork/configure-mcp-server](https://github.com/gleanwork/mcp-server/tree/main/packages/configure-mcp-server) for configuring the local MCP server with popular MCP clients.
 - [@gleanwork/local-mcp-server](https://github.com/gleanwork/mcp-server/tree/main/packages/local-mcp-server) on running the local MCP server.

@@ -2,8 +2,8 @@
 layout: home
 
 hero:
-  name: "Glean MCP Server"
-  text: "Troubleshooting"
+  name: 'Glean MCP Server'
+  text: 'Troubleshooting'
 ---
 
 # MCP Server
