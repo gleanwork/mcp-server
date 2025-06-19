@@ -1,5 +1,4 @@
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
-import prettier from 'eslint-plugin-prettier';
 import globals from 'globals';
 import tsParser from '@typescript-eslint/parser';
 import js from '@eslint/js';
@@ -20,7 +19,6 @@ export const commonConfig = [
   {
     ignores: [
       '**/.eslintrc.js',
-      '**/prettier.config.js',
       '**/build',
       '**/node_modules',
       '**/package-log.json',
@@ -34,7 +32,6 @@ export const commonConfig = [
   {
     plugins: {
       '@typescript-eslint': typescriptEslint,
-      prettier,
     },
 
     languageOptions: {
