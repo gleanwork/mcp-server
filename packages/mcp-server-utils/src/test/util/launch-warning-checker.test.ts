@@ -6,7 +6,7 @@ import {
   checkUrlExists,
   openInBrowser,
   checkAndOpenLaunchWarning,
-} from '../util/launch-warning-checker.js';
+} from '../../util/launch-warning-checker.js';
 
 vi.mock('open', () => ({
   default: vi.fn(),
