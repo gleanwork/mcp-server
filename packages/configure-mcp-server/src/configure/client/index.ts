@@ -58,13 +58,34 @@ export interface VSCodeWorkspaceConfig {
   [key: string]: unknown;
 }
 
+export interface GooseExtensionConfig {
+  args: string[];
+  bundled: null | string;
+  cmd: string;
+  description: string;
+  enabled: boolean;
+  env_keys: string[];
+  envs: Record<string, string>;
+  name: string;
+  timeout: number;
+  type: string;
+}
+
+export interface GooseConfig {
+  extensions: {
+    glean: GooseExtensionConfig;
+    [key: string]: GooseExtensionConfig;
+  };
+}
+
 /**
  * Union of all possible MCP configuration formats
  */
 export type MCPConfig =
   | StandardMCPConfig
   | VSCodeGlobalConfig
-  | VSCodeWorkspaceConfig;
+  | VSCodeWorkspaceConfig
+  | GooseConfig;
 
 /**
  * Generic config file contents that might contain MCP configuration

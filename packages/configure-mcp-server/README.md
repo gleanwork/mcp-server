@@ -46,6 +46,9 @@ npx @gleanwork/configure-mcp-server --client vscode --token your_api_token --ins
 
 # Configure for Windsurf
 npx @gleanwork/configure-mcp-server --client windsurf --token your_api_token --instance instance_name
+
+# Configure for Goose
+npx @gleanwork/configure-mcp-server --client goose --token your_api_token --instance instance_name
 ```
 
 Alternatively, you can use an environment file:
@@ -66,6 +69,7 @@ After configuration:
 - For Cursor: Restart Cursor and the agent will have access to Glean tools
 - For Claude Desktop: Restart Claude and use the hammer icon to access Glean tools
 - For Windsurf: Open Settings > Advanced Settings, scroll to Cascade section, and press refresh
+- For Goose: Restart Goose to load the new configuration
 
 ## Contributing
 

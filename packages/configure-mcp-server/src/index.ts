@@ -73,6 +73,7 @@ async function main() {
     Examples
       $ npx @gleanwork/configure-mcp-server --client cursor --token glean_api_xyz --instance my-company
       $ npx @gleanwork/configure-mcp-server --client claude --token glean_api_xyz --instance my-company
+      $ npx @gleanwork/configure-mcp-server --client goose --token glean_api_xyz --instance my-company
       $ npx @gleanwork/configure-mcp-server --client windsurf --env ~/.glean.env
       $ npx @gleanwork/configure-mcp-server --client vscode --token glean_api_xyz --instance my-company --workspace
 
@@ -117,6 +118,7 @@ async function main() {
     Examples
       $ npx @gleanwork/configure-mcp-server remote --client cursor --token glean_api_xyz --instance my-company
       $ npx @gleanwork/configure-mcp-server remote --agents --client claude --token glean_api_xyz --instance my-company
+      $ npx @gleanwork/configure-mcp-server remote --client goose --token glean_api_xyz --instance my-company
       $ npx @gleanwork/configure-mcp-server remote --client windsurf --env ~/.glean.env
       $ npx @gleanwork/configure-mcp-server remote --client vscode --token glean_api_xyz --instance my-company --workspace
 

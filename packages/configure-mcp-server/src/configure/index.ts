@@ -11,6 +11,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import dotenv from 'dotenv';
+import yaml from 'yaml';
 import {
   availableClients,
   ensureClientsLoaded,
@@ -238,12 +239,17 @@ function writeConfigFile(
   clientConfig: MCPClientConfig,
   options: ConfigureOptions,
 ) {
+  const ext = path.extname(configFilePath).toLowerCase();
+  const isYaml = ext === '.yaml' || ext === '.yml';
+
   if (fs.existsSync(configFilePath)) {
     const fileContent = fs.readFileSync(configFilePath, 'utf-8');
     let existingConfig: ConfigFileContents;
 
     try {
-      existingConfig = JSON.parse(fileContent) as ConfigFileContents;
+      existingConfig = isYaml
+        ? (yaml.parse(fileContent) as ConfigFileContents)
+        : ((JSON.parse(fileContent) as ConfigFileContents));
     } catch (error: any) {
       const backupPath = `${configFilePath}.backup-${Date.now()}`;
 
@@ -257,7 +263,11 @@ function writeConfigFile(
       fs.copyFileSync(configFilePath, backupPath);
       console.log(`Backup created at: ${backupPath}`);
 
-      fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2));
+      if (isYaml) {
+        fs.writeFileSync(configFilePath, yaml.stringify(newConfig));
+      } else {
+        fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2));
+      }
       console.log(`New configuration file created at: ${configFilePath}`);
       console.log(clientConfig.successMessage(configFilePath, options));
       return;
@@ -269,7 +279,11 @@ function writeConfigFile(
       options,
     );
 
-    fs.writeFileSync(configFilePath, JSON.stringify(existingConfig, null, 2));
+    if (isYaml) {
+      fs.writeFileSync(configFilePath, yaml.stringify(existingConfig));
+    } else {
+      fs.writeFileSync(configFilePath, JSON.stringify(existingConfig, null, 2));
+    }
     console.log(`Updated configuration file at: ${configFilePath}`);
   } else {
     const configDir = path.dirname(configFilePath);
@@ -277,7 +291,11 @@ function writeConfigFile(
       fs.mkdirSync(configDir, { recursive: true });
     }
 
-    fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2));
+    if (isYaml) {
+      fs.writeFileSync(configFilePath, yaml.stringify(newConfig));
+    } else {
+      fs.writeFileSync(configFilePath, JSON.stringify(newConfig, null, 2));
+    }
     console.log(`Created new configuration file at: ${configFilePath}`);
   }
 
