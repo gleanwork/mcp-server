@@ -3,7 +3,11 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { readDocuments, formatResponse, ToolReadDocumentsSchema } from '../../tools/read_documents.js'
+import {
+  readDocuments,
+  formatResponse,
+  ToolReadDocumentsSchema,
+} from '../../tools/read_documents.js';
 
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
@@ -28,15 +32,22 @@ vi.mock('@gleanwork/mcp-server-utils/auth', () => ({
   },
 }));
 
-import { getConfig, isGleanTokenConfig, isOAuthConfig } from '@gleanwork/mcp-server-utils/config';
-import { ensureAuthTokenPresence, loadTokens } from '@gleanwork/mcp-server-utils/auth';
+import {
+  getConfig,
+  isGleanTokenConfig,
+  isOAuthConfig,
+} from '@gleanwork/mcp-server-utils/config';
+import {
+  ensureAuthTokenPresence,
+  loadTokens,
+} from '@gleanwork/mcp-server-utils/auth';
 
 describe('read-documents tool', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     mockFetch.mockReset();
-    
+
     mockFetch.mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({}),
@@ -53,10 +64,7 @@ describe('read-documents tool', () => {
   describe('ToolReadDocumentsSchema', () => {
     it('should validate request with document IDs', () => {
       const validRequest = {
-        documentSpecs: [
-          { id: 'doc-123' },
-          { id: 'doc-456' },
-        ],
+        documentSpecs: [{ id: 'doc-123' }, { id: 'doc-456' }],
       };
 
       const result = ToolReadDocumentsSchema.safeParse(validRequest);
@@ -77,10 +85,7 @@ describe('read-documents tool', () => {
 
     it('should validate request with mixed IDs and URLs', () => {
       const validRequest = {
-        documentSpecs: [
-          { id: 'doc-123' },
-          { url: 'https://example.com/doc1' },
-        ],
+        documentSpecs: [{ id: 'doc-123' }, { url: 'https://example.com/doc1' }],
       };
 
       const result = ToolReadDocumentsSchema.safeParse(validRequest);
@@ -140,7 +145,7 @@ describe('read-documents tool', () => {
       vi.mocked(getConfig).mockResolvedValue({
         baseUrl: 'https://test-instance-be.glean.com/',
         token: 'test-token',
-        authType: 'token'
+        authType: 'token',
       });
       vi.mocked(isGleanTokenConfig).mockReturnValue(true);
       vi.mocked(isOAuthConfig).mockReturnValue(false);
@@ -158,9 +163,9 @@ describe('read-documents tool', () => {
           }),
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer test-token',
+            Authorization: 'Bearer test-token',
           },
-        }
+        },
       );
       expect(result).toEqual(mockResponse);
     });
@@ -191,7 +196,7 @@ describe('read-documents tool', () => {
       vi.mocked(getConfig).mockResolvedValue({
         baseUrl: 'https://test-instance-be.glean.com/',
         token: 'test-token',
-        authType: 'token'
+        authType: 'token',
       });
       vi.mocked(isGleanTokenConfig).mockReturnValue(true);
       vi.mocked(isOAuthConfig).mockReturnValue(false);
@@ -209,9 +214,9 @@ describe('read-documents tool', () => {
           }),
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer test-token',
+            Authorization: 'Bearer test-token',
           },
-        }
+        },
       );
       expect(result).toEqual(mockResponse);
     });
@@ -270,9 +275,9 @@ describe('read-documents tool', () => {
           headers: {
             'Content-Type': 'application/json',
             'X-Glean-Auth-Type': 'OAUTH',
-            'Authorization': 'Bearer oauth-access-token',
+            Authorization: 'Bearer oauth-access-token',
           },
-        }
+        },
       );
       expect(result).toEqual(mockResponse);
     });
@@ -301,9 +306,12 @@ describe('read-documents tool', () => {
       };
 
       const result = formatResponse(response);
-      
+
       // Normalize date formatting to avoid timezone differences between environments
-      const normalizedResult = result.replace(/Created: \d{1,2}\/\d{1,2}\/\d{4}/, 'Created: [NORMALIZED_DATE]');
+      const normalizedResult = result.replace(
+        /Created: \d{1,2}\/\d{1,2}\/\d{4}/,
+        'Created: [NORMALIZED_DATE]',
+      );
 
       expect(normalizedResult).toMatchInlineSnapshot(`
         "Retrieved 1 document:
@@ -379,4 +387,4 @@ describe('read-documents tool', () => {
       expect(result).toBe('No documents found.');
     });
   });
-}); 
+});

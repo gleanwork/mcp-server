@@ -15,7 +15,12 @@
 
 import { HTTPClient } from '@gleanwork/api-client/lib/http.js';
 import { VERSION } from './version.js';
-import { AuthError, AuthErrorCode, ensureAuthTokenPresence, loadTokens } from '@gleanwork/mcp-server-utils/auth';
+import {
+  AuthError,
+  AuthErrorCode,
+  ensureAuthTokenPresence,
+  loadTokens,
+} from '@gleanwork/mcp-server-utils/auth';
 import {
   getConfig,
   isGleanTokenConfig,

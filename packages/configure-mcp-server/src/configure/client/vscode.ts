@@ -142,7 +142,10 @@ vscodeClient.updateConfig = (
     const result = { ...existingConfig } as ConfigFileContents &
       VSCodeWorkspaceConfig;
 
-    result.servers = updateMcpServersConfig(result.servers || {}, workspaceNewConfig.servers)
+    result.servers = updateMcpServersConfig(
+      result.servers || {},
+      workspaceNewConfig.servers,
+    );
     return result;
   }
 
@@ -150,7 +153,10 @@ vscodeClient.updateConfig = (
   const result = { ...existingConfig } as ConfigFileContents &
     VSCodeGlobalConfig;
   result.mcp = result.mcp || { servers: {} };
-  result.mcp.servers = updateMcpServersConfig(result.mcp.servers || {}, globalNewConfig.mcp.servers)
+  result.mcp.servers = updateMcpServersConfig(
+    result.mcp.servers || {},
+    globalNewConfig.mcp.servers,
+  );
   return result;
 };
 

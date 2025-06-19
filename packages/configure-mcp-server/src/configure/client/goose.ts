@@ -1,5 +1,11 @@
 import path from 'path';
-import { MCPConfigPath, MCPClientConfig, createSuccessMessage, GooseConfig, buildMcpServerName } from './index.js';
+import {
+  MCPConfigPath,
+  MCPClientConfig,
+  createSuccessMessage,
+  GooseConfig,
+  buildMcpServerName,
+} from './index.js';
 import type { ConfigureOptions } from '../index.js';
 import { isOAuthEnabled } from '../../common/env.js';
 import { RemoteMcpTargets } from '@gleanwork/mcp-server-utils/util';
@@ -27,7 +33,10 @@ function createConfigTemplate(
   const isLocal = !options?.remote;
 
   if (isLocal) {
-    if (instanceOrUrl.startsWith('http://') || instanceOrUrl.startsWith('https://')) {
+    if (
+      instanceOrUrl.startsWith('http://') ||
+      instanceOrUrl.startsWith('https://')
+    ) {
       const baseUrl = instanceOrUrl.endsWith('/rest/api/v1')
         ? instanceOrUrl
         : `${instanceOrUrl}/rest/api/v1`;
@@ -46,7 +55,10 @@ function createConfigTemplate(
     args = ['-y', '@gleanwork/local-mcp-server'];
   } else {
     const usingOAuth = apiToken === undefined && isOAuthEnabled();
-    const serverUrl = buildMcpUrl(instanceOrUrl, options?.agents ? 'agents' : 'default');
+    const serverUrl = buildMcpUrl(
+      instanceOrUrl,
+      options?.agents ? 'agents' : 'default',
+    );
     args = ['-y', '@gleanwork/connect-mcp-server', serverUrl];
     if (usingOAuth) {
       args.push('--header', 'X-Glean-Auth-Type:OAUTH');
@@ -74,7 +86,7 @@ function createConfigTemplate(
 function updateConfig(
   existingConfig: Record<string, any>,
   newConfig: Record<string, any>,
-  options: ConfigureOptions
+  options: ConfigureOptions,
 ): Record<string, any> {
   const result = { ...existingConfig };
   result.extensions = result.extensions || {};
@@ -89,7 +101,11 @@ const gooseClient: MCPClientConfig = {
     if (process.platform === 'win32') {
       return path.join(process.env.APPDATA || homedir, 'goose', 'config.yaml');
     }
-    return path.join(homedir, gooseConfigPath.configDir, gooseConfigPath.configFileName);
+    return path.join(
+      homedir,
+      gooseConfigPath.configDir,
+      gooseConfigPath.configFileName,
+    );
   },
   configTemplate: createConfigTemplate,
   successMessage: (configPath: string) =>
