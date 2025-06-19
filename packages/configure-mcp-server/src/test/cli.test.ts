@@ -9,6 +9,8 @@ import type { ConfigFileContents } from '../configure/index.js';
 import { cursorConfigPath } from '../configure/client/cursor.js';
 import { claudeConfigPath } from '../configure/client/claude.js';
 import { windsurfConfigPath } from '../configure/client/windsurf.js';
+import { gooseConfigPath } from '../configure/client/goose.js';
+import yaml from 'yaml';
 
 function normalizeOutput(output: string, baseDir: string): string {
   let normalized = normalizeBaseDirOutput(output, baseDir);
@@ -97,7 +99,7 @@ describe('CLI', () => {
             help        Show this help message
 
           Options for configure
-            --client, -c    MCP client to configure for (claude, cursor, vscode, windsurf)
+            --client, -c    MCP client to configure for (claude, cursor, goose, vscode, windsurf)
             --token, -t     Glean API token (required)
             --instance, -i  Glean instance name
             --env, -e       Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
@@ -106,6 +108,7 @@ describe('CLI', () => {
           Examples
             $ npx @gleanwork/configure-mcp-server --client cursor --token glean_api_xyz --instance my-company
             $ npx @gleanwork/configure-mcp-server --client claude --token glean_api_xyz --instance my-company
+            $ npx @gleanwork/configure-mcp-server --client goose --token glean_api_xyz --instance my-company
             $ npx @gleanwork/configure-mcp-server --client windsurf --env ~/.glean.env
             $ npx @gleanwork/configure-mcp-server --client vscode --token glean_api_xyz --instance my-company --workspace
 
@@ -144,7 +147,7 @@ describe('CLI', () => {
             help        Show this help message
 
           Options for local
-            --client, -c    MCP client to configure for (claude, cursor, vscode, windsurf)
+            --client, -c    MCP client to configure for (claude, cursor, goose, vscode, windsurf)
             --token, -t     Glean API token (required)
             --instance, -i  Glean instance name
             --env, -e       Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
@@ -152,7 +155,7 @@ describe('CLI', () => {
 
           Options for remote
             --agents        Connect your Glean Agents to your MCP client.  If unset, will connect the default tools.
-            --client, -c    MCP client to configure for (claude, cursor, vscode, windsurf)
+            --client, -c    MCP client to configure for (claude, cursor, goose, vscode, windsurf)
             --token, -t     Glean API token (required)
             --instance, -i  Glean instance name
             --env, -e       Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
@@ -161,6 +164,7 @@ describe('CLI', () => {
           Examples
             $ npx @gleanwork/configure-mcp-server remote --client cursor --token glean_api_xyz --instance my-company
             $ npx @gleanwork/configure-mcp-server remote --agents --client claude --token glean_api_xyz --instance my-company
+            $ npx @gleanwork/configure-mcp-server remote --client goose --token glean_api_xyz --instance my-company
             $ npx @gleanwork/configure-mcp-server remote --client windsurf --env ~/.glean.env
             $ npx @gleanwork/configure-mcp-server remote --client vscode --token glean_api_xyz --instance my-company --workspace
 
@@ -193,7 +197,7 @@ describe('CLI', () => {
     expect(result.exitCode).toEqual(1);
     expect(result.stderr).toMatchInlineSnapshot(`
       "Unsupported MCP client: invalid-client
-      Supported clients: claude, cursor, vscode, windsurf"
+      Supported clients: claude, cursor, goose, vscode, windsurf"
     `);
     expect(result.stdout).toMatchInlineSnapshot(`""`);
   });
@@ -209,6 +213,9 @@ describe('CLI', () => {
           {
             env: {
               GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
             },
           },
         );
@@ -236,6 +243,9 @@ describe('CLI', () => {
           {
             env: {
               GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
             },
           },
         );
@@ -259,6 +269,9 @@ describe('CLI', () => {
           {
             env: {
               GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
             },
           },
         );
@@ -282,6 +295,9 @@ describe('CLI', () => {
           {
             env: {
               GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
             },
           },
         );
@@ -564,6 +580,9 @@ Error configuring client: API token is required. Please provide a token with the
           {
             env: {
               GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
             },
           },
         );
@@ -633,6 +652,9 @@ Error configuring client: API token is required. Please provide a token with the
           {
             env: {
               GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
             },
           },
         );
@@ -707,6 +729,9 @@ Error configuring client: API token is required. Please provide a token with the
           {
             env: {
               GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
             },
           },
         );
@@ -776,6 +801,9 @@ Error configuring client: API token is required. Please provide a token with the
           {
             env: {
               GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
             },
           },
         );
@@ -850,6 +878,9 @@ Error configuring client: API token is required. Please provide a token with the
           {
             env: {
               GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
             },
           },
         );
@@ -920,6 +951,9 @@ Error configuring client: API token is required. Please provide a token with the
           {
             env: {
               GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
             },
           },
         );
@@ -969,6 +1003,151 @@ Error configuring client: API token is required. Please provide a token with the
               }
             }
           }"
+        `);
+      });
+    });
+
+    describe('Goose client', () => {
+      let configPath: string;
+      let configFilePath: string;
+
+      const { configDir, configFileName } = gooseConfigPath;
+
+      beforeEach(() => {
+        configPath = path.join(project.baseDir, configDir);
+        configFilePath = path.join(configPath, configFileName);
+      });
+
+      it('creates a new config file when none exists', async () => {
+        const result = await runBin(
+          '--client',
+          'goose',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
+            },
+          },
+        );
+
+        expect(result.exitCode).toEqual(0);
+        expect(normalizeOutput(result.stdout, project.baseDir))
+          .toMatchInlineSnapshot(`
+            "Configuring Glean MCP for Goose...
+            Created new configuration file at: <TMP_DIR>/.config/goose/config.yaml
+
+            Goose MCP configuration has been configured to: <TMP_DIR>/.config/goose/config.yaml
+
+            To use it:
+            1. Restart Goose
+            "
+          `);
+
+        const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+        const parsedConfig = yaml.parse(configFileContents);
+        expect(parsedConfig).toMatchInlineSnapshot(`
+          {
+            "extensions": {
+              "glean_local": {
+                "args": [
+                  "-y",
+                  "@gleanwork/local-mcp-server",
+                ],
+                "bundled": null,
+                "cmd": "npx",
+                "description": "",
+                "enabled": true,
+                "env_keys": [],
+                "envs": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                  "GLEAN_INSTANCE": "test-domain",
+                },
+                "name": "glean",
+                "timeout": 300,
+                "type": "stdio",
+              },
+            },
+          }
+        `);
+      });
+
+      it("adds config to existing file that doesn't have Glean config", async () => {
+        const existingConfig = {
+          'some-other-config': {
+            options: {
+              enabled: true,
+            },
+          },
+        };
+
+        createConfigFile(configFilePath, existingConfig);
+
+        const result = await runBin(
+          '--client',
+          'goose',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
+            },
+          },
+        );
+
+        expect(result.exitCode).toEqual(0);
+        expect(normalizeOutput(result.stdout, project.baseDir))
+          .toMatchInlineSnapshot(`
+            "Configuring Glean MCP for Goose...
+            Updated configuration file at: <TMP_DIR>/.config/goose/config.yaml
+
+            Goose MCP configuration has been configured to: <TMP_DIR>/.config/goose/config.yaml
+
+            To use it:
+            1. Restart Goose
+            "
+          `);
+
+        const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+        const parsedConfig = yaml.parse(configFileContents);
+        expect(parsedConfig).toMatchInlineSnapshot(`
+          {
+            "extensions": {
+              "glean_local": {
+                "args": [
+                  "-y",
+                  "@gleanwork/local-mcp-server",
+                ],
+                "bundled": null,
+                "cmd": "npx",
+                "description": "",
+                "enabled": true,
+                "env_keys": [],
+                "envs": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                  "GLEAN_INSTANCE": "test-domain",
+                },
+                "name": "glean",
+                "timeout": 300,
+                "type": "stdio",
+              },
+            },
+            "some-other-config": {
+              "options": {
+                "enabled": true,
+              },
+            },
+          }
         `);
       });
     });
@@ -2391,6 +2570,326 @@ Error configuring client: API token is required. Please provide a token with the
                 "env": {
                   "GLEAN_API_TOKEN": "glean_api_test",
                 },
+                "type": "stdio",
+              },
+            },
+          }
+        `);
+      });
+    });
+
+    describe('Goose client', () => {
+      let configPath: string;
+      let configFilePath: string;
+
+      const { configDir, configFileName } = gooseConfigPath;
+
+      beforeEach(() => {
+        configPath = path.join(project.baseDir, configDir);
+        configFilePath = path.join(configPath, configFileName);
+      });
+
+      it('creates a new config file when none exists', async () => {
+        const result = await runBin(
+          'remote',
+          '--client',
+          'goose',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
+            },
+          },
+        );
+
+        expect(result.exitCode).toEqual(0);
+        expect(normalizeOutput(result.stdout, project.baseDir))
+          .toMatchInlineSnapshot(`
+            "Configuring Glean MCP for Goose...
+            Created new configuration file at: <TMP_DIR>/.config/goose/config.yaml
+
+            Goose MCP configuration has been configured to: <TMP_DIR>/.config/goose/config.yaml
+
+            To use it:
+            1. Restart Goose
+            "
+          `);
+
+        const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+        const parsedConfig = yaml.parse(configFileContents);
+        expect(parsedConfig).toMatchInlineSnapshot(`
+          {
+            "extensions": {
+              "glean": {
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/default/sse",
+                ],
+                "bundled": null,
+                "cmd": "npx",
+                "description": "",
+                "enabled": true,
+                "env_keys": [],
+                "envs": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                },
+                "name": "glean",
+                "timeout": 300,
+                "type": "stdio",
+              },
+            },
+          }
+        `);
+      });
+
+      it("adds config to existing file that doesn't have Glean config", async () => {
+        const existingConfig = {
+          'some-other-config': {
+            options: {
+              enabled: true,
+            },
+          },
+        };
+
+        createConfigFile(configFilePath, existingConfig);
+
+        const result = await runBin(
+          'remote',
+          '--client',
+          'goose',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
+            },
+          },
+        );
+
+        expect(result.exitCode).toEqual(0);
+        expect(normalizeOutput(result.stdout, project.baseDir))
+          .toMatchInlineSnapshot(`
+            "Configuring Glean MCP for Goose...
+            Updated configuration file at: <TMP_DIR>/.config/goose/config.yaml
+
+            Goose MCP configuration has been configured to: <TMP_DIR>/.config/goose/config.yaml
+
+            To use it:
+            1. Restart Goose
+            "
+          `);
+
+        const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+        const parsedConfig = yaml.parse(configFileContents);
+        expect(parsedConfig).toMatchInlineSnapshot(`
+          {
+            "extensions": {
+              "glean": {
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/default/sse",
+                ],
+                "bundled": null,
+                "cmd": "npx",
+                "description": "",
+                "enabled": true,
+                "env_keys": [],
+                "envs": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                },
+                "name": "glean",
+                "timeout": 300,
+                "type": "stdio",
+              },
+            },
+            "some-other-config": {
+              "options": {
+                "enabled": true,
+              },
+            },
+          }
+        `);
+      });
+
+      it('updates configurations from local to remote', async () => {
+        const existingConfig = {
+          extensions: {
+            glean: {
+              args: ['-y', '@gleanwork/local-mcp-server'],
+              bundled: null,
+              cmd: 'npx',
+              description: '',
+              enabled: true,
+              env_keys: [],
+              envs: {
+                GLEAN_API_TOKEN: 'glean_api_existing',
+                GLEAN_INSTANCE: 'existing-domain',
+              },
+              name: 'glean',
+              timeout: 300,
+              type: 'stdio',
+            },
+          },
+        };
+
+        createConfigFile(configFilePath, existingConfig);
+
+        const result = await runBin(
+          'remote',
+          '--client',
+          'goose',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
+            },
+          },
+        );
+
+        expect(result.exitCode).toEqual(0);
+        expect(normalizeOutput(result.stdout, project.baseDir))
+          .toMatchInlineSnapshot(`
+            "Configuring Glean MCP for Goose...
+            Updated configuration file at: <TMP_DIR>/.config/goose/config.yaml
+
+            Goose MCP configuration has been configured to: <TMP_DIR>/.config/goose/config.yaml
+
+            To use it:
+            1. Restart Goose
+            "
+          `);
+
+        const configAfter = fs.readFileSync(configFilePath, 'utf8');
+        const parsed = yaml.parse(configAfter);
+        expect(parsed).toMatchInlineSnapshot(`
+          {
+            "extensions": {
+              "glean": {
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/default/sse",
+                ],
+                "bundled": null,
+                "cmd": "npx",
+                "description": "",
+                "enabled": true,
+                "env_keys": [],
+                "envs": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                },
+                "name": "glean",
+                "timeout": 300,
+                "type": "stdio",
+              },
+            },
+          }
+        `);
+      });
+
+      it('configures both default and agents remote servers', async () => {
+        // First, configure the default remote server
+        const result1 = await runBin(
+          'remote',
+          '--client',
+          'goose',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
+            },
+          },
+        );
+
+        expect(result1.exitCode).toEqual(0);
+
+        // Then, add the agents remote server to the same config
+        const result2 = await runBin(
+          'remote',
+          '--client',
+          'goose',
+          '--agents',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
+            },
+          },
+        );
+
+        expect(result2.exitCode).toEqual(0);
+
+        // Verify both servers are configured
+        const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+        const parsedConfig = yaml.parse(configFileContents);
+        expect(parsedConfig).toMatchInlineSnapshot(`
+          {
+            "extensions": {
+              "glean": {
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/default/sse",
+                ],
+                "bundled": null,
+                "cmd": "npx",
+                "description": "",
+                "enabled": true,
+                "env_keys": [],
+                "envs": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                },
+                "name": "glean",
+                "timeout": 300,
+                "type": "stdio",
+              },
+              "glean_agents": {
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/agents/sse",
+                ],
+                "bundled": null,
+                "cmd": "npx",
+                "description": "",
+                "enabled": true,
+                "env_keys": [],
+                "envs": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                },
+                "name": "glean",
+                "timeout": 300,
                 "type": "stdio",
               },
             },

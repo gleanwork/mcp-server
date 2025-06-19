@@ -58,13 +58,36 @@ export interface VSCodeWorkspaceConfig {
   [key: string]: unknown;
 }
 
+export interface GooseExtensionConfig {
+  args: string[];
+  bundled: null | string;
+  cmd: string;
+  description: string;
+  enabled: boolean;
+  env_keys: string[];
+  envs: Record<string, string>;
+  name: string;
+  timeout: number;
+  type: string;
+}
+
+export interface GooseConfig {
+  extensions: {
+    glean?: GooseExtensionConfig;
+    glean_local?: GooseExtensionConfig;
+    glean_agents?: GooseExtensionConfig;
+    [key: string]: GooseExtensionConfig | undefined;
+  };
+}
+
 /**
  * Union of all possible MCP configuration formats
  */
 export type MCPConfig =
   | StandardMCPConfig
   | VSCodeGlobalConfig
-  | VSCodeWorkspaceConfig;
+  | VSCodeWorkspaceConfig
+  | GooseConfig;
 
 /**
  * Generic config file contents that might contain MCP configuration
@@ -105,7 +128,7 @@ export interface MCPClientConfig {
   updateConfig: (
     existingConfig: ConfigFileContents,
     newConfig: MCPConfig,
-    options?: ConfigureOptions,
+    options: ConfigureOptions,
   ) => ConfigFileContents;
 }
 
@@ -169,7 +192,7 @@ export function createMcpServersConfig(
     instanceOrUrl,
     options?.agents ? 'agents' : 'default',
   );
-  const mcpServerName = options?.agents ? 'glean_agents' : 'glean';
+  const mcpServerName = buildMcpServerName(options);
   const args = ['-y', '@gleanwork/connect-mcp-server', serverUrl];
   if (usingOAuth) {
     args.push('--header', 'X-Glean-Auth-Type:OAUTH');
@@ -183,6 +206,15 @@ export function createMcpServersConfig(
       env,
     },
   };
+}
+
+export function buildMcpServerName(options: ConfigureOptions) {
+  const isLocal = !options?.remote;
+  if(isLocal) {
+    return 'glean_local';
+  }
+
+  return options?.agents ? 'glean_agents' : 'glean';
 }
 
 function buildMcpUrl(instanceOrUrl: string, target: RemoteMcpTargets) {
