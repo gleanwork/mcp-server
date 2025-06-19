@@ -73,8 +73,10 @@ export interface GooseExtensionConfig {
 
 export interface GooseConfig {
   extensions: {
-    glean: GooseExtensionConfig;
-    [key: string]: GooseExtensionConfig;
+    glean?: GooseExtensionConfig;
+    glean_local?: GooseExtensionConfig;
+    glean_agents?: GooseExtensionConfig;
+    [key: string]: GooseExtensionConfig | undefined;
   };
 }
 
@@ -126,7 +128,7 @@ export interface MCPClientConfig {
   updateConfig: (
     existingConfig: ConfigFileContents,
     newConfig: MCPConfig,
-    options?: ConfigureOptions,
+    options: ConfigureOptions,
   ) => ConfigFileContents;
 }
 
@@ -190,7 +192,7 @@ export function createMcpServersConfig(
     instanceOrUrl,
     options?.agents ? 'agents' : 'default',
   );
-  const mcpServerName = options?.agents ? 'glean_agents' : 'glean';
+  const mcpServerName = buildMcpServerName(options);
   const args = ['-y', '@gleanwork/connect-mcp-server', serverUrl];
   if (usingOAuth) {
     args.push('--header', 'X-Glean-Auth-Type:OAUTH');
@@ -204,6 +206,15 @@ export function createMcpServersConfig(
       env,
     },
   };
+}
+
+export function buildMcpServerName(options: ConfigureOptions) {
+  const isLocal = !options?.remote;
+  if(isLocal) {
+    return 'glean_local';
+  }
+
+  return options?.agents ? 'glean_agents' : 'glean';
 }
 
 function buildMcpUrl(instanceOrUrl: string, target: RemoteMcpTargets) {

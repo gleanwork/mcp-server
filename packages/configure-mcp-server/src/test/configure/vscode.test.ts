@@ -252,7 +252,7 @@ describe('VS Code MCP Client', () => {
       },
     };
 
-    const updated = vscodeClient.updateConfig(existingConfig, newConfig);
+    const updated = vscodeClient.updateConfig(existingConfig, newConfig, {});
 
     expect(updated).toMatchObject({
       someOtherConfig: true,

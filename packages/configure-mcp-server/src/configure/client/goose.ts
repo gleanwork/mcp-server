@@ -1,5 +1,5 @@
 import path from 'path';
-import { MCPConfigPath, MCPClientConfig, createSuccessMessage, GooseConfig } from './index.js';
+import { MCPConfigPath, MCPClientConfig, createSuccessMessage, GooseConfig, buildMcpServerName } from './index.js';
 import type { ConfigureOptions } from '../index.js';
 import { isOAuthEnabled } from '../../common/env.js';
 import { RemoteMcpTargets } from '@gleanwork/mcp-server-utils/util';
@@ -55,7 +55,7 @@ function createConfigTemplate(
 
   return {
     extensions: {
-      glean: {
+      [buildMcpServerName(options ?? {})]: {
         args,
         bundled: null,
         cmd: 'npx',
@@ -74,10 +74,12 @@ function createConfigTemplate(
 function updateConfig(
   existingConfig: Record<string, any>,
   newConfig: Record<string, any>,
+  options: ConfigureOptions
 ): Record<string, any> {
   const result = { ...existingConfig };
   result.extensions = result.extensions || {};
-  result.extensions.glean = newConfig.extensions.glean;
+  const mcpServerName = buildMcpServerName(options);
+  result.extensions[mcpServerName] = newConfig.extensions[mcpServerName];
   return result;
 }
 

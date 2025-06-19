@@ -1054,7 +1054,7 @@ Error configuring client: API token is required. Please provide a token with the
         expect(parsedConfig).toMatchInlineSnapshot(`
           {
             "extensions": {
-              "glean": {
+              "glean_local": {
                 "args": [
                   "-y",
                   "@gleanwork/local-mcp-server",
@@ -1123,7 +1123,7 @@ Error configuring client: API token is required. Please provide a token with the
         expect(parsedConfig).toMatchInlineSnapshot(`
           {
             "extensions": {
-              "glean": {
+              "glean_local": {
                 "args": [
                   "-y",
                   "@gleanwork/local-mcp-server",
@@ -2857,6 +2857,24 @@ Error configuring client: API token is required. Please provide a token with the
           {
             "extensions": {
               "glean": {
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/default/sse",
+                ],
+                "bundled": null,
+                "cmd": "npx",
+                "description": "",
+                "enabled": true,
+                "env_keys": [],
+                "envs": {
+                  "GLEAN_API_TOKEN": "glean_api_test",
+                },
+                "name": "glean",
+                "timeout": 300,
+                "type": "stdio",
+              },
+              "glean_agents": {
                 "args": [
                   "-y",
                   "@gleanwork/connect-mcp-server",
