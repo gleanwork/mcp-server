@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  lint-fix:
+  format:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +28,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Fix code formatting
-        run: pnpm run lint:fix
+        run: pnpm format
 
       - name: Commit formatting fixes
         run: |
