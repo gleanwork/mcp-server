@@ -30,8 +30,8 @@ importers:
         specifier: ^8.56.0
         version: 8.57.1
       globals:
-        specifier: ^14.0.0
-        version: 14.0.0
+        specifier: ^16.2.0
+        version: 16.2.0
       npm-run-all:
         specifier: ^4.1.5
         version: 4.1.5
@@ -115,7 +115,7 @@ importers:
         specifier: ^11.3.0
         version: 11.3.0
       globals:
-        specifier: ^16.0.0
+        specifier: ^16.2.0
         version: 16.2.0
       msw:
         specifier: ^2.10.2
@@ -200,7 +200,7 @@ importers:
         specifier: ^11.3.0
         version: 11.3.0
       globals:
-        specifier: ^16.0.0
+        specifier: ^16.2.0
         version: 16.2.0
       msw:
         specifier: ^2.10.2
@@ -279,7 +279,7 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       globals:
-        specifier: ^16.0.0
+        specifier: ^16.2.0
         version: 16.2.0
       msw:
         specifier: ^2.10.2
@@ -321,7 +321,7 @@ importers:
         specifier: ^9.23.0
         version: 9.29.0(jiti@2.4.2)
       globals:
-        specifier: ^16.0.0
+        specifier: ^16.2.0
         version: 16.2.0
       msw:
         specifier: ^2.10.2
