@@ -12,6 +12,7 @@ import meow from 'meow';
 import { runServer } from './server.js';
 import { Logger, trace, LogLevel } from '@gleanwork/mcp-server-utils/logger';
 import { VERSION } from './common/version.js';
+import { checkAndOpenLaunchWarning } from '@gleanwork/mcp-server-utils/util';
 
 /**
  * Main function to handle command line arguments and run the server
@@ -62,6 +63,8 @@ async function main() {
 
   trace(process.title, `ppid/pid: [${process.ppid} / ${process.pid}]`);
   trace(process.execPath, process.execArgv, process.argv);
+
+  await checkAndOpenLaunchWarning(VERSION);
 
   const { instance, token } = cli.flags;
   runServer({ instance, token }).catch((error) => {

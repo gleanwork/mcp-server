@@ -134,7 +134,7 @@ describe('CLI', () => {
 
               local     A local server using Glean's API to access common tools (search, chat)
               remote    Connect to Glean's hosted MCP servers (default tools and agents).
-            
+
 
             $ npx @gleanwork/configure-mcp-server --client <client-name> [options]
 

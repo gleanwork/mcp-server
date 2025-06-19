@@ -211,4 +211,50 @@ export const handlers = [
       return HttpResponse.json(responseData);
     },
   ),
+
+  http.head(
+    'https://gleanwork.github.io/mcp-server/warnings/launch/:version.md',
+    async ({ params }) => {
+      const { version } = params;
+
+      if (version === 'v1') {
+        return new HttpResponse(null, {
+          status: 200,
+          statusText: 'OK',
+        });
+      }
+
+      if (version === 'v0.6') {
+        return new HttpResponse(null, {
+          status: 200,
+          statusText: 'OK',
+        });
+      }
+
+      if (version === 'v404') {
+        return new HttpResponse(null, {
+          status: 404,
+          statusText: 'Not Found',
+        });
+      }
+
+      if (version === 'v999') {
+        const error = new Error('Network error');
+        error.name = 'FetchError';
+        throw error;
+      }
+
+      if (version === 'server-error') {
+        return new HttpResponse(null, {
+          status: 500,
+          statusText: 'Internal Server Error',
+        });
+      }
+
+      return new HttpResponse(null, {
+        status: 404,
+        statusText: 'Not Found',
+      });
+    },
+  ),
 ];

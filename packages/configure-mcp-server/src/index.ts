@@ -35,11 +35,14 @@ import {
 } from '@gleanwork/mcp-server-utils/auth';
 import { chat, formatResponse } from '@gleanwork/local-mcp-server/tools/chat';
 import { VERSION } from './common/version.js';
+import { checkAndOpenLaunchWarning } from '@gleanwork/mcp-server-utils/util';
 
 /**
  * Main function to handle command line arguments and branch between configure and auth modes
  */
 async function main() {
+  await checkAndOpenLaunchWarning(VERSION);
+
   try {
     await ensureClientsLoaded();
   } catch {
@@ -74,7 +77,7 @@ async function main() {
       $ npx @gleanwork/configure-mcp-server --client vscode --token glean_api_xyz --instance my-company --workspace
 
     Run 'npx @gleanwork/configure-mcp-server help' for more details on supported clients
-    
+
     Version: v${VERSION}
 `;
 
@@ -87,7 +90,7 @@ async function main() {
 
         local     A local server using Glean's API to access common tools (search, chat)
         remote    Connect to Glean's hosted MCP servers (default tools and agents).
-        
+
 
       $ npx @gleanwork/configure-mcp-server --client <client-name> [options]
 
@@ -118,7 +121,7 @@ async function main() {
       $ npx @gleanwork/configure-mcp-server remote --client vscode --token glean_api_xyz --instance my-company --workspace
 
     Run 'npx @gleanwork/configure-mcp-server help' for more details on supported clients
-    
+
     Version: v${VERSION}
 
 `;
@@ -174,7 +177,7 @@ async function main() {
   const command = cli.input.length === 0 ? 'local' : cli.input[0].toLowerCase();
   switch (command) {
     case 'remote': {
-      if(!betaEnabled) {
+      if (!betaEnabled) {
         console.warn(`
 Please note Glean-hosted MCP servers are in private beta.  Make sure your
 instance is opted into the private beta or your assistant won't be able to
@@ -207,8 +210,7 @@ connect after configuration.
       break;
     }
     case 'local': {
-      const { client, token, instance, url, env, workspace } =
-        cli.flags;
+      const { client, token, instance, url, env, workspace } = cli.flags;
 
       if (!(await validateFlags(client, token, instance, url, env))) {
         process.exit(1);
