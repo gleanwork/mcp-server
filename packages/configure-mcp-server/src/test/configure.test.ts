@@ -270,6 +270,39 @@ describe('configure', () => {
     `);
   });
 
+  it('should configure remote server using API token', async () => {
+    const options: ConfigureOptions = {
+      token: 'test-token',
+      instance: 'test-instance',
+      remote: true,
+    };
+
+    await configure('cursor', options);
+
+    const configPath = path.join(tempDir, '.cursor', 'mcp.json');
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    expect(config).toMatchInlineSnapshot(`
+      {
+        "mcpServers": {
+          "glean": {
+            "args": [
+              "-y",
+              "@gleanwork/connect-mcp-server",
+              "https://test-instance-be.glean.com/mcp/default/sse",
+              "--header",
+              "Authorization:\${AUTH_HEADER}",
+            ],
+            "command": "npx",
+            "env": {
+              "AUTH_HEADER": "Bearer test-token",
+            },
+            "type": "stdio",
+          },
+        },
+      }
+    `);
+  });
+
   it('should throw error when OAuth flow fails', async () => {
     vi.mocked(ensureAuthTokenPresence).mockResolvedValue(false);
 
