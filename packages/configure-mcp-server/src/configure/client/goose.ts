@@ -46,7 +46,7 @@ function createConfigTemplate(
     }
   }
 
-  if (apiToken) {
+  if (isLocal && apiToken) {
     envs.GLEAN_API_TOKEN = apiToken;
   }
 
@@ -62,6 +62,9 @@ function createConfigTemplate(
     args = ['-y', '@gleanwork/connect-mcp-server', serverUrl];
     if (usingOAuth) {
       args.push('--header', 'X-Glean-Auth-Type:OAUTH');
+    } else if (apiToken) {
+      envs.AUTH_HEADER = `Bearer ${apiToken}`;
+      args.push('--header', 'Authorization:${AUTH_HEADER}');
     }
   }
 

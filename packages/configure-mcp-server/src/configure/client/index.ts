@@ -169,8 +169,8 @@ export function createMcpServersConfig(
     }
   }
 
-  // Only include GLEAN_API_TOKEN if a token is provided
-  if (apiToken) {
+  // For local servers include the API token in env
+  if (isLocal && apiToken) {
     env.GLEAN_API_TOKEN = apiToken;
   }
 
@@ -196,6 +196,9 @@ export function createMcpServersConfig(
   const args = ['-y', '@gleanwork/connect-mcp-server', serverUrl];
   if (usingOAuth) {
     args.push('--header', 'X-Glean-Auth-Type:OAUTH');
+  } else if (apiToken) {
+    env.AUTH_HEADER = `Bearer ${apiToken}`;
+    args.push('--header', 'Authorization:${AUTH_HEADER}');
   }
 
   return {
