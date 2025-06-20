@@ -1,11 +1,12 @@
-
 ## v0.7.10 (2025-06-20)
 
 #### :bug: Bug Fix
-* `configure-mcp-server`
-  * [#199](https://github.com/gleanwork/mcp-server/pull/199) Fix remote token header ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+- `configure-mcp-server`
+  - [#199](https://github.com/gleanwork/mcp-server/pull/199) Fix remote token header ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 
 #### Committers: 1
+
 - David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 
 ## v0.7.9 (2025-06-19)
