@@ -265,6 +265,10 @@ export function createBaseClient(
   configPath: MCPConfigPath,
   instructions: string[],
   pathResolverOverride?: (homedir: string) => string,
+  mcpServersHook: (
+    servers: MCPServersConfig,
+    options?: ConfigureOptions,
+  ) => MCPConfig = (servers) => ({ mcpServers: servers }),
 ): MCPClientConfig {
   return {
     displayName,
@@ -272,7 +276,18 @@ export function createBaseClient(
     configFilePath:
       pathResolverOverride || createStandardPathResolver(configPath),
 
-    configTemplate: createConfigTemplate,
+    configTemplate: (
+      instanceOrUrl?: string,
+      apiToken?: string,
+      options?: ConfigureOptions,
+    ) => {
+      const servers = createMcpServersConfig(
+        instanceOrUrl,
+        apiToken,
+        options,
+      );
+      return mcpServersHook(servers, options);
+    },
 
     successMessage: (configPath) =>
       createSuccessMessage(displayName, configPath, instructions),
