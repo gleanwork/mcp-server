@@ -2,88 +2,46 @@ import path from 'path';
 import {
   MCPConfigPath,
   MCPClientConfig,
-  createSuccessMessage,
   GooseConfig,
+  GooseExtensionConfig,
+  createBaseClient,
   buildMcpServerName,
+  MCPServersConfig,
 } from './index.js';
 import type { ConfigureOptions } from '../index.js';
-import { isOAuthEnabled } from '../../common/env.js';
-import { RemoteMcpTargets } from '@gleanwork/mcp-server-utils/util';
 
 export const gooseConfigPath: MCPConfigPath = {
   configDir: path.join('.config', 'goose'),
   configFileName: 'config.yaml',
 };
 
-function buildMcpUrl(instanceOrUrl: string, target: RemoteMcpTargets) {
-  const baseUrl =
-    instanceOrUrl.startsWith('http://') || instanceOrUrl.startsWith('https://')
-      ? new URL(instanceOrUrl).origin + '/mcp'
-      : `https://${instanceOrUrl}-be.glean.com/mcp`;
+function goosePathResolver(homedir: string) {
+  if (process.platform === 'win32') {
+    return path.join(process.env.APPDATA || homedir, 'goose', 'config.yaml');
+  }
 
-  return `${baseUrl}/${target}/sse`;
+  const baseDir = process.env.GLEAN_MCP_CONFIG_DIR || homedir;
+  return path.join(baseDir, gooseConfigPath.configDir, gooseConfigPath.configFileName);
 }
 
-function createConfigTemplate(
-  instanceOrUrl = '<glean instance name>',
-  apiToken?: string,
-  options?: ConfigureOptions,
-): GooseConfig {
-  const envs: Record<string, string> = {};
-  const isLocal = !options?.remote;
-
-  if (isLocal) {
-    if (
-      instanceOrUrl.startsWith('http://') ||
-      instanceOrUrl.startsWith('https://')
-    ) {
-      const baseUrl = instanceOrUrl.endsWith('/rest/api/v1')
-        ? instanceOrUrl
-        : `${instanceOrUrl}/rest/api/v1`;
-      envs.GLEAN_BASE_URL = baseUrl;
-    } else {
-      envs.GLEAN_INSTANCE = instanceOrUrl;
-    }
+function toGooseConfig(servers: MCPServersConfig): GooseConfig {
+  const extensions: Record<string, GooseExtensionConfig> = {};
+  for (const [name, server] of Object.entries(servers)) {
+    if (!server) continue;
+    extensions[name] = {
+      args: server.args,
+      bundled: null,
+      cmd: server.command,
+      description: '',
+      enabled: true,
+      env_keys: [],
+      envs: server.env,
+      name: 'glean',
+      timeout: 300,
+      type: server.type ?? 'stdio',
+    };
   }
-
-  if (isLocal && apiToken) {
-    envs.GLEAN_API_TOKEN = apiToken;
-  }
-
-  let args: string[];
-  if (isLocal) {
-    args = ['-y', '@gleanwork/local-mcp-server'];
-  } else {
-    const usingOAuth = apiToken === undefined && isOAuthEnabled();
-    const serverUrl = buildMcpUrl(
-      instanceOrUrl,
-      options?.agents ? 'agents' : 'default',
-    );
-    args = ['-y', '@gleanwork/connect-mcp-server', serverUrl];
-    if (usingOAuth) {
-      args.push('--header', 'X-Glean-Auth-Type:OAUTH');
-    } else if (apiToken) {
-      envs.AUTH_HEADER = `Bearer ${apiToken}`;
-      args.push('--header', 'Authorization:${AUTH_HEADER}');
-    }
-  }
-
-  return {
-    extensions: {
-      [buildMcpServerName(options ?? {})]: {
-        args,
-        bundled: null,
-        cmd: 'npx',
-        description: '',
-        enabled: true,
-        env_keys: [],
-        envs,
-        name: 'glean',
-        timeout: 300,
-        type: 'stdio',
-      },
-    },
-  };
+  return { extensions };
 }
 
 function updateConfig(
@@ -98,22 +56,15 @@ function updateConfig(
   return result;
 }
 
-const gooseClient: MCPClientConfig = {
-  displayName: 'Goose',
-  configFilePath(homedir: string) {
-    if (process.platform === 'win32') {
-      return path.join(process.env.APPDATA || homedir, 'goose', 'config.yaml');
-    }
-    return path.join(
-      homedir,
-      gooseConfigPath.configDir,
-      gooseConfigPath.configFileName,
-    );
-  },
-  configTemplate: createConfigTemplate,
-  successMessage: (configPath: string) =>
-    createSuccessMessage('Goose', configPath, ['Restart Goose']),
-  updateConfig,
-};
+const gooseClient: MCPClientConfig = createBaseClient(
+  'Goose',
+  gooseConfigPath,
+  ['Restart Goose'],
+  goosePathResolver,
+  toGooseConfig,
+);
+
+gooseClient.updateConfig = updateConfig;
+
 
 export default gooseClient;

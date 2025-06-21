@@ -51,9 +51,9 @@
     "meow": "^13.2.0",
     "open": "^10.1.1",
     "tldts": "^7.0.7",
+    "yaml": "^2.8.0",
     "zod": "^3.25.65",
-    "zod-to-json-schema": "^3.24.5",
-    "yaml": "^2.8.0"
+    "zod-to-json-schema": "^3.24.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
