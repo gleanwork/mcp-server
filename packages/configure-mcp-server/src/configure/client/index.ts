@@ -281,11 +281,7 @@ export function createBaseClient(
       apiToken?: string,
       options?: ConfigureOptions,
     ) => {
-      const servers = createMcpServersConfig(
-        instanceOrUrl,
-        apiToken,
-        options,
-      );
+      const servers = createMcpServersConfig(instanceOrUrl, apiToken, options);
       return mcpServersHook(servers, options);
     },
 

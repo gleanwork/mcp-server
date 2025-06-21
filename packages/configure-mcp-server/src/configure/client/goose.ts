@@ -21,7 +21,11 @@ function goosePathResolver(homedir: string) {
   }
 
   const baseDir = process.env.GLEAN_MCP_CONFIG_DIR || homedir;
-  return path.join(baseDir, gooseConfigPath.configDir, gooseConfigPath.configFileName);
+  return path.join(
+    baseDir,
+    gooseConfigPath.configDir,
+    gooseConfigPath.configFileName,
+  );
 }
 
 function toGooseConfig(servers: MCPServersConfig): GooseConfig {
@@ -65,6 +69,5 @@ const gooseClient: MCPClientConfig = createBaseClient(
 );
 
 gooseClient.updateConfig = updateConfig;
-
 
 export default gooseClient;
