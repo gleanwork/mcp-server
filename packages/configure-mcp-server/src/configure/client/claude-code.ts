@@ -35,7 +35,7 @@ function claudeCodePathResolver(homedir: string) {
 
 function mcpServersHook(servers: MCPServersConfig): MCPConfig {
   return {
-    '.mcpServers': servers,
+    'mcpServers': servers,
   } as unknown as MCPConfig;
 }
 
@@ -43,7 +43,6 @@ const claudeCodeClient = createBaseClient(
   'Claude Code',
   claudeCodeConfigPath,
   [
-    'Restart Claude Code',
     'Run `claude mcp list` and verify the server is listed',
   ],
   claudeCodePathResolver,
@@ -55,10 +54,10 @@ claudeCodeClient.updateConfig = (
   newConfig: MCPConfig,
 ) => {
   const result = { ...existingConfig } as ConfigFileContents & {
-    '.mcpServers': MCPServersConfig;
+    'mcpServers': MCPServersConfig;
   };
-  const newServers = (newConfig as any)['.mcpServers'];
-  result['.mcpServers'] = updateMcpServersConfig(result['.mcpServers'] || {}, newServers);
+  const newServers = (newConfig as any)['mcpServers'];
+  result['mcpServers'] = updateMcpServersConfig(result['mcpServers'] || {}, newServers);
   return result;
 };
 
