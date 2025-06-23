@@ -8,6 +8,7 @@ import type { ConfigFileContents } from '../configure/index.js';
 
 import { cursorConfigPath } from '../configure/client/cursor.js';
 import { claudeConfigPath } from '../configure/client/claude.js';
+import { claudeCodeConfigPath } from '../configure/client/claude-code.js';
 import { windsurfConfigPath } from '../configure/client/windsurf.js';
 import { gooseConfigPath } from '../configure/client/goose.js';
 import yaml from 'yaml';
@@ -99,7 +100,7 @@ describe('CLI', () => {
             help        Show this help message
 
           Options for configure
-            --client, -c    MCP client to configure for (claude, cursor, goose, vscode, windsurf)
+            --client, -c    MCP client to configure for (claude-code, claude, cursor, goose, vscode, windsurf)
             --token, -t     Glean API token (required)
             --instance, -i  Glean instance name
             --env, -e       Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
@@ -147,7 +148,7 @@ describe('CLI', () => {
             help        Show this help message
 
           Options for local
-            --client, -c    MCP client to configure for (claude, cursor, goose, vscode, windsurf)
+            --client, -c    MCP client to configure for (claude-code, claude, cursor, goose, vscode, windsurf)
             --token, -t     Glean API token (required)
             --instance, -i  Glean instance name
             --env, -e       Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
@@ -155,7 +156,7 @@ describe('CLI', () => {
 
           Options for remote
             --agents        Connect your Glean Agents to your MCP client.  If unset, will connect the default tools.
-            --client, -c    MCP client to configure for (claude, cursor, goose, vscode, windsurf)
+            --client, -c    MCP client to configure for (claude-code, claude, cursor, goose, vscode, windsurf)
             --token, -t     Glean API token (required)
             --instance, -i  Glean instance name
             --env, -e       Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
@@ -197,7 +198,7 @@ describe('CLI', () => {
     expect(result.exitCode).toEqual(1);
     expect(result.stderr).toMatchInlineSnapshot(`
       "Unsupported MCP client: invalid-client
-      Supported clients: claude, cursor, goose, vscode, windsurf"
+      Supported clients: claude-code, claude, cursor, goose, vscode, windsurf"
     `);
     expect(result.stdout).toMatchInlineSnapshot(`""`);
   });
@@ -356,6 +357,153 @@ describe('CLI', () => {
           3. You'll be asked for approval when Agent uses these tools
           "
         `);
+    });
+
+    describe('Claude Code client', () => {
+      let configPath: string;
+      let configFilePath: string;
+
+      const { configDir, configFileName } = claudeCodeConfigPath;
+
+      beforeEach(() => {
+        configPath = path.join(project.baseDir, configDir);
+        configFilePath = path.join(configPath, configFileName);
+      });
+
+      it('creates a new config file when none exists', async () => {
+        const result = await runBin(
+          '--client',
+          'claude-code',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
+            },
+          },
+        );
+
+        expect(result.exitCode).toEqual(0);
+        expect(normalizeOutput(result.stdout, project.baseDir))
+          .toMatchInlineSnapshot(`
+            "Configuring Glean MCP for Claude Code...
+            Created new configuration file at: <TMP_DIR>/.claude.json
+
+            Claude Code MCP configuration has been configured to: <TMP_DIR>/.claude.json
+
+            To use it:
+            1. Restart Claude Code
+            2. Run \`claude mcp list\` and verify the server is listed
+            "
+          `);
+
+        const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+
+        expect(fs.existsSync(configFilePath)).toBe(true);
+        expect(configFileContents).toMatchInlineSnapshot(`
+          "{
+            \".mcpServers\": {
+              \"glean_local\": {
+                \"type\": \"stdio\",
+                \"command\": \"npx\",
+                \"args\": [
+                  \"-y\",
+                  \"@gleanwork/local-mcp-server\"
+                ],
+                \"env\": {
+                  \"GLEAN_INSTANCE\": \"test-domain\",
+                  \"GLEAN_API_TOKEN\": \"glean_api_test\"
+                }
+              }
+            }
+          }"
+        `);
+      });
+
+      it("adds config to existing file that doesn't have Glean config", async () => {
+        const existingConfig = {
+          'some-other-config': {
+            options: {
+              enabled: true,
+            },
+          },
+          '.mcpServers': {
+            'github-remote': {
+              url: 'https://api.githubcopilot.com/mcp',
+              authorization_token: 'Bearer $MY_TOKEN',
+            },
+          },
+        } as ConfigFileContents;
+
+        createConfigFile(configFilePath, existingConfig);
+
+        const result = await runBin(
+          '--client',
+          'claude-code',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+              HOME: project.baseDir,
+              USERPROFILE: project.baseDir,
+              APPDATA: project.baseDir,
+            },
+          },
+        );
+
+        expect(result.exitCode).toEqual(0);
+        expect(normalizeOutput(result.stdout, project.baseDir))
+          .toMatchInlineSnapshot(`
+            "Configuring Glean MCP for Claude Code...
+            Updated configuration file at: <TMP_DIR>/.claude.json
+
+            Claude Code MCP configuration has been configured to: <TMP_DIR>/.claude.json
+
+            To use it:
+            1. Restart Claude Code
+            2. Run \`claude mcp list\` and verify the server is listed
+            "
+          `);
+
+        const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+
+        expect(fs.existsSync(configFilePath)).toBe(true);
+        expect(configFileContents).toMatchInlineSnapshot(`
+          "{
+            \"some-other-config\": {
+              \"options\": {
+                \"enabled\": true
+              }
+            },
+            \".mcpServers\": {
+              \"github-remote\": {
+                \"url\": \"https://api.githubcopilot.com/mcp\",
+                \"authorization_token\": \"Bearer $MY_TOKEN\"
+              },
+              \"glean_local\": {
+                \"type\": \"stdio\",
+                \"command\": \"npx\",
+                \"args\": [
+                  \"-y\",
+                  \"@gleanwork/local-mcp-server\"
+                ],
+                \"env\": {
+                  \"GLEAN_INSTANCE\": \"test-domain\",
+                  \"GLEAN_API_TOKEN\": \"glean_api_test\"
+                }
+              }
+            }
+          }"
+        `);
+      });
     });
 
     it('uses token auth when both token and instance provided via flags', async () => {
@@ -848,6 +996,145 @@ Error configuring client: API token is required. Please provide a token with the
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
+                }
+              }
+            }
+          }"
+        `);
+      });
+    });
+
+    describe('Claude Code client', () => {
+      let configPath: string;
+      let configFilePath: string;
+
+      const { configDir, configFileName } = claudeCodeConfigPath;
+
+      beforeEach(() => {
+        configPath = path.join(project.baseDir, configDir);
+        configFilePath = path.join(configPath, configFileName);
+      });
+
+      it('creates a new config file when none exists', async () => {
+        const result = await runBin(
+          'remote',
+          '--client',
+          'claude-code',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+            },
+          },
+        );
+
+        expect(result.exitCode).toEqual(0);
+        expect(normalizeOutput(result.stdout, project.baseDir))
+          .toMatchInlineSnapshot(`
+            "Configuring Glean MCP for Claude Code...
+            Created new configuration file at: <TMP_DIR>/.claude.json
+
+            Claude Code MCP configuration has been configured to: <TMP_DIR>/.claude.json
+
+            To use it:
+            1. Restart Claude Code
+            2. Run \`claude mcp list\` and verify the server is listed
+            "
+          `);
+
+        const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+
+      expect(fs.existsSync(configFilePath)).toBe(true);
+      expect(configFileContents).toMatchInlineSnapshot(`
+        "{
+          ".mcpServers": {
+            "glean": {
+              "command": "npx",
+              "args": [
+                "-y",
+                "@gleanwork/connect-mcp-server",
+                "https://test-domain-be.glean.com/mcp/default/sse",
+                "--header",
+                "Authorization:\${AUTH_HEADER}"
+              ],
+              "type": "stdio",
+              "env": {
+                "AUTH_HEADER": "Bearer glean_api_test"
+              }
+            }
+          }
+        }"
+      `);
+      });
+
+      it("adds config to existing file that doesn't have Glean config", async () => {
+        const existingConfig = {
+          tools: [
+            {
+              name: 'some-other-tool',
+              description: 'Another tool',
+            },
+          ],
+        } as ConfigFileContents;
+
+        createConfigFile(configFilePath, existingConfig);
+
+        const result = await runBin(
+          'remote',
+          '--client',
+          'claude-code',
+          '--token',
+          'glean_api_test',
+          '--instance',
+          'test-domain',
+          {
+            env: {
+              GLEAN_MCP_CONFIG_DIR: project.baseDir,
+            },
+          },
+        );
+
+        expect(result.exitCode).toEqual(0);
+        expect(normalizeOutput(result.stdout, project.baseDir))
+          .toMatchInlineSnapshot(`
+            "Configuring Glean MCP for Claude Code...
+            Updated configuration file at: <TMP_DIR>/.claude.json
+
+            Claude Code MCP configuration has been configured to: <TMP_DIR>/.claude.json
+
+            To use it:
+            1. Restart Claude Code
+            2. Run \`claude mcp list\` and verify the server is listed
+            "
+          `);
+
+        const configFileContents = fs.readFileSync(configFilePath, 'utf8');
+
+        expect(fs.existsSync(configFilePath)).toBe(true);
+        expect(configFileContents).toMatchInlineSnapshot(`
+          "{
+            \"tools\": [
+              {
+                \"name\": \"some-other-tool\",
+                \"description\": \"Another tool\"
+              }
+            ],
+            \".mcpServers\": {
+              \"glean\": {
+                \"command\": \"npx\",
+                \"args\": [
+                  \"-y\",
+                  \"@gleanwork/connect-mcp-server\",
+                  \"https://test-domain-be.glean.com/mcp/default/sse\",
+                  \"--header\",
+                  \"Authorization:\${AUTH_HEADER}\"
+                ],
+                \"type\": \"stdio\",
+                \"env\": {
+                  \"AUTH_HEADER\": \"Bearer glean_api_test\"
                 }
               }
             }
