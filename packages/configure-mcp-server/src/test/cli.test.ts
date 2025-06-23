@@ -397,8 +397,7 @@ describe('CLI', () => {
             Claude Code MCP configuration has been configured to: <TMP_DIR>/.claude.json
 
             To use it:
-            1. Restart Claude Code
-            2. Run \`claude mcp list\` and verify the server is listed
+            1. Run \`claude mcp list\` and verify the server is listed
             "
           `);
 
@@ -407,17 +406,17 @@ describe('CLI', () => {
         expect(fs.existsSync(configFilePath)).toBe(true);
         expect(configFileContents).toMatchInlineSnapshot(`
           "{
-            \".mcpServers\": {
-              \"glean_local\": {
-                \"type\": \"stdio\",
-                \"command\": \"npx\",
-                \"args\": [
-                  \"-y\",
-                  \"@gleanwork/local-mcp-server\"
+            "mcpServers": {
+              "glean_local": {
+                "type": "stdio",
+                "command": "npx",
+                "args": [
+                  "-y",
+                  "@gleanwork/local-mcp-server"
                 ],
-                \"env\": {
-                  \"GLEAN_INSTANCE\": \"test-domain\",
-                  \"GLEAN_API_TOKEN\": \"glean_api_test\"
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
                 }
               }
             }
@@ -468,8 +467,7 @@ describe('CLI', () => {
             Claude Code MCP configuration has been configured to: <TMP_DIR>/.claude.json
 
             To use it:
-            1. Restart Claude Code
-            2. Run \`claude mcp list\` and verify the server is listed
+            1. Run \`claude mcp list\` and verify the server is listed
             "
           `);
 
@@ -478,26 +476,28 @@ describe('CLI', () => {
         expect(fs.existsSync(configFilePath)).toBe(true);
         expect(configFileContents).toMatchInlineSnapshot(`
           "{
-            \"some-other-config\": {
-              \"options\": {
-                \"enabled\": true
+            "some-other-config": {
+              "options": {
+                "enabled": true
               }
             },
-            \".mcpServers\": {
-              \"github-remote\": {
-                \"url\": \"https://api.githubcopilot.com/mcp\",
-                \"authorization_token\": \"Bearer $MY_TOKEN\"
-              },
-              \"glean_local\": {
-                \"type\": \"stdio\",
-                \"command\": \"npx\",
-                \"args\": [
-                  \"-y\",
-                  \"@gleanwork/local-mcp-server\"
+            ".mcpServers": {
+              "github-remote": {
+                "url": "https://api.githubcopilot.com/mcp",
+                "authorization_token": "Bearer $MY_TOKEN"
+              }
+            },
+            "mcpServers": {
+              "glean_local": {
+                "type": "stdio",
+                "command": "npx",
+                "args": [
+                  "-y",
+                  "@gleanwork/local-mcp-server"
                 ],
-                \"env\": {
-                  \"GLEAN_INSTANCE\": \"test-domain\",
-                  \"GLEAN_API_TOKEN\": \"glean_api_test\"
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
                 }
               }
             }
@@ -1040,8 +1040,7 @@ Error configuring client: API token is required. Please provide a token with the
             Claude Code MCP configuration has been configured to: <TMP_DIR>/.claude.json
 
             To use it:
-            1. Restart Claude Code
-            2. Run \`claude mcp list\` and verify the server is listed
+            1. Run \`claude mcp list\` and verify the server is listed
             "
           `);
 
@@ -1050,7 +1049,7 @@ Error configuring client: API token is required. Please provide a token with the
       expect(fs.existsSync(configFilePath)).toBe(true);
       expect(configFileContents).toMatchInlineSnapshot(`
         "{
-          ".mcpServers": {
+          "mcpServers": {
             "glean": {
               "command": "npx",
               "args": [
@@ -1106,8 +1105,7 @@ Error configuring client: API token is required. Please provide a token with the
             Claude Code MCP configuration has been configured to: <TMP_DIR>/.claude.json
 
             To use it:
-            1. Restart Claude Code
-            2. Run \`claude mcp list\` and verify the server is listed
+            1. Run \`claude mcp list\` and verify the server is listed
             "
           `);
 
@@ -1116,25 +1114,25 @@ Error configuring client: API token is required. Please provide a token with the
         expect(fs.existsSync(configFilePath)).toBe(true);
         expect(configFileContents).toMatchInlineSnapshot(`
           "{
-            \"tools\": [
+            "tools": [
               {
-                \"name\": \"some-other-tool\",
-                \"description\": \"Another tool\"
+                "name": "some-other-tool",
+                "description": "Another tool"
               }
             ],
-            \".mcpServers\": {
-              \"glean\": {
-                \"command\": \"npx\",
-                \"args\": [
-                  \"-y\",
-                  \"@gleanwork/connect-mcp-server\",
-                  \"https://test-domain-be.glean.com/mcp/default/sse\",
-                  \"--header\",
-                  \"Authorization:\${AUTH_HEADER}\"
+            "mcpServers": {
+              "glean": {
+                "command": "npx",
+                "args": [
+                  "-y",
+                  "@gleanwork/connect-mcp-server",
+                  "https://test-domain-be.glean.com/mcp/default/sse",
+                  "--header",
+                  "Authorization:\${AUTH_HEADER}"
                 ],
-                \"type\": \"stdio\",
-                \"env\": {
-                  \"AUTH_HEADER\": \"Bearer glean_api_test\"
+                "type": "stdio",
+                "env": {
+                  "AUTH_HEADER": "Bearer glean_api_test"
                 }
               }
             }
