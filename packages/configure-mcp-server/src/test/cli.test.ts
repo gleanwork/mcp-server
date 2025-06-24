@@ -1046,8 +1046,8 @@ Error configuring client: API token is required. Please provide a token with the
 
         const configFileContents = fs.readFileSync(configFilePath, 'utf8');
 
-      expect(fs.existsSync(configFilePath)).toBe(true);
-      expect(configFileContents).toMatchInlineSnapshot(`
+        expect(fs.existsSync(configFilePath)).toBe(true);
+        expect(configFileContents).toMatchInlineSnapshot(`
         "{
           "mcpServers": {
             "glean": {

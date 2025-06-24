@@ -40,12 +40,9 @@ function mcpServersHook(servers: MCPServersConfig): StandardMCPConfig {
 const claudeCodeClient = createBaseClient(
   'Claude Code',
   claudeCodeConfigPath,
-  [
-    'Run `claude mcp list` and verify the server is listed',
-  ],
+  ['Run `claude mcp list` and verify the server is listed'],
   claudeCodePathResolver,
   mcpServersHook,
 );
-
 
 export default claudeCodeClient;
