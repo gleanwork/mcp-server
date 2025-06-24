@@ -5,14 +5,7 @@
  */
 
 import path from 'path';
-import {
-  MCPConfigPath,
-  createBaseClient,
-  updateMcpServersConfig,
-  MCPServersConfig,
-  ConfigFileContents,
-  MCPConfig,
-} from './index.js';
+import { MCPConfigPath, createBaseClient } from './index.js';
 
 export const claudeCodeConfigPath: MCPConfigPath = {
   configDir: '',
@@ -33,12 +26,6 @@ function claudeCodePathResolver(homedir: string) {
   return path.join(baseDir, claudeCodeConfigPath.configFileName);
 }
 
-function mcpServersHook(servers: MCPServersConfig): MCPConfig {
-  return {
-    'mcpServers': servers,
-  } as unknown as MCPConfig;
-}
-
 const claudeCodeClient = createBaseClient(
   'Claude Code',
   claudeCodeConfigPath,
@@ -46,19 +33,6 @@ const claudeCodeClient = createBaseClient(
     'Run `claude mcp list` and verify the server is listed',
   ],
   claudeCodePathResolver,
-  mcpServersHook,
 );
-
-claudeCodeClient.updateConfig = (
-  existingConfig: ConfigFileContents,
-  newConfig: MCPConfig,
-) => {
-  const result = { ...existingConfig } as ConfigFileContents & {
-    'mcpServers': MCPServersConfig;
-  };
-  const newServers = (newConfig as any)['mcpServers'];
-  result['mcpServers'] = updateMcpServersConfig(result['mcpServers'] || {}, newServers);
-  return result;
-};
 
 export default claudeCodeClient;
