@@ -8,10 +8,8 @@ import path from 'path';
 import {
   MCPConfigPath,
   createBaseClient,
-  updateMcpServersConfig,
   MCPServersConfig,
-  ConfigFileContents,
-  MCPConfig,
+  StandardMCPConfig,
 } from './index.js';
 
 export const claudeCodeConfigPath: MCPConfigPath = {
@@ -33,10 +31,10 @@ function claudeCodePathResolver(homedir: string) {
   return path.join(baseDir, claudeCodeConfigPath.configFileName);
 }
 
-function mcpServersHook(servers: MCPServersConfig): MCPConfig {
+function mcpServersHook(servers: MCPServersConfig): StandardMCPConfig {
   return {
-    'mcpServers': servers,
-  } as unknown as MCPConfig;
+    mcpServers: servers,
+  };
 }
 
 const claudeCodeClient = createBaseClient(
@@ -49,16 +47,5 @@ const claudeCodeClient = createBaseClient(
   mcpServersHook,
 );
 
-claudeCodeClient.updateConfig = (
-  existingConfig: ConfigFileContents,
-  newConfig: MCPConfig,
-) => {
-  const result = { ...existingConfig } as ConfigFileContents & {
-    'mcpServers': MCPServersConfig;
-  };
-  const newServers = (newConfig as any)['mcpServers'];
-  result['mcpServers'] = updateMcpServersConfig(result['mcpServers'] || {}, newServers);
-  return result;
-};
 
 export default claudeCodeClient;
