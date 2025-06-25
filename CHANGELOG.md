@@ -1,3 +1,17 @@
+
+## v0.7.11 (2025-06-25)
+
+#### :rocket: Enhancement
+* `configure-mcp-server`
+  * [#203](https://github.com/gleanwork/mcp-server/pull/203) feat: add Claude Code ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### :house: Internal
+* `configure-mcp-server`
+  * [#200](https://github.com/gleanwork/mcp-server/pull/200) Refactor goose client config ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### Committers: 1
+- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
 ## v0.7.10 (2025-06-20)
 
 #### :bug: Bug Fix

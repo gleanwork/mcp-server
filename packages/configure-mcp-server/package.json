@@ -1,6 +1,6 @@
 {
   "name": "@gleanwork/configure-mcp-server",
-  "version": "0.7.10",
+  "version": "0.7.11",
   "description": "MCP server configurator for Glean",
   "keywords": [
     "mcp",
