@@ -2,12 +2,14 @@
  * @fileoverview Glean Model Context Protocol (MCP) Server Implementation
  *
  * This server implements the Model Context Protocol, providing a standardized interface
- * for AI models to interact with Glean's search and chat capabilities. It uses stdio
+ * for AI models to interact with Glean's capabilities. It uses stdio
  * for communication and implements the MCP specification for tool discovery and execution.
  *
- * The server provides two main tools:
- * 1. search - Allows searching through Glean's indexed content
- * 2. chat - Enables conversation with Glean's AI assistant
+ * The server exposes four tools:
+ * 1. company_search - Search across Glean's indexed content
+ * 2. people_profile_search - Search for people profiles inside the company
+ * 3. chat - Converse with Glean's AI assistant
+ * 4. read_documents - Retrieve documents by ID or URL
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
