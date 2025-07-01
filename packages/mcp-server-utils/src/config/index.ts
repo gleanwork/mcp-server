@@ -193,7 +193,7 @@ function getLocalConfig(): GleanConfig {
     return result;
   }
 
-  // No saved OAuth config, just returrn a basic config and try to discover
+  // No saved OAuth config, just return a basic config and try to discover
   // OAuth.
   return config;
 }
