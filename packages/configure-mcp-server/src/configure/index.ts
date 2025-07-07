@@ -64,7 +64,7 @@ function loadCredentials(options: ConfigureOptions): {
       if (!fs.existsSync(envPath)) {
         console.error(`Warning: .env file not found at ${envPath}`);
       } else {
-        const envConfig = dotenv.config({ path: envPath });
+        const envConfig = dotenv.config({ path: envPath, quiet: true });
 
         if (envConfig.error) {
           throw new Error(
