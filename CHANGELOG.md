@@ -1,3 +1,18 @@
+
+## v0.7.12 (2025-07-08)
+
+#### :bug: Bug Fix
+* `local-mcp-server`
+  * [#221](https://github.com/gleanwork/mcp-server/pull/221) fix: read documents with related docs ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### :memo: Documentation
+* `local-mcp-server`
+  * [#214](https://github.com/gleanwork/mcp-server/pull/214) Remove support email ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+#### Committers: 2
+- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+- Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
 ## v0.7.11 (2025-06-25)
 
 #### :rocket: Enhancement

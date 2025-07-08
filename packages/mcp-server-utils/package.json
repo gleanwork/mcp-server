@@ -1,6 +1,6 @@
 {
   "name": "@gleanwork/mcp-server-utils",
-  "version": "0.7.11",
+  "version": "0.7.12",
   "description": "Shared utilities for MCP server packages",
   "keywords": [
     "mcp",
