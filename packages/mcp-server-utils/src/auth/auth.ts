@@ -532,19 +532,33 @@ async function authorize(config: GleanOAuthConfig): Promise<Tokens | null> {
     );
   }
 
+  const abortController = new AbortController();
   let cause: any = undefined;
   try {
     const authResponse = await fetchDeviceAuthorization(config);
     const tokenPoller = pollForToken(authResponse, config).catch((e) => {
       cause = e;
     });
-    await promptUserAndOpenVerificationPage(authResponse);
+    // Don't wait for this; if the user copies the URL manually and enters the code that's fine.
+    promptUserAndOpenVerificationPage(
+      authResponse,
+      abortController.signal,
+    ).catch((e) => {
+      error('prompting user for verification page', e);
+    });
     const tokenResponse = await tokenPoller;
+
+    // Clean up the readline interface now that we have the token
+    abortController.abort();
+
     if (cause !== undefined) {
       throw cause;
     }
     return Tokens.buildFromTokenResponse(tokenResponse as TokenResponse);
   } catch (cause: any) {
+    // Clean up the readline interface on error as well
+    abortController.abort();
+
     if (cause instanceof AuthError) {
       throw cause;
     }
@@ -554,30 +568,53 @@ async function authorize(config: GleanOAuthConfig): Promise<Tokens | null> {
   }
 }
 
-async function waitForUserEnter() {
+async function waitForUserEnter(signal?: AbortSignal) {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
   });
 
-  await new Promise<void>((resolve) => {
-    rl.once('line', () => {
+  await new Promise<void>((resolve, reject) => {
+    const cleanup = () => {
       rl.close();
+    };
+
+    rl.once('line', () => {
+      cleanup();
       resolve();
     });
+
+    if (signal) {
+      signal.addEventListener('abort', () => {
+        cleanup();
+        resolve(); // Resolve silently when aborted
+      });
+    }
   });
 }
 
-async function promptUserAndOpenVerificationPage(authResponse: AuthResponse) {
+async function promptUserAndOpenVerificationPage(
+  authResponse: AuthResponse,
+  signal?: AbortSignal,
+) {
   console.log(`
 Authorizing Glean MCP-server.  Please log in to Glean.
 
 ! First copy your one-time code: ${authResponse.user_code}
 
-Press Enter continue.
+Press Enter to open the following URL where the code is needed:
+
+${authResponse.verification_uri}
 `);
 
-  await waitForUserEnter();
+  await waitForUserEnter(signal);
+
+  // signal is aborted if the user manually opened the URL and entered the
+  // code, in which case we shouldn't then open the URL again ourselves.
+  if (signal?.aborted) {
+    return;
+  }
+
   await open(authResponse.verification_uri);
 }
 

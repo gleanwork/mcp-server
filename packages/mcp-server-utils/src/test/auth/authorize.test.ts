@@ -576,4 +576,229 @@ describe('authorize (device flow)', () => {
       `[AuthError: ERR_A_16: Unexpected error requesting authorization grant]`,
     );
   });
+
+  describe('AbortController integration', () => {
+    // Common test constants
+    const baseUrl = 'https://glean.example.com';
+    const issuer = 'https://auth.example.com';
+    const clientId = 'client-123';
+    const deviceAuthorizationEndpoint = 'https://auth.example.com/device';
+    const tokenEndpoint = 'https://auth.example.com/token';
+    const deviceCode = 'device-code-abc';
+    const userCode = 'user-code-xyz';
+    const verificationUri = 'https://auth.example.com/verify';
+    const interval = 5;
+    const accessToken = 'access-token-123';
+    const refreshToken = 'refresh-token-456';
+    const expiresIn = 3600;
+
+    // Helper function to mock readline interface
+    async function mockReadlineInterface(
+      behavior:
+        | 'user-opened-browser-manually'
+        | 'user-pressed-enter' = 'user-opened-browser-manually',
+    ) {
+      const mockClose = vi.fn();
+      const mockOnce = vi
+        .fn()
+        .mockImplementation((_event: string, cb: () => void) => {
+          if (behavior === 'user-pressed-enter') {
+            setTimeout(cb, 0);
+          }
+          // For 'user-opened-browser-manually', don't call cb - simulate user opening browser manually
+        });
+
+      vi.mocked(await import('node:readline')).default.createInterface = vi
+        .fn()
+        .mockReturnValue({
+          once: mockOnce,
+          close: mockClose,
+        });
+
+      return { mockClose, mockOnce };
+    }
+
+    // Helper function to set up common OAuth metadata endpoints
+    function setupOAuthMetadataEndpoints() {
+      return [
+        http.get(`${baseUrl}/.well-known/oauth-protected-resource`, () =>
+          HttpResponse.json({
+            authorization_servers: [issuer],
+            glean_device_flow_client_id: clientId,
+          }),
+        ),
+        http.get(`${issuer}/.well-known/openid-configuration`, () =>
+          HttpResponse.json({
+            device_authorization_endpoint: deviceAuthorizationEndpoint,
+            token_endpoint: tokenEndpoint,
+          }),
+        ),
+        http.post(deviceAuthorizationEndpoint, () =>
+          HttpResponse.json({
+            device_code: deviceCode,
+            user_code: userCode,
+            verification_uri: verificationUri,
+            expires_in: 600,
+            interval,
+          }),
+        ),
+      ];
+    }
+
+    it('should abort readline interface when token polling succeeds', async () => {
+      const { mockClose } = await mockReadlineInterface(
+        'user-opened-browser-manually',
+      );
+
+      // Mock OAuth endpoints with immediate success
+      server.use(
+        ...setupOAuthMetadataEndpoints(),
+        http.post(tokenEndpoint, async ({ request }) => {
+          const body = await request.text();
+          if (body.includes(`device_code=${deviceCode}`)) {
+            return HttpResponse.json({
+              token_type: 'Bearer',
+              access_token: accessToken,
+              refresh_token: refreshToken,
+              expires_in: expiresIn,
+            });
+          }
+          return HttpResponse.json({
+            error: 'authorization_pending',
+            error_description: 'pending',
+          });
+        }),
+      );
+
+      // Act
+      const resultPromise = forceAuthorize();
+      await vi.runAllTimersAsync();
+      const tokens = await resultPromise;
+
+      // Assert
+      expect(tokens).not.toBeNull();
+      expect(tokens?.accessToken).toBe(accessToken);
+      expect(mockClose).toHaveBeenCalled();
+    });
+
+    it('should not open browser when AbortController is aborted', async () => {
+      const { mockClose } = await mockReadlineInterface(
+        'user-opened-browser-manually',
+      );
+
+      // Mock OAuth endpoints with immediate success
+      server.use(
+        ...setupOAuthMetadataEndpoints(),
+        http.post(tokenEndpoint, async ({ request }) => {
+          const body = await request.text();
+          if (body.includes(`device_code=${deviceCode}`)) {
+            return HttpResponse.json({
+              token_type: 'Bearer',
+              access_token: accessToken,
+              refresh_token: refreshToken,
+              expires_in: expiresIn,
+            });
+          }
+          return HttpResponse.json({
+            error: 'authorization_pending',
+            error_description: 'pending',
+          });
+        }),
+      );
+
+      // Act
+      const open = (await import('open')).default;
+      const resultPromise = forceAuthorize();
+      await vi.runAllTimersAsync();
+      const tokens = await resultPromise;
+
+      // Assert
+      expect(tokens).not.toBeNull();
+      expect(tokens?.accessToken).toBe(accessToken);
+      expect(mockClose).toHaveBeenCalled();
+      // The browser should not be opened because the AbortController aborted
+      // before the user pressed Enter (since token polling succeeded immediately)
+      expect(open).not.toHaveBeenCalled();
+    });
+
+    it('should still open browser when user presses Enter before token polling succeeds', async () => {
+      let pollCount = 0;
+      const { mockClose } = await mockReadlineInterface('user-pressed-enter');
+
+      // Mock OAuth endpoints with delayed success
+      server.use(
+        ...setupOAuthMetadataEndpoints(),
+        http.post(tokenEndpoint, async ({ request }) => {
+          const body = await request.text();
+          if (body.includes(`device_code=${deviceCode}`)) {
+            pollCount++;
+            if (pollCount >= 3) {
+              return HttpResponse.json({
+                token_type: 'Bearer',
+                access_token: accessToken,
+                refresh_token: refreshToken,
+                expires_in: expiresIn,
+              });
+            }
+            return HttpResponse.json({
+              error: 'authorization_pending',
+              error_description: 'pending',
+            });
+          }
+          return HttpResponse.json({
+            error: 'authorization_pending',
+            error_description: 'pending',
+          });
+        }),
+      );
+
+      // Act
+      const open = (await import('open')).default;
+      const resultPromise = forceAuthorize();
+      await vi.runAllTimersAsync();
+      const tokens = await resultPromise;
+
+      // Assert
+      expect(tokens).not.toBeNull();
+      expect(tokens?.accessToken).toBe(accessToken);
+      expect(mockClose).toHaveBeenCalled();
+      // The browser should be opened because the user pressed Enter before token polling succeeded
+      expect(open).toHaveBeenCalledWith(verificationUri);
+    });
+
+    it('should clean up readline interface on error', async () => {
+      const { mockClose } = await mockReadlineInterface(
+        'user-opened-browser-manually',
+      );
+
+      // Mock OAuth endpoints with error in token polling
+      server.use(
+        ...setupOAuthMetadataEndpoints(),
+        http.post(tokenEndpoint, async ({ request }) => {
+          const body = await request.text();
+          if (body.includes(`device_code=${deviceCode}`)) {
+            return HttpResponse.json(
+              {
+                error: 'invalid_grant',
+                error_description: 'The device code is invalid',
+              },
+              { status: 400 },
+            );
+          }
+          return HttpResponse.json({
+            error: 'authorization_pending',
+            error_description: 'pending',
+          });
+        }),
+      );
+
+      // Act & Assert
+      await expect(forceAuthorize()).rejects.toThrowErrorMatchingInlineSnapshot(
+        `[AuthError: ERR_A_16: Unexpected error requesting authorization grant]`,
+      );
+
+      // Assert that readline interface was cleaned up even on error
+      expect(mockClose).toHaveBeenCalled();
+    });
+  });
 });
