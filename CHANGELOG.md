@@ -1,3 +1,13 @@
+
+## v0.7.13 (2025-07-11)
+
+#### :rocket: Enhancement
+* `mcp-server-utils`
+  * [#223](https://github.com/gleanwork/mcp-server/pull/223) Enable users to manually open device flow verification page ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### Committers: 1
+- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
 ## v0.7.12 (2025-07-08)
 
 #### :bug: Bug Fix
