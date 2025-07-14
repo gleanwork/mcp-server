@@ -658,7 +658,9 @@ describe('auth', () => {
         authType: 'oauth' as const,
         baseUrl: 'https://api.example.com',
       };
-      expect(getOAuthScopes(config)).toMatchInlineSnapshot(`"openid profile"`);
+      expect(getOAuthScopes(config)).toMatchInlineSnapshot(
+        `"openid profile offline_access"`,
+      );
     });
   });
 
