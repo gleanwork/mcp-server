@@ -96,10 +96,13 @@ describe('auth', () => {
 
   let tmpDir: string;
   let originalXdgStateHome: string | undefined;
+  let originalMcpRemoteConfigDir: string | undefined;
 
   beforeEach(() => {
     originalXdgStateHome = process.env.XDG_STATE_HOME;
+    originalMcpRemoteConfigDir = process.env.MCP_REMOTE_CONFIG_DIR;
     tmpDir = setupXdgTemp();
+    process.env.MCP_REMOTE_CONFIG_DIR = path.join(tmpDir, '.mcp-auth');
   });
 
   afterEach(() => {
@@ -107,6 +110,11 @@ describe('auth', () => {
       process.env.XDG_STATE_HOME = originalXdgStateHome;
     } else {
       delete process.env.XDG_STATE_HOME;
+    }
+    if (originalMcpRemoteConfigDir) {
+      process.env.MCP_REMOTE_CONFIG_DIR = originalMcpRemoteConfigDir;
+    } else {
+      delete process.env.MCP_REMOTE_CONFIG_DIR;
     }
     fs.rmSync(tmpDir, { recursive: true, force: true });
     server.resetHandlers();
