@@ -52,7 +52,7 @@
   "dependencies": {
     "@gleanwork/api-client": "0.7.1",
     "@gleanwork/mcp-server-utils": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.12.3",
+    "@modelcontextprotocol/sdk": "^1.15.1",
     "dotenv": "^17.2.0",
     "meow": "^13.2.0",
     "open": "^10.1.1",
