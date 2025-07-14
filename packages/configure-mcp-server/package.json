@@ -47,7 +47,7 @@
   "dependencies": {
     "@gleanwork/local-mcp-server": "workspace:*",
     "@gleanwork/mcp-server-utils": "workspace:*",
-    "dotenv": "^17.0.1",
+    "dotenv": "^17.2.0",
     "meow": "^13.2.0",
     "open": "^10.1.1",
     "tldts": "^7.0.10",
