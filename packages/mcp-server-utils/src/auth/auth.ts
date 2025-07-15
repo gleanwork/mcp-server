@@ -693,7 +693,7 @@ async function pollForToken(
  *
  * In general this is "openid profile offline_access", but some providers may
  * require different scopes for idiosyncratic reasons.
- * 
+ *
  * We require two things that are driven by scopes:
  *
  *  - user email (openid profile)
