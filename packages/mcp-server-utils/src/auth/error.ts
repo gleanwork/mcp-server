@@ -45,6 +45,8 @@ export enum AuthErrorCode {
   MissingOAuthMetadata = 'ERR_A_21',
   /** Missing OAuth tokens required for MCP remote setup */
   MissingOAuthTokens = 'ERR_A_22',
+  /** Refresh token not issued by authorization server */
+  RefreshTokenNotIssued = 'ERR_A_23',
 }
 
 /**
