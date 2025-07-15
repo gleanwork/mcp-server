@@ -554,6 +554,12 @@ async function authorize(config: GleanOAuthConfig): Promise<Tokens | null> {
     if (cause !== undefined) {
       throw cause;
     }
+    if (tokenResponse.refresh_token === undefined) {
+      throw new AuthError(
+        `Your OAuth Authorization Server issued an access token but not a refresh token.  Please configure your OAuth application with id: ${config.clientId} to issue refresh tokens.`,
+        { code: AuthErrorCode.RefreshTokenNotIssued },
+      );
+    }
     return Tokens.buildFromTokenResponse(tokenResponse as TokenResponse);
   } catch (cause: any) {
     // Clean up the readline interface on error as well

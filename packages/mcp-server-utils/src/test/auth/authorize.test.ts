@@ -312,6 +312,62 @@ describe('authorize (device flow)', () => {
     );
   });
 
+  it('should error when no refresh token is issued', async () => {
+    const baseUrl = 'https://glean.example.com';
+    const issuer = 'https://auth.example.com';
+    const clientId = 'client-123';
+    const deviceAuthorizationEndpoint = 'https://auth.example.com/device';
+    const tokenEndpoint = 'https://auth.example.com/token';
+    const deviceCode = 'device-code-abc';
+    const userCode = 'user-code-xyz';
+    const verificationUri = 'https://auth.example.com/verify';
+    const interval = 5;
+    const expiresIn = 3600;
+    const accessToken = 'access-token-123';
+
+    server.use(
+      http.get(`${baseUrl}/.well-known/oauth-protected-resource`, () =>
+        HttpResponse.json({
+          authorization_servers: [issuer],
+          glean_device_flow_client_id: clientId,
+        }),
+      ),
+      http.get(`${issuer}/.well-known/openid-configuration`, () =>
+        HttpResponse.json({
+          device_authorization_endpoint: deviceAuthorizationEndpoint,
+          token_endpoint: tokenEndpoint,
+        }),
+      ),
+      http.post(deviceAuthorizationEndpoint, () =>
+        HttpResponse.json({
+          device_code: deviceCode,
+          user_code: userCode,
+          verification_uri: verificationUri,
+          expires_in: 600,
+          interval,
+        }),
+      ),
+      http.post(tokenEndpoint, async ({ request }) => {
+        const body = await request.text();
+        if (body.includes(`device_code=${deviceCode}`)) {
+          return HttpResponse.json({
+            token_type: 'Bearer',
+            access_token: accessToken,
+            expires_in: expiresIn,
+          });
+        }
+        return HttpResponse.json({
+          error: 'authorization_pending',
+          error_description: 'pending',
+        });
+      }),
+    );
+
+    await expect(forceAuthorize()).rejects.toThrowErrorMatchingInlineSnapshot(
+      `[AuthError: ERR_A_23: Your OAuth Authorization Server issued an access token but not a refresh token.  Please configure your OAuth application with id: client-123 to issue refresh tokens.]`,
+    );
+  });
+
   it('should poll until user enters code, respecting interval, then succeed', async () => {
     const baseUrl = 'https://glean.example.com';
     const issuer = 'https://auth.example.com';
