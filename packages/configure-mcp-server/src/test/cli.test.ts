@@ -17,7 +17,9 @@ function normalizeOutput(output: string, baseDir: string): string {
   let normalized = normalizeBaseDirOutput(output, baseDir);
   normalized = normalizeVersionOutput(normalized);
   normalized = normalizeVSCodeConfigPath(normalized);
-  normalized = normalizePathSeparators(normalized);
+  if (process.platform === 'win32') {
+    normalized = normalizePathSeparators(normalized);
+  }
 
   return normalized;
 }
