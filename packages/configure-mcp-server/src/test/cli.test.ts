@@ -17,12 +17,23 @@ function normalizeOutput(output: string, baseDir: string): string {
   let normalized = normalizeBaseDirOutput(output, baseDir);
   normalized = normalizeVersionOutput(normalized);
   normalized = normalizeVSCodeConfigPath(normalized);
+  if (process.platform === 'win32') {
+    normalized = normalizePathSeparators(normalized);
+  }
 
   return normalized;
 }
 
+function escapeRegExp(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function normalizeBaseDirOutput(output: string, baseDir: string): string {
-  return output.replace(new RegExp(baseDir, 'g'), '<TMP_DIR>');
+  return output.replace(new RegExp(escapeRegExp(baseDir), 'g'), '<TMP_DIR>');
+}
+
+function normalizePathSeparators(output: string): string {
+  return output.replace(/\\(?![nr])/g, '/');
 }
 
 function normalizeVersionOutput(output: string): string {
