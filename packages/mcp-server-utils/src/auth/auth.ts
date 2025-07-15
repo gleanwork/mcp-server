@@ -691,9 +691,13 @@ async function pollForToken(
 /**
  * Returns the OAuth scopes we need for the issuer.
  *
- * This will always include "openid profile" but some providers may need other
- * scopes to make the user email available.  We require the user email for the
- * token to be valid.
+ * In general this is "openid profile offline_access", but some providers may
+ * require different scopes for idiosyncratic reasons.
+ *
+ * We require two things that are driven by scopes:
+ *
+ *  - user email (openid profile)
+ *  - refresh tokens (offline_access)
  */
 export function getOAuthScopes(config: GleanOAuthConfig): string {
   const { issuer: issuer } = config;
@@ -707,7 +711,7 @@ export function getOAuthScopes(config: GleanOAuthConfig): string {
     case 'okta.com':
       return 'openid profile offline_access';
     default:
-      return 'openid profile';
+      return 'openid profile offline_access';
   }
 }
 
