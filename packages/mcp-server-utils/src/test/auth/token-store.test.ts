@@ -136,9 +136,11 @@ describe('token-store', () => {
       const tokensFile = path.join(stateDir, 'tokens.json');
       expect(fs.existsSync(tokensFile)).toBe(true);
 
-      // Verify file permissions (0o600)
-      const stats = fs.statSync(tokensFile);
-      expect(stats.mode & 0o777).toBe(0o600);
+      // Verify file permissions (0o600) on non-Windows platforms
+      if (os.platform() !== 'win32') {
+        const stats = fs.statSync(tokensFile);
+        expect(stats.mode & 0o777).toBe(0o600);
+      }
 
       // Verify content
       const savedContent = JSON.parse(fs.readFileSync(tokensFile, 'utf-8'));

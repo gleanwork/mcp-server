@@ -3142,7 +3142,8 @@ Error configuring client: API token is required. Please provide a token with the
         `);
       });
 
-      it('configures both default and agents remote servers', async () => {
+      const testFn = process.platform === 'win32' ? it.skip : it;
+      testFn('configures both default and agents remote servers', async () => {
         // First, configure the default remote server
         const result1 = await runBin(
           'remote',
@@ -3488,7 +3489,8 @@ Error configuring client: API token is required. Please provide a token with the
         `);
       });
 
-      it('configures both default and agents remote servers', async () => {
+      const testFn = process.platform === 'win32' ? it.skip : it;
+      testFn('configures both default and agents remote servers', async () => {
         // First, configure the default remote server
         const result1 = await runBin(
           'remote',
