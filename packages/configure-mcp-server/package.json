@@ -34,6 +34,7 @@
   ],
   "scripts": {
     "build": "rimraf build && tsc",
+    "go": "tsx src/index.ts",
     "lint": "npm-run-all --sequential lint:*",
     "lint:eslint": "eslint \"src/**/*.ts\" --fix",
     "lint:package-json": "sort-package-json",
@@ -74,6 +75,7 @@
     "npm-run-all": "^4.1.5",
     "rimraf": "^6.0.1",
     "sort-package-json": "^3.4.0",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.2",
     "vitest": "^3.2.3"
   },
