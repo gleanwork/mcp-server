@@ -224,8 +224,8 @@ importers:
   packages/mcp-server-utils:
     dependencies:
       '@gleanwork/connect-mcp-server':
-        specifier: ^0.2.0
-        version: 0.2.1
+        specifier: ^0.2.2
+        version: 0.2.2
       dotenv:
         specifier: ^17.2.0
         version: 17.2.0
@@ -829,8 +829,8 @@ packages:
       react-dom:
         optional: true
 
-  '@gleanwork/connect-mcp-server@0.2.1':
-    resolution: {integrity: sha512-PRzf+BVqp7ObN/7523kag3LyEYtn0/juY3NkCuaR0FNYu4NKvQaMgAfj8LTfhVIA2OlGJ64o1U5Em8Uh0UZ4Tw==}
+  '@gleanwork/connect-mcp-server@0.2.2':
+    resolution: {integrity: sha512-/vT/cmx+W4ybiQmdPJyWdZNrhZLuNUqTQKQtIEJSPQSTzV6xYNMdPhyzZs1gshk7aj5T6bBFpqmzLITNGla2tw==}
     hasBin: true
 
   '@humanfs/core@0.19.1':
@@ -3729,6 +3729,9 @@ packages:
   strict-event-emitter@0.5.1:
     resolution: {integrity: sha512-vMgjE/GGEPEFnhFub6pa4FmJBRBVOLpIII2hvCZ8Kzb7K0hlHo7mQv6xYrBvCL2LtAIBwFUK8wvuJgTVSQ5MFQ==}
 
+  strict-url-sanitise@0.0.1:
+    resolution: {integrity: sha512-nuFtF539K8jZg3FjaWH/L8eocCR6gegz5RDOsaWxfdbF5Jqr2VXWxZayjTwUzsWJDC91k2EbnJXp6FuWW+Z4hg==}
+
   string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
     engines: {node: '>=8'}
@@ -4616,10 +4619,11 @@ snapshots:
     dependencies:
       zod: 3.25.67
 
-  '@gleanwork/connect-mcp-server@0.2.1':
+  '@gleanwork/connect-mcp-server@0.2.2':
     dependencies:
       express: 4.21.2
       open: 10.1.2
+      strict-url-sanitise: 0.0.1
     transitivePeerDependencies:
       - supports-color
 
@@ -8011,6 +8015,8 @@ snapshots:
       internal-slot: 1.1.0
 
   strict-event-emitter@0.5.1: {}
+
+  strict-url-sanitise@0.0.1: {}
 
   string-width@4.2.3:
     dependencies:
