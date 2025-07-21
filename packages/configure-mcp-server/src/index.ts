@@ -33,7 +33,7 @@ import {
   forceRefreshTokens,
   setupMcpRemote,
 } from '@gleanwork/mcp-server-utils/auth';
-import { chat, formatResponse } from '@gleanwork/local-mcp-server/tools/chat';
+import { chat, formatChunkedResponse } from '@gleanwork/local-mcp-server/tools/chat';
 import { VERSION } from './common/version.js';
 import { checkAndOpenLaunchWarning } from '@gleanwork/mcp-server-utils/util';
 
@@ -277,7 +277,7 @@ connect after configuration.
     case 'auth-test': {
       try {
         const chatResponse = await chat({ message: 'Who am I?' });
-        trace('auth-test search', formatResponse(chatResponse));
+        trace('auth-test search', formatChunkedResponse(chatResponse));
         console.log('Access token accepted.');
       } catch (err: any) {
         error('auth-test error', err);

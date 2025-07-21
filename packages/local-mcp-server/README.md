@@ -64,7 +64,7 @@ To manually configure an MCP client (such as Claude Desktop, Windsurf, Cursor, e
       "command": "npx",
       "args": ["-y", "@gleanwork/local-mcp-server"],
       "env": {
-        "GLEAN_SERVER_INSTANCE": "<your server URL from Glean admin panel>",
+        "GLEAN_SERVER_URL": "<your server URL from Glean admin panel>",
         "GLEAN_API_TOKEN": "<glean api token>"
       }
     }
@@ -73,7 +73,7 @@ To manually configure an MCP client (such as Claude Desktop, Windsurf, Cursor, e
 ```
 
 Example values:
-- `GLEAN_SERVER_INSTANCE`: `https://acme-corp-be.glean.com/` (copy from your Glean admin panel)
+- `GLEAN_SERVER_URL`: `https://acme-corp-be.glean.com/` (copy from your Glean admin panel)
 - `GLEAN_API_TOKEN`: Your API token from Glean settings
 
 Alternative configuration (legacy - note that `-be` is automatically appended):
@@ -96,7 +96,7 @@ cp ../../.env.example ../../.env
 2. Edit `.env` with your values:
 ```bash
 # .env
-GLEAN_SERVER_INSTANCE=https://your-company-be.glean.com/
+GLEAN_SERVER_URL=https://your-company-be.glean.com/
 GLEAN_API_TOKEN=your_api_token_here
 ```
 
