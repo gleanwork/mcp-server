@@ -55,7 +55,7 @@
     "@modelcontextprotocol/sdk": "^1.15.1",
     "dotenv": "^17.2.0",
     "meow": "^13.2.0",
-    "open": "^10.1.1",
+    "open": "^10.2.0",
     "tldts": "^7.0.10",
     "zod": "^3.25.65",
     "zod-to-json-schema": "^3.24.6"

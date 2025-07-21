@@ -49,7 +49,7 @@
     "@gleanwork/mcp-server-utils": "workspace:*",
     "dotenv": "^17.2.0",
     "meow": "^13.2.0",
-    "open": "^10.1.1",
+    "open": "^10.2.0",
     "tldts": "^7.0.10",
     "yaml": "^2.8.0",
     "zod": "^3.25.65",
