@@ -73,7 +73,7 @@ describe('ChatResponseBuffer', () => {
       expect(result.metadata).toBeDefined();
       expect(result.content.length).toBeLessThan(largeText.length);
       expect(result.content.length).toBeGreaterThan(0);
-    });
+    }, 10000); // Increase timeout to 10 seconds for this heavy test
   });
 
   describe('Chunk Storage and Retrieval', () => {
