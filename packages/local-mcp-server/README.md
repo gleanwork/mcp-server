@@ -88,14 +88,19 @@ Alternative configuration (legacy - note that `-be` is automatically appended):
 
 For local development, you can use a `.env` file to store your credentials:
 
-1. Create a `.env` file in the package root:
+1. Copy the example environment file:
+```bash
+cp ../../.env.example ../../.env
+```
+
+2. Edit `.env` with your values:
 ```bash
 # .env
 GLEAN_SERVER_INSTANCE=https://your-company-be.glean.com/
 GLEAN_API_TOKEN=your_api_token_here
 ```
 
-2. Run the server locally:
+3. Run the server locally:
 ```bash
 npm run build
 node build/index.js
