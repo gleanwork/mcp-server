@@ -25,8 +25,8 @@ export interface ChunkedResponse {
  * Manages chunking of large chat responses to avoid token limit errors.
  */
 export class ChatResponseBuffer {
-  private static readonly MAX_TOKENS = 20000; // Safe limit below 25k
-  private static readonly CHARS_PER_TOKEN = 4; // Rough estimation
+  private static readonly MAX_TOKENS = 15000; // Safe limit below 25k with buffer
+  private static readonly CHARS_PER_TOKEN = 3; // More conservative estimation
   private responses = new Map<string, string[]>();
 
   /**

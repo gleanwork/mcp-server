@@ -64,7 +64,7 @@ To manually configure an MCP client (such as Claude Desktop, Windsurf, Cursor, e
       "command": "npx",
       "args": ["-y", "@gleanwork/local-mcp-server"],
       "env": {
-        "GLEAN_INSTANCE": "<glean instance name>",
+        "GLEAN_SERVER_INSTANCE": "<your server URL from Glean admin panel>",
         "GLEAN_API_TOKEN": "<glean api token>"
       }
     }
@@ -72,7 +72,48 @@ To manually configure an MCP client (such as Claude Desktop, Windsurf, Cursor, e
 }
 ```
 
-Replace the environment variable values with your actual Glean credentials.
+Example values:
+- `GLEAN_SERVER_INSTANCE`: `https://acme-corp-be.glean.com/` (copy from your Glean admin panel)
+- `GLEAN_API_TOKEN`: Your API token from Glean settings
+
+Alternative configuration (legacy - note that `-be` is automatically appended):
+```json
+"env": {
+  "GLEAN_INSTANCE": "acme-corp",  // becomes https://acme-corp-be.glean.com/
+  "GLEAN_API_TOKEN": "<glean api token>"
+}
+```
+
+### Local Development
+
+For local development, you can use a `.env` file to store your credentials:
+
+1. Create a `.env` file in the package root:
+```bash
+# .env
+GLEAN_SERVER_INSTANCE=https://your-company-be.glean.com/
+GLEAN_API_TOKEN=your_api_token_here
+```
+
+2. Run the server locally:
+```bash
+npm run build
+node build/index.js
+```
+
+3. For use with MCP clients during development:
+```json
+{
+  "mcpServers": {
+    "glean-dev": {
+      "command": "node",
+      "args": ["/path/to/packages/local-mcp-server/build/index.js"]
+    }
+  }
+}
+```
+
+The server will automatically load environment variables from the `.env` file.
 
 ### Debugging
 

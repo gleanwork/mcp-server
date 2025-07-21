@@ -8,6 +8,7 @@
  * @module @gleanwork/local-mcp-server
  */
 
+import 'dotenv/config';
 import meow from 'meow';
 import { runServer } from './server.js';
 import { Logger, trace, LogLevel } from '@gleanwork/mcp-server-utils/logger';

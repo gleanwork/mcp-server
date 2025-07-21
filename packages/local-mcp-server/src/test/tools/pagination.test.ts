@@ -141,8 +141,9 @@ describe('Pagination Tests', () => {
         },
       });
 
-      expect(continued.content).toBeTruthy();
-      expect(continued.metadata?.chunkIndex).toBe(1);
+      expect(continued).toBeTruthy();
+      expect('content' in continued && continued.content).toBeTruthy();
+      expect('metadata' in continued && continued.metadata?.chunkIndex).toBe(1);
     });
   });
 });
