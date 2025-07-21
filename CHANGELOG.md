@@ -1,13 +1,12 @@
-
 ## v0.7.14 (2025-07-15)
 
 #### :bug: Bug Fix
 
-* [#230](https://github.com/gleanwork/mcp-server/pull/230) Fix Azure OAuth support ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+- [#230](https://github.com/gleanwork/mcp-server/pull/230) Fix Azure OAuth support ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 
 #### Committers: 1
-- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 
+- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 
 ## v0.7.13 (2025-07-11)
 
