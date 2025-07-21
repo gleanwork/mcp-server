@@ -60,11 +60,19 @@ export async function listToolsHandler() {
         name: TOOL_NAMES.companySearch,
         description: `Find relevant company documents and data
 
-        Example request:
+        Example requests:
 
+        // Basic search
         {
             "query": "What are the company holidays this year?",
             "datasources": ["drive", "confluence"]
+        }
+
+        // Search with pagination
+        {
+            "query": "Docker projects", 
+            "pageSize": 20,
+            "cursor": "pagination_cursor"  // From previous response
         }
         `,
         inputSchema: zodToJsonSchema(search.ToolSearchSchema),
@@ -73,14 +81,24 @@ export async function listToolsHandler() {
         name: TOOL_NAMES.chat,
         description: `Chat with Glean Assistant using Glean's RAG
 
-        Example request:
+        Example requests:
 
+        // Basic chat
         {
             "message": "What are the company holidays this year?",
             "context": [
                 "Hello, I need some information about time off.",
                 "I'm planning my vacation for next year."
             ]
+        }
+
+        // Continue from chunked response
+        {
+            "message": "",
+            "continueFrom": {
+                "responseId": "uuid-here",
+                "chunkIndex": 1
+            }
         }
         `,
         inputSchema: zodToJsonSchema(chat.ToolChatSchema),
@@ -89,17 +107,24 @@ export async function listToolsHandler() {
         name: TOOL_NAMES.peopleProfileSearch,
         description: `Search for people profiles in the company
 
-        Example request:
+        Example requests:
 
+        // Basic search
         {
             "query": "Find people named John Doe",
             "filters": {
-                "department": "Engineering",
+                "department": "Engineering", 
                 "city": "San Francisco"
             },
             "pageSize": 10
         }
 
+        // Search with pagination
+        {
+            "query": "DevOps engineers",
+            "pageSize": 25,
+            "cursor": "pagination_cursor"  // From previous response
+        }
         `,
         inputSchema: zodToJsonSchema(
           peopleProfileSearch.ToolPeopleProfileSearchSchema,
@@ -152,7 +177,7 @@ export async function callToolHandler(
       case TOOL_NAMES.chat: {
         const args = chat.ToolChatSchema.parse(request.params.arguments);
         const result = await chat.chat(args);
-        const formattedResults = chat.formatResponse(result);
+        const formattedResults = chat.formatChunkedResponse(result);
 
         return {
           content: [{ type: 'text', text: formattedResults }],

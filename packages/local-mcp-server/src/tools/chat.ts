@@ -6,6 +6,7 @@ import {
   MessageType,
 } from '@gleanwork/api-client/models/components';
 import { Author } from '@gleanwork/api-client/models/components';
+import { chatResponseBuffer } from './chat-response-buffer.js';
 
 /**
  * Simplified schema for Glean chat requests designed for LLM interaction
@@ -20,6 +21,14 @@ export const ToolChatSchema = z.object({
     .describe(
       'Optional previous messages for context. Will be included in order before the current message.',
     )
+    .optional(),
+
+  continueFrom: z
+    .object({
+      responseId: z.string(),
+      chunkIndex: z.number(),
+    })
+    .describe('Continue from a previous chunked response')
     .optional(),
 });
 
@@ -59,15 +68,41 @@ function convertToAPIChatRequest(input: ToolChatRequest) {
  * Initiates or continues a chat conversation with Glean's AI.
  *
  * @param params The chat parameters using the simplified schema
- * @returns The chat response
+ * @returns The chat response with automatic chunking if needed
  * @throws If the chat request fails
  */
 export async function chat(params: ToolChatRequest) {
+  // Handle continuation requests
+  if (params.continueFrom) {
+    const chunk = chatResponseBuffer.getChunk(
+      params.continueFrom.responseId,
+      params.continueFrom.chunkIndex
+    );
+    
+    if (!chunk) {
+      throw new Error('Invalid continuation request: chunk not found');
+    }
+    
+    return chunk;
+  }
+
+  // Normal chat request
   const mappedParams = convertToAPIChatRequest(params);
   const parsedParams = ChatRequestSchema.parse(mappedParams);
   const client = await getClient();
 
-  return await client.chat.create(parsedParams);
+  const response = await client.chat.create(parsedParams);
+  
+  // Format and chunk the response if needed
+  const formattedResponse = formatResponse(response);
+  const chunked = await chatResponseBuffer.processResponse(formattedResponse);
+  
+  // Return the response with chunk metadata if applicable
+  return {
+    ...response,
+    _formatted: chunked.content,
+    _chunkMetadata: chunked.metadata,
+  };
 }
 
 /**
@@ -153,4 +188,43 @@ export function formatResponse(chatResponse: any): string {
     .join('\n\n');
 
   return formattedMessages;
+}
+
+/**
+ * Formats a chunked response for display, including metadata about chunks.
+ *
+ * @param response The response object with potential chunk metadata
+ * @returns Formatted response with chunk information if applicable
+ */
+export function formatChunkedResponse(response: any): string {
+  // Handle continuation chunks
+  if (response.content && response.metadata) {
+    const { chunkIndex, totalChunks, hasMore } = response.metadata;
+    let result = response.content;
+    
+    if (hasMore) {
+      result += `\n\n---\n[Chunk ${chunkIndex + 1} of ${totalChunks}] `;
+      result += `To continue, use continueFrom: { responseId: "${response.metadata.responseId}", chunkIndex: ${chunkIndex + 1} }`;
+    }
+    
+    return result;
+  }
+  
+  // Handle initial chunked response
+  if (response._formatted) {
+    let result = response._formatted;
+    
+    if (response._chunkMetadata) {
+      const { totalChunks, hasMore, responseId } = response._chunkMetadata;
+      if (hasMore) {
+        result += `\n\n---\n[Chunk 1 of ${totalChunks}] `;
+        result += `To continue, use continueFrom: { responseId: "${responseId}", chunkIndex: 1 }`;
+      }
+    }
+    
+    return result;
+  }
+  
+  // Fall back to standard formatting
+  return formatResponse(response);
 }

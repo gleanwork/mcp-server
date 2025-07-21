@@ -9,29 +9,35 @@ The Glean MCP Server is a [Model Context Protocol (MCP)](https://modelcontextpro
 
 ## Features
 
-- **Company Search**: Access Glean's powerful content search capabilities
-- **People Profile Search**: Access Glean's people directory
-- **Chat**: Interact with Glean's AI assistant
+- **Company Search**: Access Glean's powerful content search capabilities with pagination support
+- **People Profile Search**: Access Glean's people directory with pagination support
+- **Chat**: Interact with Glean's AI assistant with automatic response chunking for large responses
 - **Read Documents**: Retrieve documents from Glean by ID or URL
+- **Pagination Support**: Handle large result sets efficiently with cursor-based pagination
+- **Response Chunking**: Automatically splits large chat responses to avoid token limits
 - **MCP Compliant**: Implements the Model Context Protocol specification
 
 ## Tools
 
 - ### company_search
 
-  Search Glean's content index using the Glean Search API. This tool allows you to query Glean's content index with various filtering and configuration options.
+  Search Glean's content index using the Glean Search API. This tool allows you to query Glean's content index with various filtering and configuration options. Supports pagination through cursor parameter for handling large result sets.
 
 - ### chat
 
-  Interact with Glean's AI assistant using the Glean Chat API. This tool allows you to have conversational interactions with Glean's AI, including support for message history, citations, and various configuration options.
+  Interact with Glean's AI assistant using the Glean Chat API. This tool allows you to have conversational interactions with Glean's AI, including support for message history, citations, and various configuration options. Automatically chunks large responses to avoid token limits and provides continuation support.
 
 - ### people_profile_search
 
-  Search Glean's People directory to find employee information.
+  Search Glean's People directory to find employee information. Supports pagination through cursor parameter for handling large result sets.
 
 - ### read_documents
 
   Read documents from Glean by providing document IDs or URLs. This tool allows you to retrieve the full content of specific documents for detailed analysis or reference.
+
+## Pagination
+
+For detailed information about pagination support and examples, see [Pagination Documentation](../../docs/pagination.md).
 
 ## MCP Client Configuration
 

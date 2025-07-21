@@ -31,6 +31,10 @@ describe('People Profile Search Tool', () => {
             "PeopleProfileSearch": {
               "additionalProperties": false,
               "properties": {
+                "cursor": {
+                  "description": "Pagination cursor from previous response to fetch next page",
+                  "type": "string",
+                },
                 "filters": {
                   "additionalProperties": {
                     "type": "string",

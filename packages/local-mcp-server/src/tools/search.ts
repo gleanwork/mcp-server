@@ -29,6 +29,19 @@ export const ToolSearchSchema = z.object({
       'Optional list of data sources to search in. Examples: "github", "gdrive", "confluence", "jira".',
     )
     .optional(),
+
+  pageSize: z
+    .number()
+    .min(1)
+    .max(100)
+    .default(10)
+    .describe('Number of results to return per page (default: 10, max: 100)')
+    .optional(),
+
+  cursor: z
+    .string()
+    .describe('Pagination cursor from previous response to fetch next page')
+    .optional(),
 });
 
 export type ToolSearchRequest = z.infer<typeof ToolSearchSchema>;
@@ -40,12 +53,17 @@ export type ToolSearchRequest = z.infer<typeof ToolSearchSchema>;
  * @returns Glean API compatible search request
  */
 function convertToAPISearchRequest(input: ToolSearchRequest) {
-  const { query, datasources } = input;
+  const { query, datasources, pageSize, cursor } = input;
 
   const searchRequest: SearchRequest = {
     query,
-    pageSize: 10,
+    pageSize: pageSize || 10,
   };
+
+  // Add pagination cursor if provided
+  if (cursor) {
+    searchRequest.cursor = cursor;
+  }
 
   if (datasources && datasources.length > 0) {
     searchRequest.requestOptions = {
@@ -120,6 +138,18 @@ export function formatResponse(searchResults: any): string {
   const totalResults =
     searchResults.totalResults || searchResults.results.length;
   const query = searchResults.metadata.searchedQuery || 'your query';
+  const resultsShown = searchResults.results.length;
 
-  return `Search results for "${query}" (${totalResults} results):\n\n${formattedResults}`;
+  // Add pagination info to response
+  let paginationInfo = '';
+  if (searchResults.hasMoreResults) {
+    paginationInfo = '\n\n---\nMore results available. ';
+    if (searchResults.cursor) {
+      paginationInfo += `Use cursor="${searchResults.cursor}" to fetch the next page.`;
+    } else {
+      paginationInfo += 'Additional pages may be available.';
+    }
+  }
+
+  return `Search results for "${query}" (showing ${resultsShown} of ${totalResults} results):\n\n${formattedResults}${paginationInfo}`;
 }
