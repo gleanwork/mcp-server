@@ -66,14 +66,16 @@ describe('ChatResponseBuffer', () => {
 
     it('should force split when no natural boundaries exist', async () => {
       // Create text with no natural boundaries
-      const largeText = 'A'.repeat(100000); // 100k chars, no breaks
+      // Use 50k chars (just over the 45k chunk limit) to test force split
+      const largeText = 'A'.repeat(50000); 
       
       const result = await buffer.processResponse(largeText);
       
       expect(result.metadata).toBeDefined();
       expect(result.content.length).toBeLessThan(largeText.length);
       expect(result.content.length).toBeGreaterThan(0);
-    }, 10000); // Increase timeout to 10 seconds for this heavy test
+      expect(result.metadata!.totalChunks).toBe(2); // Should split into 2 chunks
+    });
   });
 
   describe('Chunk Storage and Retrieval', () => {
