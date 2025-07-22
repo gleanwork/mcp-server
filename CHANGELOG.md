@@ -1,3 +1,16 @@
+
+## v0.7.15 (2025-07-22)
+
+#### :bug: Bug Fix
+* `configure-mcp-server`, `mcp-server-utils`
+  * [#241](https://github.com/gleanwork/mcp-server/pull/241)     feat: pin connect-mcp-server ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+* `mcp-server-utils`
+  * [#240](https://github.com/gleanwork/mcp-server/pull/240) fix: bump mcp-remote fork to 0.2.2, fix [CVE-2025-6514](https://github.com/advisories/GHSA-6xpm-ggf7-wc3p) ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### Committers: 1
+- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+
 ## v0.7.14 (2025-07-15)
 
 #### :bug: Bug Fix
