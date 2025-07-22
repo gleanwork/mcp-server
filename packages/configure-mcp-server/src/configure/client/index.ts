@@ -11,6 +11,9 @@ import type { ConfigureOptions } from '../index.js';
 import { RemoteMcpTargets } from '@gleanwork/mcp-server-utils/util';
 import { isOAuthEnabled } from '../../common/env.js';
 
+import connectMcpPackageJson from '@gleanwork/connect-mcp-server/package.json' with { type: 'json' };
+let connectMcpServerVersion = connectMcpPackageJson.version;
+
 export interface MCPConfigPath {
   configDir: string;
   configFileName: string;
@@ -193,7 +196,11 @@ export function createMcpServersConfig(
     options?.agents ? 'agents' : 'default',
   );
   const mcpServerName = buildMcpServerName(options);
-  const args = ['-y', '@gleanwork/connect-mcp-server', serverUrl];
+  const args = [
+    '-y',
+    `@gleanwork/connect-mcp-server@${connectMcpServerVersion}`,
+    serverUrl,
+  ];
   if (usingOAuth) {
     args.push('--header', 'X-Glean-Auth-Type:OAUTH');
   } else if (apiToken) {
