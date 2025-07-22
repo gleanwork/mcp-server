@@ -1054,7 +1054,7 @@ Error configuring client: API token is required. Please provide a token with the
               "command": "npx",
               "args": [
                 "-y",
-                "@gleanwork/connect-mcp-server@0.2.3",
+                "@gleanwork/connect-mcp-server@0.2.4",
                 "https://test-domain-be.glean.com/mcp/default/sse",
                 "--header",
                 "Authorization:\${AUTH_HEADER}"
@@ -1125,7 +1125,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}"
@@ -1670,7 +1670,7 @@ Error configuring client: API token is required. Please provide a token with the
               "command": "npx",
               "args": [
                 "-y",
-                "@gleanwork/connect-mcp-server@0.2.3",
+                "@gleanwork/connect-mcp-server@0.2.4",
                 "https://test-domain-be.glean.com/mcp/default/sse",
                 "--header",
                 "Authorization:\${AUTH_HEADER}"
@@ -1726,7 +1726,7 @@ Error configuring client: API token is required. Please provide a token with the
               "command": "npx",
               "args": [
                 "-y",
-                "@gleanwork/connect-mcp-server@0.2.3",
+                "@gleanwork/connect-mcp-server@0.2.4",
                 "https://test-domain-be.glean.com/mcp/default/sse",
                 "--header",
                 "Authorization:\${AUTH_HEADER}"
@@ -1783,7 +1783,7 @@ Error configuring client: API token is required. Please provide a token with the
               "command": "npx",
               "args": [
                 "-y",
-                "@gleanwork/connect-mcp-server@0.2.3",
+                "@gleanwork/connect-mcp-server@0.2.4",
                 "https://test-domain-be.glean.com/mcp/agents/sse",
                 "--header",
                 "Authorization:\${AUTH_HEADER}"
@@ -1869,7 +1869,7 @@ Error configuring client: API token is required. Please provide a token with the
             "glean": {
               "args": [
                 "-y",
-                "@gleanwork/connect-mcp-server@0.2.3",
+                "@gleanwork/connect-mcp-server@0.2.4",
                 "https://test-instance-be.glean.com/mcp/default/sse",
                 "--header",
                 "Authorization:\${AUTH_HEADER}",
@@ -1926,7 +1926,7 @@ Error configuring client: API token is required. Please provide a token with the
             "glean": {
               "args": [
                 "-y",
-                "@gleanwork/connect-mcp-server@0.2.3",
+                "@gleanwork/connect-mcp-server@0.2.4",
                 "https://env-instance-be.glean.com/mcp/default/sse",
                 "--header",
                 "Authorization:\${AUTH_HEADER}",
@@ -1960,7 +1960,7 @@ Error configuring client: API token is required. Please provide a token with the
             "glean": {
               "args": [
                 "-y",
-                "@gleanwork/connect-mcp-server@0.2.3",
+                "@gleanwork/connect-mcp-server@0.2.4",
                 "https://process-env-instance-be.glean.com/mcp/default/sse",
                 "--header",
                 "Authorization:\${AUTH_HEADER}",
@@ -2007,7 +2007,7 @@ Error configuring client: API token is required. Please provide a token with the
             "glean": {
               "args": [
                 "-y",
-                "@gleanwork/connect-mcp-server@0.2.3",
+                "@gleanwork/connect-mcp-server@0.2.4",
                 "https://flag-instance-be.glean.com/mcp/default/sse",
                 "--header",
                 "Authorization:\${AUTH_HEADER}",
@@ -2100,7 +2100,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}"
@@ -2171,7 +2171,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}"
@@ -2240,7 +2240,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}"
@@ -2302,7 +2302,7 @@ Error configuring client: API token is required. Please provide a token with the
               "glean": {
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}",
@@ -2316,7 +2316,7 @@ Error configuring client: API token is required. Please provide a token with the
               "glean_agents": {
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/agents/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}",
@@ -2385,7 +2385,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}"
@@ -2458,7 +2458,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}"
@@ -2527,7 +2527,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}"
@@ -2589,7 +2589,7 @@ Error configuring client: API token is required. Please provide a token with the
               "glean": {
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}",
@@ -2603,7 +2603,7 @@ Error configuring client: API token is required. Please provide a token with the
               "glean_agents": {
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/agents/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}",
@@ -2673,7 +2673,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}"
@@ -2745,7 +2745,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}"
@@ -2815,7 +2815,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}"
@@ -2877,7 +2877,7 @@ Error configuring client: API token is required. Please provide a token with the
               "glean": {
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}",
@@ -2891,7 +2891,7 @@ Error configuring client: API token is required. Please provide a token with the
               "glean_agents": {
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/agents/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}",
@@ -2959,7 +2959,7 @@ Error configuring client: API token is required. Please provide a token with the
               "glean": {
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}",
@@ -3031,7 +3031,7 @@ Error configuring client: API token is required. Please provide a token with the
               "glean": {
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}",
@@ -3120,7 +3120,7 @@ Error configuring client: API token is required. Please provide a token with the
               "glean": {
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}",
@@ -3195,7 +3195,7 @@ Error configuring client: API token is required. Please provide a token with the
               "glean": {
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/default/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}",
@@ -3215,7 +3215,7 @@ Error configuring client: API token is required. Please provide a token with the
               "glean_agents": {
                 "args": [
                   "-y",
-                  "@gleanwork/connect-mcp-server@0.2.3",
+                  "@gleanwork/connect-mcp-server@0.2.4",
                   "https://test-domain-be.glean.com/mcp/agents/sse",
                   "--header",
                   "Authorization:\${AUTH_HEADER}",
@@ -3320,7 +3320,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "glean": {
                   "args": [
                     "-y",
-                    "@gleanwork/connect-mcp-server@0.2.3",
+                    "@gleanwork/connect-mcp-server@0.2.4",
                     "https://test-domain-be.glean.com/mcp/default/sse",
                     "--header",
                     "Authorization:\${AUTH_HEADER}",
@@ -3390,7 +3390,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "glean": {
                   "args": [
                     "-y",
-                    "@gleanwork/connect-mcp-server@0.2.3",
+                    "@gleanwork/connect-mcp-server@0.2.4",
                     "https://test-domain-be.glean.com/mcp/default/sse",
                     "--header",
                     "Authorization:\${AUTH_HEADER}",
@@ -3472,7 +3472,7 @@ Error configuring client: API token is required. Please provide a token with the
                   "command": "npx",
                   "args": [
                     "-y",
-                    "@gleanwork/connect-mcp-server@0.2.3",
+                    "@gleanwork/connect-mcp-server@0.2.4",
                     "https://test-domain-be.glean.com/mcp/default/sse",
                     "--header",
                     "Authorization:\${AUTH_HEADER}"
@@ -3542,7 +3542,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "glean": {
                   "args": [
                     "-y",
-                    "@gleanwork/connect-mcp-server@0.2.3",
+                    "@gleanwork/connect-mcp-server@0.2.4",
                     "https://test-domain-be.glean.com/mcp/default/sse",
                     "--header",
                     "Authorization:\${AUTH_HEADER}",
@@ -3556,7 +3556,7 @@ Error configuring client: API token is required. Please provide a token with the
                 "glean_agents": {
                   "args": [
                     "-y",
-                    "@gleanwork/connect-mcp-server@0.2.3",
+                    "@gleanwork/connect-mcp-server@0.2.4",
                     "https://test-domain-be.glean.com/mcp/agents/sse",
                     "--header",
                     "Authorization:\${AUTH_HEADER}",

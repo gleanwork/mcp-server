@@ -221,7 +221,7 @@ describe('configure', () => {
           "glean": {
             "args": [
               "-y",
-              "@gleanwork/connect-mcp-server@0.2.3",
+              "@gleanwork/connect-mcp-server@0.2.4",
               "https://test-instance-be.glean.com/mcp/default/sse",
               "--header",
               "X-Glean-Auth-Type:OAUTH",
@@ -256,7 +256,7 @@ describe('configure', () => {
           "glean_agents": {
             "args": [
               "-y",
-              "@gleanwork/connect-mcp-server@0.2.3",
+              "@gleanwork/connect-mcp-server@0.2.4",
               "https://test-instance-be.glean.com/mcp/agents/sse",
               "--header",
               "X-Glean-Auth-Type:OAUTH",
@@ -287,7 +287,7 @@ describe('configure', () => {
           "glean": {
             "args": [
               "-y",
-              "@gleanwork/connect-mcp-server@0.2.3",
+              "@gleanwork/connect-mcp-server@0.2.4",
               "https://test-instance-be.glean.com/mcp/default/sse",
               "--header",
               "Authorization:\${AUTH_HEADER}",

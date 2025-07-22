@@ -142,7 +142,7 @@ describe('VS Code MCP Client', () => {
           "glean": {
             "args": [
               "-y",
-              "@gleanwork/connect-mcp-server@0.2.3",
+              "@gleanwork/connect-mcp-server@0.2.4",
               "https://example-instance-be.glean.com/mcp/default/sse",
               "--header",
               "Authorization:\${AUTH_HEADER}",
@@ -176,7 +176,7 @@ describe('VS Code MCP Client', () => {
           "glean_agents": {
             "args": [
               "-y",
-              "@gleanwork/connect-mcp-server@0.2.3",
+              "@gleanwork/connect-mcp-server@0.2.4",
               "https://example-instance-be.glean.com/mcp/agents/sse",
               "--header",
               "Authorization:\${AUTH_HEADER}",
