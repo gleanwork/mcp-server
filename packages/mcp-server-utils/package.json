@@ -81,7 +81,7 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@gleanwork/connect-mcp-server": "^0.2.3",
+    "@gleanwork/connect-mcp-server": "^0.2.4",
     "dotenv": "^17.2.0",
     "fs-extra": "^11.3.0",
     "open": "^10.2.0",

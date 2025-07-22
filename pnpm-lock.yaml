@@ -54,8 +54,8 @@ importers:
   packages/configure-mcp-server:
     dependencies:
       '@gleanwork/connect-mcp-server':
-        specifier: ^0.2.3
-        version: 0.2.3
+        specifier: ^0.2.4
+        version: 0.2.4
       '@gleanwork/local-mcp-server':
         specifier: workspace:*
         version: link:../local-mcp-server
@@ -233,8 +233,8 @@ importers:
   packages/mcp-server-utils:
     dependencies:
       '@gleanwork/connect-mcp-server':
-        specifier: ^0.2.3
-        version: 0.2.3
+        specifier: ^0.2.4
+        version: 0.2.4
       dotenv:
         specifier: ^17.2.0
         version: 17.2.0
@@ -838,8 +838,8 @@ packages:
       react-dom:
         optional: true
 
-  '@gleanwork/connect-mcp-server@0.2.3':
-    resolution: {integrity: sha512-de+DfdZNuFr3/4TFAoJfBvKD+8EyjzFBDjrZ9B1a0/lZnSKW5WwY9ueNDeXDo5SNmoofu1Wirrhiy53+qPyWiQ==}
+  '@gleanwork/connect-mcp-server@0.2.4':
+    resolution: {integrity: sha512-9EswjKncBNcAZtWzBJi3oBHVMR5d/75iOHJNFkjvR0Imqrd2coVp/o5LSckyKHYwm/8TeybDbr2KkLISpfNRag==}
     hasBin: true
 
   '@humanfs/core@0.19.1':
@@ -4636,7 +4636,7 @@ snapshots:
     dependencies:
       zod: 3.25.67
 
-  '@gleanwork/connect-mcp-server@0.2.3':
+  '@gleanwork/connect-mcp-server@0.2.4':
     dependencies:
       express: 4.21.2
       open: 10.1.2
