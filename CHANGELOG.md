@@ -1,3 +1,17 @@
+
+## v0.7.16 (2025-07-22)
+
+#### :bug: Bug Fix
+* `configure-mcp-server`, `mcp-server-utils`
+  * [#243](https://github.com/gleanwork/mcp-server/pull/243) fix: Support Azure ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### :house: Internal
+* `configure-mcp-server`, `local-mcp-server`
+  * [#242](https://github.com/gleanwork/mcp-server/pull/242) fix: CVE-2025-7783 ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### Committers: 1
+- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
 ## v0.7.15 (2025-07-22)
 
 #### :bug: Bug Fix
