@@ -546,7 +546,7 @@ async function authorize(config: GleanOAuthConfig): Promise<Tokens | null> {
     ).catch((e) => {
       error('prompting user for verification page', e);
     });
-    const tokenResponse = await tokenPoller;
+    const polledTokenResponse = await tokenPoller;
 
     // Clean up the readline interface now that we have the token
     abortController.abort();
@@ -554,7 +554,20 @@ async function authorize(config: GleanOAuthConfig): Promise<Tokens | null> {
     if (cause !== undefined) {
       throw cause;
     }
-    return Tokens.buildFromTokenResponse(tokenResponse as TokenResponse);
+
+    // tokenResponse is void | TokenResponse because of the catch handler
+    // attached to pollForToken, which sets cause and resolves to void.  But
+    // right above here we throw if cause !== undefined so we can guarantee
+    // tokenResponse is TokenResponse and not void.
+    const tokenResponse = polledTokenResponse as TokenResponse;
+
+    if (tokenResponse.refresh_token === undefined) {
+      throw new AuthError(
+        `Your OAuth Authorization Server issued an access token but not a refresh token.  Please configure your OAuth application with id: ${config.clientId} to issue refresh tokens.`,
+        { code: AuthErrorCode.RefreshTokenNotIssued },
+      );
+    }
+    return Tokens.buildFromTokenResponse(tokenResponse);
   } catch (cause: any) {
     // Clean up the readline interface on error as well
     abortController.abort();

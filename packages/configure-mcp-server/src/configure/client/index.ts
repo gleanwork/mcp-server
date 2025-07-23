@@ -12,7 +12,7 @@ import { RemoteMcpTargets } from '@gleanwork/mcp-server-utils/util';
 import { isOAuthEnabled } from '../../common/env.js';
 
 import connectMcpPackageJson from '@gleanwork/connect-mcp-server/package.json' with { type: 'json' };
-let connectMcpServerVersion = connectMcpPackageJson.version;
+const connectMcpServerVersion = connectMcpPackageJson.version;
 
 export interface MCPConfigPath {
   configDir: string;
