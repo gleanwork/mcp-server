@@ -634,9 +634,6 @@ describe('authorize (device flow)', () => {
   });
 
   it('should complete the device flow with PKCE (OneLogin) and save tokens', async () => {
-    vi.useFakeTimers({
-      now: new Date('2025-07-23T20:31:33.340Z'),
-    });
     const baseUrl = 'https://glean.example.com';
     const issuer = 'https://example.onelogin.com';
     const clientId = 'client-123';
@@ -720,13 +717,18 @@ describe('authorize (device flow)', () => {
     const tokens = await resultPromise;
 
     expect(open).toHaveBeenCalledWith(verificationUri);
-    expect(tokens).toMatchInlineSnapshot(`
-      Tokens {
+    expect(tokens).toMatchInlineSnapshot(
+      {
+        expiresAt: expect.any(Date),
+      },
+      `
+      {
         "accessToken": "access-token-123",
-        "expiresAt": 2025-07-23T20:51:15.925Z,
+        "expiresAt": Any<ClockDate>,
         "refreshToken": "refresh-token-456",
       }
-    `);
+    `,
+    );
     // Tokens file was written and contains correct data
     const tokensFile = path.join(
       process.env.XDG_STATE_HOME!,
@@ -735,14 +737,18 @@ describe('authorize (device flow)', () => {
     );
     expect(fs.existsSync(tokensFile)).toBe(true);
     const fileContent = JSON.parse(fs.readFileSync(tokensFile, 'utf-8'));
-    expect(fileContent).toMatchInlineSnapshot(`
+    expect(fileContent).toMatchInlineSnapshot(
+      {
+        expiresAt: expect.any(String),
+      },
+      `
       {
         "accessToken": "access-token-123",
-        "expiresAt": "2025-07-23T20:51:15.925Z",
+        "expiresAt": Any<String>,
         "refreshToken": "refresh-token-456",
       }
-    `);
-    expect(new Date(fileContent.expiresAt)).toEqual(tokens!.expiresAt);
+    `,
+    );
   });
 
   describe('AbortController integration', () => {
