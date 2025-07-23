@@ -633,6 +633,124 @@ describe('authorize (device flow)', () => {
     );
   });
 
+  it('should complete the device flow with PKCE (OneLogin) and save tokens', async () => {
+    const baseUrl = 'https://glean.example.com';
+    const issuer = 'https://example.onelogin.com';
+    const clientId = 'client-123';
+    const deviceAuthorizationEndpoint =
+      'https://example.onelogin.com/oidc/2/device/auth';
+    const tokenEndpoint = 'https://example.onelogin.com/oidc/2/token';
+    const deviceCode = 'device-code-abc';
+    const userCode = 'user-code-xyz';
+    const verificationUri = 'https://example.onelogin.com/oidc/2/device';
+    const interval = 5; // seconds
+    const expiresIn = 3600;
+    const accessToken = 'access-token-123';
+    const refreshToken = 'refresh-token-456';
+    const codeChallenge = 'test-challenge';
+    const codeChallengeMethod = 'S256';
+    const codeVerifier = 'test-verifier';
+
+    let deviceAuthRequestBody = '';
+    let tokenRequestBody = '';
+
+    server.use(
+      http.get(`${baseUrl}/.well-known/oauth-protected-resource`, () =>
+        HttpResponse.json({
+          authorization_servers: [issuer],
+          glean_device_flow_client_id: clientId,
+        }),
+      ),
+      http.get(`${issuer}/.well-known/openid-configuration`, () =>
+        HttpResponse.json({
+          device_authorization_endpoint: deviceAuthorizationEndpoint,
+          token_endpoint: tokenEndpoint,
+        }),
+      ),
+      http.post(deviceAuthorizationEndpoint, async ({ request }) => {
+        deviceAuthRequestBody = await request.text();
+        console.log('deviceAuthRequestBody', deviceAuthRequestBody);
+        // Check PKCE params in device authorization request
+        expect(deviceAuthRequestBody).toMatch(/code_challenge=.*/);
+        expect(deviceAuthRequestBody).toMatch(/code_challenge_method=S256/);
+        return HttpResponse.json({
+          device_code: deviceCode,
+          user_code: userCode,
+          verification_uri: verificationUri,
+          expires_in: 600,
+          interval,
+        });
+      }),
+      http.post(tokenEndpoint, async ({ request }) => {
+        tokenRequestBody = await request.text();
+        // Check PKCE param in token request
+        expect(tokenRequestBody).toMatch(/code_verifier=.*/);
+        if (tokenRequestBody.includes(`device_code=${deviceCode}`)) {
+          return HttpResponse.json({
+            token_type: 'Bearer',
+            access_token: accessToken,
+            refresh_token: refreshToken,
+            expires_in: expiresIn,
+          });
+        }
+        return HttpResponse.json({
+          error: 'authorization_pending',
+          error_description: 'pending',
+        });
+      }),
+    );
+
+    const open = (await import('open')).default;
+    const config: import('../../config/index.js').GleanOAuthConfig = {
+      baseUrl,
+      issuer,
+      clientId,
+      authorizationEndpoint: deviceAuthorizationEndpoint,
+      tokenEndpoint,
+      authType: 'oauth',
+      codeChallenge,
+      codeChallengeMethod,
+      codeVerifier,
+    };
+    const resultPromise = forceAuthorize(config);
+    await vi.runAllTimersAsync();
+    const tokens = await resultPromise;
+
+    expect(open).toHaveBeenCalledWith(verificationUri);
+    expect(tokens).toMatchInlineSnapshot(
+      {
+        expiresAt: expect.any(Date),
+      },
+      `
+      {
+        "accessToken": "access-token-123",
+        "expiresAt": Any<ClockDate>,
+        "refreshToken": "refresh-token-456",
+      }
+    `,
+    );
+    // Tokens file was written and contains correct data
+    const tokensFile = path.join(
+      process.env.XDG_STATE_HOME!,
+      'glean',
+      'tokens.json',
+    );
+    expect(fs.existsSync(tokensFile)).toBe(true);
+    const fileContent = JSON.parse(fs.readFileSync(tokensFile, 'utf-8'));
+    expect(fileContent).toMatchInlineSnapshot(
+      {
+        expiresAt: expect.any(String),
+      },
+      `
+      {
+        "accessToken": "access-token-123",
+        "expiresAt": Any<String>,
+        "refreshToken": "refresh-token-456",
+      }
+    `,
+    );
+  });
+
   describe('AbortController integration', () => {
     // Common test constants
     const baseUrl = 'https://glean.example.com';

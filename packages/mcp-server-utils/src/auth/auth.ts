@@ -34,6 +34,8 @@ import { loadOAuthMetadata, saveOAuthMetadata } from './oauth-cache.js';
 import { AuthError } from './error.js';
 import { AuthErrorCode } from './error.js';
 import { parse as parseDomain } from 'tldts';
+import { generatePkcePair } from '../util/pkce.js';
+import { URL } from 'node:url';
 
 /**
  * Validate that the configuration can plausibly access the resource.  This
@@ -525,6 +527,15 @@ async function fetchTokenViaRefresh(tokens: Tokens, config: GleanOAuthConfig) {
 async function authorize(config: GleanOAuthConfig): Promise<Tokens | null> {
   trace('Starting OAuth authorization flow');
 
+  const domain = parseDomain(config.issuer).domain ?? '';
+  if (domain === 'onelogin.com') {
+    // For onelogin.com, use PKCE with device flow, store on config
+    const { codeVerifier, codeChallenge } = await generatePkcePair();
+    config.codeVerifier = codeVerifier;
+    config.codeChallenge = codeChallenge;
+    config.codeChallengeMethod = 'S256';
+  }
+
   if (!process.stdin.isTTY) {
     throw new AuthError(
       'OAuth device authorization flow requires an interactive terminal.',
@@ -581,126 +592,6 @@ async function authorize(config: GleanOAuthConfig): Promise<Tokens | null> {
   }
 }
 
-async function waitForUserEnter(signal?: AbortSignal) {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  await new Promise<void>((resolve, reject) => {
-    const cleanup = () => {
-      rl.close();
-    };
-
-    rl.once('line', () => {
-      cleanup();
-      resolve();
-    });
-
-    if (signal) {
-      signal.addEventListener('abort', () => {
-        cleanup();
-        resolve(); // Resolve silently when aborted
-      });
-    }
-  });
-}
-
-async function promptUserAndOpenVerificationPage(
-  authResponse: AuthResponse,
-  signal?: AbortSignal,
-) {
-  console.log(`
-Authorizing Glean MCP-server.  Please log in to Glean.
-
-! First copy your one-time code: ${authResponse.user_code}
-
-Press Enter to open the following URL where the code is needed:
-
-${authResponse.verification_uri}
-`);
-
-  await waitForUserEnter(signal);
-
-  // signal is aborted if the user manually opened the URL and entered the
-  // code, in which case we shouldn't then open the URL again ourselves.
-  if (signal?.aborted) {
-    return;
-  }
-
-  await open(authResponse.verification_uri);
-}
-
-async function pollForToken(
-  authResponse: AuthResponse,
-  config: GleanOAuthConfig,
-): Promise<TokenResponse> {
-  return new Promise((resolve, reject) => {
-    const timeoutMs = 10 * 60 * 1000; // 10 minutes
-    const startTime = Date.now();
-
-    const poll = async () => {
-      const now = Date.now();
-      if (now - startTime >= timeoutMs) {
-        reject(
-          new AuthError(
-            'OAuth device flow timed out after 10 minutes. Please try again.',
-            { code: AuthErrorCode.OAuthPollingTimeout },
-          ),
-        );
-        return;
-      }
-      // e.g. https://authorization-server/token
-      const url = config.tokenEndpoint;
-      const params = new URLSearchParams();
-      params.set('client_id', config.clientId);
-      if (typeof config.clientSecret === 'string') {
-        // These "secrets" are obviously not secure since public OAuth clients by
-        // definition cannot keep secrets.
-        //
-        // However, some OAuth providers insist on generating and requiring client
-        // secrets even for public OAuth clients.
-        params.set('client_secret', config.clientSecret);
-      }
-      params.set('grant_type', 'urn:ietf:params:oauth:grant-type:device_code');
-      params.set('device_code', authResponse.device_code);
-
-      const options: RequestInit = {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: params,
-      };
-      trace(options.method ?? 'GET', url, options);
-      const responseRaw = await fetch(url, options);
-      trace(responseRaw.status, responseRaw.statusText);
-      const response = await responseRaw.json();
-
-      if (isTokenSuccess(response)) {
-        trace('/token', response);
-        resolve(response);
-      } else {
-        const errorResponse = response as TokenError;
-        trace('/token', errorResponse?.error);
-        if (errorResponse.error == 'authorization_pending') {
-          setTimeout(poll, authResponse.interval * 1_000);
-        } else {
-          reject(
-            new AuthError('Unexpected error requesting authorization grant', {
-              code: AuthErrorCode.UnexpectedAuthGrantError,
-              cause: errorResponse,
-            }),
-          );
-        }
-      }
-    };
-
-    poll().catch(reject);
-  });
-}
-
 /**
  * Returns the OAuth scopes we need for the issuer.
  *
@@ -723,6 +614,8 @@ export function getOAuthScopes(config: GleanOAuthConfig): string {
       return 'openid profile https://www.googleapis.com/auth/userinfo.email';
     case 'okta.com':
       return 'openid profile offline_access';
+    case 'onelogin.com':
+      return 'openid';
     default:
       return 'openid profile offline_access';
   }
@@ -734,6 +627,11 @@ export async function fetchDeviceAuthorization(
   const params = new URLSearchParams();
   params.set('client_id', config.clientId);
   params.set('scope', getOAuthScopes(config));
+  // PKCE for onelogin.com (or any config with PKCE fields)
+  if (config.codeChallenge && config.codeChallengeMethod) {
+    params.set('code_challenge', config.codeChallenge);
+    params.set('code_challenge_method', config.codeChallengeMethod);
+  }
 
   // e.g. https://some-authorization-server/authorize
   const url = config.authorizationEndpoint;
@@ -784,4 +682,127 @@ export async function fetchDeviceAuthorization(
   }
 
   return result;
+}
+
+async function pollForToken(
+  authResponse: AuthResponse,
+  config: GleanOAuthConfig,
+): Promise<TokenResponse> {
+  return new Promise((resolve, reject) => {
+    const timeoutMs = 10 * 60 * 1000; // 10 minutes
+    const startTime = Date.now();
+
+    const poll = async () => {
+      const now = Date.now();
+      if (now - startTime >= timeoutMs) {
+        reject(
+          new AuthError(
+            'OAuth device flow timed out after 10 minutes. Please try again.',
+            { code: AuthErrorCode.OAuthPollingTimeout },
+          ),
+        );
+        return;
+      }
+      // e.g. https://authorization-server/token
+      const url = config.tokenEndpoint;
+      const params = new URLSearchParams();
+      params.set('client_id', config.clientId);
+      if (typeof config.clientSecret === 'string') {
+        // These "secrets" are obviously not secure since public OAuth clients by
+        // definition cannot keep secrets.
+        // However, some OAuth providers insist on generating and requiring client
+        // secrets even for public OAuth clients.
+        params.set('client_secret', config.clientSecret);
+      }
+      params.set('grant_type', 'urn:ietf:params:oauth:grant-type:device_code');
+      params.set('device_code', authResponse.device_code);
+      // PKCE for onelogin.com (or any config with PKCE fields)
+      if (config.codeVerifier) {
+        params.set('code_verifier', config.codeVerifier);
+      }
+
+      const options: RequestInit = {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params,
+      };
+      trace(options.method ?? 'GET', url, options);
+      const responseRaw = await fetch(url, options);
+      trace(responseRaw.status, responseRaw.statusText);
+      const response = await responseRaw.json();
+
+      if (isTokenSuccess(response)) {
+        trace('/token', response);
+        resolve(response);
+      } else {
+        const errorResponse = response as TokenError;
+        trace('/token', errorResponse?.error);
+        if (errorResponse.error == 'authorization_pending') {
+          setTimeout(poll, authResponse.interval * 1_000);
+        } else {
+          reject(
+            new AuthError('Unexpected error requesting authorization grant', {
+              code: AuthErrorCode.UnexpectedAuthGrantError,
+              cause: errorResponse,
+            }),
+          );
+        }
+      }
+    };
+
+    poll().catch(reject);
+  });
+}
+
+async function waitForUserEnter(signal?: AbortSignal) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  await new Promise<void>((resolve, reject) => {
+    const cleanup = () => {
+      rl.close();
+    };
+
+    rl.once('line', () => {
+      cleanup();
+      resolve();
+    });
+
+    if (signal) {
+      signal.addEventListener('abort', () => {
+        cleanup();
+        resolve(); // Resolve silently when aborted
+      });
+    }
+  });
+}
+
+async function promptUserAndOpenVerificationPage(
+  authResponse: AuthResponse,
+  signal?: AbortSignal,
+) {
+  console.log(`
+Authorizing Glean MCP-server.  Please log in to Glean.
+
+! First copy your one-time code: ${authResponse.user_code}
+
+Press Enter to open the following URL where the code is needed:
+
+${authResponse.verification_uri}
+`);
+
+  await waitForUserEnter(signal);
+
+  // signal is aborted if the user manually opened the URL and entered the
+  // code, in which case we shouldn't then open the URL again ourselves.
+  if (signal?.aborted) {
+    return;
+  }
+
+  await open(authResponse.verification_uri);
 }

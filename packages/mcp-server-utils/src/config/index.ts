@@ -55,8 +55,20 @@ interface GleanCommonConfig {
   baseUrl: string;
 }
 
+/**
+ * PKCE fields for device flow with PKCE (e.g. onelogin.com)
+ */
+export interface GleanPkceFields {
+  codeVerifier?: string;
+  codeChallenge?: string;
+  //PKCE code challenge method (usually 'S256')
+  codeChallengeMethod?: string;
+}
 export type GleanTokenConfig = GleanCommonConfig & GleanConfigTokenAccess;
-export type GleanOAuthConfig = GleanCommonConfig & GleanConfigOAuthAccess;
+
+export type GleanOAuthConfig = GleanCommonConfig &
+  GleanConfigOAuthAccess &
+  GleanPkceFields;
 export type GleanBasicConfig = GleanCommonConfig & GleanBasicConfigNoToken;
 
 /**
