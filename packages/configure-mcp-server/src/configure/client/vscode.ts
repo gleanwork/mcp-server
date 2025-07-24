@@ -76,7 +76,8 @@ const vscodeClient = createBaseClient('VS Code', vscodeConfigPath, [
 // Override configFilePath to handle workspace vs global
 vscodeClient.configFilePath = (homedir: string, options?: ConfigureOptions) => {
   if (options?.workspace) {
-    return path.join(process.cwd(), '.vscode', 'mcp.json');
+    const cwd = process.cwd().replace(/\\/g, '/');
+    return path.posix.join(cwd, '.vscode', 'mcp.json');
   }
   return getVSCodeUserSettingsPath(homedir);
 };
