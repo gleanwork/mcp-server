@@ -102,7 +102,7 @@ describe('Search Formatter', () => {
 
     const formattedResults = formatResponse(emptyResults);
     expect(formattedResults).toContain(
-      'Search results for "nonexistent term" (0 results)',
+      'Search results for "nonexistent term" (showing 0 of 0 results)',
     );
   });
 
