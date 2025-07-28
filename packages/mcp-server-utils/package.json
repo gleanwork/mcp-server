@@ -92,7 +92,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.32.0",
-    "@gleanwork/api-client": "0.6.7",
+    "@gleanwork/api-client": "0.8.1",
     "@gleanwork/mcp-test-utils": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.15.1",
     "@types/node": "^24.0.13",
