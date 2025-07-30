@@ -28,12 +28,23 @@ describe('Search Tool', () => {
               "GleanSearch": {
                 "additionalProperties": false,
                 "properties": {
+                  "cursor": {
+                    "description": "Pagination cursor from previous response to fetch next page",
+                    "type": "string",
+                  },
                   "datasources": {
                     "description": "Optional list of data sources to search in. Examples: "github", "gdrive", "confluence", "jira".",
                     "items": {
                       "type": "string",
                     },
                     "type": "array",
+                  },
+                  "pageSize": {
+                    "default": 10,
+                    "description": "Number of results to return per page (default: 10, max: 100)",
+                    "maximum": 100,
+                    "minimum": 1,
+                    "type": "number",
                   },
                   "query": {
                     "description": "The search query. This is what you want to search for.",

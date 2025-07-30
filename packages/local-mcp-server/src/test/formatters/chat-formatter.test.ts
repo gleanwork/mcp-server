@@ -1,12 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { formatResponse } from '../../tools/chat.js';
+import { Author, MessageType } from '@gleanwork/api-client/models/components';
 
 describe('Chat Formatter', () => {
   it('should format chat responses correctly', () => {
     const mockChatResponse = {
       messages: [
         {
-          author: 'USER',
+          author: Author.User,
           fragments: [
             {
               text: 'What is Glean?',
@@ -15,7 +16,7 @@ describe('Chat Formatter', () => {
           messageId: 'user-msg-1',
         },
         {
-          author: 'GLEAN_AI',
+          author: Author.GleanAi,
           fragments: [
             {
               text: 'Glean is an AI platform for work that helps organizations find and understand information. It provides enterprise search, AI assistants, and agent capabilities.',
@@ -36,7 +37,7 @@ describe('Chat Formatter', () => {
             },
           ],
           messageId: 'assistant-msg-1',
-          messageType: 'UPDATE',
+          messageType: MessageType.Update,
           stepId: 'RESPOND',
         },
       ],
@@ -62,7 +63,7 @@ describe('Chat Formatter', () => {
     const mockChatResponse = {
       messages: [
         {
-          author: 'GLEAN_AI',
+          author: Author.GleanAi,
           fragments: [
             {
               querySuggestion: {
@@ -72,7 +73,7 @@ describe('Chat Formatter', () => {
             },
           ],
           messageId: 'query-msg-1',
-          messageType: 'UPDATE',
+          messageType: MessageType.Update,
           stepId: 'SEARCH',
         },
       ],
@@ -87,7 +88,7 @@ describe('Chat Formatter', () => {
     const mockChatResponse = {
       messages: [
         {
-          author: 'GLEAN_AI',
+          author: Author.GleanAi,
           fragments: [
             {
               structuredResults: [
@@ -107,7 +108,7 @@ describe('Chat Formatter', () => {
             },
           ],
           messageId: 'results-msg-1',
-          messageType: 'UPDATE',
+          messageType: MessageType.Update,
           stepId: 'SEARCH',
         },
       ],
@@ -143,10 +144,10 @@ describe('Chat Formatter', () => {
     const messagesWithoutFragments = {
       messages: [
         {
-          author: 'USER',
+          author: Author.User,
         },
         {
-          author: 'GLEAN_AI',
+          author: Author.GleanAi,
           citations: [
             {
               sourceDocument: {
@@ -155,7 +156,7 @@ describe('Chat Formatter', () => {
               },
             },
           ],
-          messageType: 'CONTENT',
+          messageType: MessageType.Content,
         },
       ],
     };
@@ -170,7 +171,7 @@ describe('Chat Formatter', () => {
     const messagesWithoutCitations = {
       messages: [
         {
-          author: 'USER',
+          author: Author.User,
           fragments: [
             {
               text: 'Hello',
@@ -178,13 +179,13 @@ describe('Chat Formatter', () => {
           ],
         },
         {
-          author: 'GLEAN_AI',
+          author: Author.GleanAi,
           fragments: [
             {
               text: 'Hi there! How can I help you today?',
             },
           ],
-          messageType: 'CONTENT',
+          messageType: MessageType.Content,
         },
       ],
     };
@@ -201,7 +202,7 @@ describe('Chat Formatter', () => {
     const mixedFragmentsMessage = {
       messages: [
         {
-          author: 'GLEAN_AI',
+          author: Author.GleanAi,
           fragments: [
             {
               text: 'Searching for:',
@@ -227,7 +228,7 @@ describe('Chat Formatter', () => {
             },
           ],
           messageId: 'mixed-msg-1',
-          messageType: 'UPDATE',
+          messageType: MessageType.Update,
           stepId: 'SEARCH',
         },
       ],

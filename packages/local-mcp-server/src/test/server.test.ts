@@ -174,7 +174,7 @@ describe('MCP Server Handlers (integration)', () => {
       {
         "content": [
           {
-            "text": "Found 1 people:
+            "text": "Found 1 of 1 people:
 
       1. Jane Doe – Software Engineer, Engineering (San Francisco) • jane.doe@example.com",
             "type": "text",
