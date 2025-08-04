@@ -78,11 +78,11 @@ importers:
         specifier: ^2.8.0
         version: 2.8.0
       zod:
-        specifier: ^3.25.65
-        version: 3.25.67
+        specifier: ^4.0.14
+        version: 4.0.14
       zod-to-json-schema:
         specifier: ^3.24.6
-        version: 3.24.6(zod@3.25.67)
+        version: 3.24.6(zod@4.0.14)
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.3.1
@@ -149,7 +149,7 @@ importers:
     dependencies:
       '@gleanwork/api-client':
         specifier: 0.7.1
-        version: 0.7.1(zod@3.25.67)
+        version: 0.7.1(zod@4.0.14)
       '@gleanwork/mcp-server-utils':
         specifier: workspace:*
         version: link:../mcp-server-utils
@@ -169,11 +169,11 @@ importers:
         specifier: ^7.0.10
         version: 7.0.10
       zod:
-        specifier: ^3.25.65
-        version: 3.25.67
+        specifier: ^4.0.14
+        version: 4.0.14
       zod-to-json-schema:
         specifier: ^3.24.6
-        version: 3.24.6(zod@3.25.67)
+        version: 3.24.6(zod@4.0.14)
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.3.1
@@ -251,11 +251,11 @@ importers:
         specifier: ^7.0.10
         version: 7.0.10
       zod:
-        specifier: ^3.25.65
-        version: 3.25.67
+        specifier: ^4.0.14
+        version: 4.0.14
       zod-to-json-schema:
         specifier: ^3.24.6
-        version: 3.24.6(zod@3.25.67)
+        version: 3.24.6(zod@4.0.14)
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.3.1
@@ -265,7 +265,7 @@ importers:
         version: 9.32.0
       '@gleanwork/api-client':
         specifier: 0.6.7
-        version: 0.6.7(zod@3.25.67)
+        version: 0.6.7(zod@4.0.14)
       '@gleanwork/mcp-test-utils':
         specifier: workspace:*
         version: link:../mcp-test-utils
@@ -4336,8 +4336,11 @@ packages:
     peerDependencies:
       zod: ^3.24.1
 
-  zod@3.25.67:
-    resolution: {integrity: sha512-idA2YXwpCdqUSKRCACDE6ItZD9TZzy3OZMtpfLoh6oPR47lipysRrJfjzMqFxQ3uJuUPyUeWe1r9vLH33xO/Qw==}
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
+  zod@4.0.14:
+    resolution: {integrity: sha512-nGFJTnJN6cM2v9kXL+SOBq3AtjQby3Mv5ySGFof5UGRHrRioSJ5iG680cYNjE/yWk671nROcpPj4hAS8nyLhSw==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -4689,13 +4692,13 @@ snapshots:
 
   '@gar/promisify@1.1.3': {}
 
-  '@gleanwork/api-client@0.6.7(zod@3.25.67)':
+  '@gleanwork/api-client@0.6.7(zod@4.0.14)':
     dependencies:
-      zod: 3.25.67
+      zod: 4.0.14
 
-  '@gleanwork/api-client@0.7.1(zod@3.25.67)':
+  '@gleanwork/api-client@0.7.1(zod@4.0.14)':
     dependencies:
-      zod: 3.25.67
+      zod: 4.0.14
 
   '@gleanwork/connect-mcp-server@0.2.4':
     dependencies:
@@ -4895,8 +4898,8 @@ snapshots:
       express-rate-limit: 7.5.1(express@5.1.0)
       pkce-challenge: 5.0.0
       raw-body: 3.0.0
-      zod: 3.25.67
-      zod-to-json-schema: 3.24.6(zod@3.25.67)
+      zod: 3.25.76
+      zod-to-json-schema: 3.24.6(zod@3.25.76)
     transitivePeerDependencies:
       - supports-color
 
@@ -8778,10 +8781,16 @@ snapshots:
 
   yoctocolors-cjs@2.1.2: {}
 
-  zod-to-json-schema@3.24.6(zod@3.25.67):
+  zod-to-json-schema@3.24.6(zod@3.25.76):
     dependencies:
-      zod: 3.25.67
+      zod: 3.25.76
 
-  zod@3.25.67: {}
+  zod-to-json-schema@3.24.6(zod@4.0.14):
+    dependencies:
+      zod: 4.0.14
+
+  zod@3.25.76: {}
+
+  zod@4.0.14: {}
 
   zwitch@2.0.4: {}
