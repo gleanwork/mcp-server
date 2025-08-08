@@ -2,7 +2,6 @@
 
 Fix publishing issue.
 
-
 ## v0.7.17 (2025-08-08)
 
 #### :rocket: Enhancement
