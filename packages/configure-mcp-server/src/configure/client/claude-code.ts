@@ -18,16 +18,7 @@ export const claudeCodeConfigPath: MCPConfigPath = {
 };
 
 function claudeCodePathResolver(homedir: string) {
-  let baseDir: string;
-
-  if (process.env.GLEAN_MCP_CONFIG_DIR) {
-    baseDir = process.env.GLEAN_MCP_CONFIG_DIR;
-  } else if (process.platform === 'darwin') {
-    baseDir = homedir;
-  } else {
-    throw new Error('Unsupported platform for Claude Code');
-  }
-
+  const baseDir = process.env.GLEAN_MCP_CONFIG_DIR || homedir;
   return path.join(baseDir, claudeCodeConfigPath.configFileName);
 }
 
