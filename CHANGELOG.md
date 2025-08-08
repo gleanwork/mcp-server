@@ -1,3 +1,22 @@
+
+## v0.7.17 (2025-08-08)
+
+#### :rocket: Enhancement
+* `configure-mcp-server`, `mcp-server-utils`
+  * [#234](https://github.com/gleanwork/mcp-server/pull/234) Add support for onelogin device flow ([@chris-freeman-glean](https://github.com/chris-freeman-glean))
+
+#### :bug: Bug Fix
+* `configure-mcp-server`
+  * [#255](https://github.com/gleanwork/mcp-server/pull/255) fix(configure-mcp-server): Support all platforms for Claude Code ([@rwjblue-glean](https://github.com/rwjblue-glean))
+* `configure-mcp-server`, `mcp-server-utils`
+  * [#232](https://github.com/gleanwork/mcp-server/pull/232) Add error when refresh token not issued ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+
+#### Committers: 3
+- Chris Freeman ([@chris-freeman-glean](https://github.com/chris-freeman-glean))
+- David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
+- Robert Jackson ([@rwjblue-glean](https://github.com/rwjblue-glean))
+
+
 ## v0.7.16 (2025-07-22)
 
 #### :bug: Bug Fix
