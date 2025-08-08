@@ -1,6 +1,6 @@
 {
   "name": "glean-mcp-server",
-  "version": "0.7.17",
+  "version": "0.7.18",
   "private": true,
   "repository": {
     "type": "git",
