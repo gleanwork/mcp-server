@@ -21,33 +21,50 @@ describe('Chat Tool', () => {
     it('generates correct JSON schema', () => {
       expect(zodToJsonSchema(ToolChatSchema, 'GleanChat'))
         .toMatchInlineSnapshot(`
-        {
-          "$ref": "#/definitions/GleanChat",
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "definitions": {
-            "GleanChat": {
-              "additionalProperties": false,
-              "properties": {
-                "context": {
-                  "description": "Optional previous messages for context. Will be included in order before the current message.",
-                  "items": {
+          {
+            "$ref": "#/definitions/GleanChat",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "definitions": {
+              "GleanChat": {
+                "additionalProperties": false,
+                "properties": {
+                  "context": {
+                    "description": "Optional previous messages for context. Will be included in order before the current message.",
+                    "items": {
+                      "type": "string",
+                    },
+                    "type": "array",
+                  },
+                  "continueFrom": {
+                    "additionalProperties": false,
+                    "description": "Continue from a previous chunked response",
+                    "properties": {
+                      "chunkIndex": {
+                        "type": "number",
+                      },
+                      "responseId": {
+                        "type": "string",
+                      },
+                    },
+                    "required": [
+                      "responseId",
+                      "chunkIndex",
+                    ],
+                    "type": "object",
+                  },
+                  "message": {
+                    "description": "The user question or message to send to Glean Assistant.",
                     "type": "string",
                   },
-                  "type": "array",
                 },
-                "message": {
-                  "description": "The user question or message to send to Glean Assistant.",
-                  "type": "string",
-                },
+                "required": [
+                  "message",
+                ],
+                "type": "object",
               },
-              "required": [
-                "message",
-              ],
-              "type": "object",
             },
-          },
-        }
-      `);
+          }
+        `);
     });
   });
 

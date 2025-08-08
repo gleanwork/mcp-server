@@ -59,6 +59,11 @@ export const ToolPeopleProfileSearchSchema = z
         'Hint to the server for how many people to return (1-100, default 10).',
       )
       .optional(),
+
+    cursor: z
+      .string()
+      .describe('Pagination cursor from previous response to fetch next page')
+      .optional(),
   })
   .refine(
     (val) => val.query || (val.filters && Object.keys(val.filters).length > 0),
@@ -79,7 +84,7 @@ export type ToolPeopleProfileSearchRequest = z.infer<
  * @returns The Glean API compatible request
  */
 function convertToAPIEntitiesRequest(input: ToolPeopleProfileSearchRequest) {
-  const { query, filters = {}, pageSize } = input;
+  const { query, filters = {}, pageSize, cursor } = input;
 
   const request: ListEntitiesRequest = {
     entityType: ListEntitiesRequestEntityType.People,
@@ -88,6 +93,11 @@ function convertToAPIEntitiesRequest(input: ToolPeopleProfileSearchRequest) {
 
   if (query) {
     request.query = query;
+  }
+
+  // Add pagination cursor if provided
+  if (cursor) {
+    request.cursor = cursor;
   }
 
   const filterKeys = Object.keys(filters) as Array<keyof typeof filters>;
@@ -175,6 +185,18 @@ export function formatResponse(searchResults: any): string {
     typeof searchResults.totalCount === 'number'
       ? searchResults.totalCount
       : searchResults.results.length;
+  const resultsShown = searchResults.results.length;
 
-  return `Found ${total} people:\n\n${formatted}`;
+  // Add pagination info to response
+  let paginationInfo = '';
+  if (searchResults.hasMoreResults) {
+    paginationInfo = '\n\n---\nMore results available. ';
+    if (searchResults.cursor) {
+      paginationInfo += `Use cursor="${searchResults.cursor}" to fetch the next page.`;
+    } else {
+      paginationInfo += 'Additional pages may be available.';
+    }
+  }
+
+  return `Found ${resultsShown} of ${total} people:\n\n${formatted}${paginationInfo}`;
 }
