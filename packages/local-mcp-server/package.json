@@ -64,7 +64,7 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.32.0",
     "@gleanwork/mcp-test-utils": "workspace:*",
-    "@types/node": "^24.0.13",
+    "@types/node": "^24.2.1",
     "@types/node-fetch": "^2.6.12",
     "@typescript-eslint/eslint-plugin": "^8.33.1",
     "@typescript-eslint/parser": "^8.38.0",
