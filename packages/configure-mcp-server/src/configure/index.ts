@@ -137,6 +137,15 @@ export async function configure(client: string, options: ConfigureOptions) {
     process.exit(1);
   }
 
+  // For remote configurations, require a URL, not an instance name
+  if (options.remote && options.instance && !options.url) {
+    console.error(
+      'Configuration failed: Remote configurations require a full URL (--url), not an instance name (--instance)',
+    );
+    console.error('Example: --url https://my-company-be.glean.com/mcp/default');
+    process.exit(1);
+  }
+
   const clientConfig = availableClients[normalizedClient];
   console.log(`Configuring Glean MCP for ${clientConfig.displayName}...`);
 
@@ -160,9 +169,7 @@ export async function configure(client: string, options: ConfigureOptions) {
       );
       console.error();
       console.error('Troubleshooting tips:');
-      console.error(
-        '1. Check that the instance name is spelled correctly  (e.g. "acme" for acme-be.glean.com)',
-      );
+      console.error('1. Check that the instance name or URL is correct');
       console.error(
         '  • Visit https://app.glean.com/admin/about-glean and look for "Server instance"',
       );
@@ -205,9 +212,7 @@ export async function configure(client: string, options: ConfigureOptions) {
       instanceOrUrl.startsWith('http://') ||
       instanceOrUrl.startsWith('https://')
     ) {
-      process.env.GLEAN_BASE_URL = instanceOrUrl.endsWith('/rest/api/v1')
-        ? instanceOrUrl
-        : `${instanceOrUrl}/rest/api/v1`;
+      process.env.GLEAN_BASE_URL = instanceOrUrl;
     } else {
       process.env.GLEAN_INSTANCE = instanceOrUrl;
     }
@@ -396,10 +401,13 @@ Continuing with configuration, but you will need to set credentials manually lat
   }
 
   if (instance && url) {
-    // --url is unlisted.  It's only for dev so you can specify a local server.
     console.error(
-      'Error: Specify your Glean instance with either --url or --instance but not both.',
+      'Error: Use either --url (for full MCP server URLs) or --instance (for instance names), but not both.',
     );
+    console.error(
+      '  --url: Full MCP server URL (e.g., https://my-be.glean.com/mcp/analytics)',
+    );
+    console.error('  --instance: Glean instance name (e.g., my-company)');
     console.error('Run with --help for usage information');
     return false;
   }

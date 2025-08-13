@@ -8,11 +8,9 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import type { ConfigureOptions } from '../index.js';
-import { RemoteMcpTargets } from '@gleanwork/mcp-server-utils/util';
-import { isOAuthEnabled } from '../../common/env.js';
+import mcpRemotePackageJson from 'mcp-remote/package.json' with { type: 'json' };
 
-import connectMcpPackageJson from '@gleanwork/connect-mcp-server/package.json' with { type: 'json' };
-const connectMcpServerVersion = connectMcpPackageJson.version;
+const mcpRemoteVersion = mcpRemotePackageJson.version;
 
 export interface MCPConfigPath {
   configDir: string;
@@ -24,9 +22,10 @@ export interface MCPConfigPath {
  */
 export interface MCPServerConfig {
   type?: string;
-  command: string;
-  args: Array<string>;
-  env: Record<string, string>;
+  command?: string;
+  args?: Array<string>;
+  env?: Record<string, string>;
+  url?: string;
 }
 
 export interface MCPServersConfig {
@@ -149,24 +148,21 @@ export function createConfigTemplate(
 }
 
 export function createMcpServersConfig(
-  instanceOrUrl = '<glean instance name>',
+  instanceOrUrl = '<glean instance name or URL>',
   apiToken?: string,
   options?: ConfigureOptions,
 ): MCPServersConfig {
   const env: Record<string, string> = {};
   const isLocal = !options?.remote;
 
-  // For local servers, set the appropriate base URL or instance
+  // For local servers, set the appropriate instance or URL
   if (isLocal) {
-    // If it looks like a URL, use GLEAN_BASE_URL
+    // If it looks like a URL, use it directly
     if (
       instanceOrUrl.startsWith('http://') ||
       instanceOrUrl.startsWith('https://')
     ) {
-      const baseUrl = instanceOrUrl.endsWith('/rest/api/v1')
-        ? instanceOrUrl
-        : `${instanceOrUrl}/rest/api/v1`;
-      env.GLEAN_BASE_URL = baseUrl;
+      env.GLEAN_BASE_URL = instanceOrUrl;
     } else {
       env.GLEAN_INSTANCE = instanceOrUrl;
     }
@@ -188,25 +184,21 @@ export function createMcpServersConfig(
     };
   }
 
-  const usingOAuth = apiToken === undefined && isOAuthEnabled();
-
-  // remote set up, either default or agents
-  const serverUrl = buildMcpUrl(
-    instanceOrUrl,
-    options?.agents ? 'agents' : 'default',
-  );
-  const mcpServerName = buildMcpServerName(options);
-  const args = [
-    '-y',
-    `@gleanwork/connect-mcp-server@${connectMcpServerVersion}`,
-    serverUrl,
-  ];
-  if (usingOAuth) {
-    args.push('--header', 'X-Glean-Auth-Type:OAUTH');
-  } else if (apiToken) {
-    env.AUTH_HEADER = `Bearer ${apiToken}`;
-    args.push('--header', 'Authorization:${AUTH_HEADER}');
+  // remote set up
+  // For remote, we require a full URL to be provided
+  if (
+    !instanceOrUrl.startsWith('http://') &&
+    !instanceOrUrl.startsWith('https://')
+  ) {
+    throw new Error(
+      'Remote configuration requires a full URL (starting with http:// or https://)',
+    );
   }
+
+  const serverUrl = instanceOrUrl;
+  const mcpServerName = buildMcpServerName(options, serverUrl);
+
+  const args = ['-y', `mcp-remote@${mcpRemoteVersion}`, serverUrl];
 
   return {
     [mcpServerName]: {
@@ -218,24 +210,35 @@ export function createMcpServersConfig(
   };
 }
 
-export function buildMcpServerName(options: ConfigureOptions) {
+/**
+ * Extracts the server name from a full MCP URL
+ * e.g., https://my-be.glean.com/mcp/analytics -> analytics
+ */
+export function extractServerNameFromUrl(url: string): string | null {
+  const match = url.match(/\/mcp\/([^/]+)(?:\/|$)/);
+  return match ? match[1] : null;
+}
+
+export function buildMcpServerName(
+  options: ConfigureOptions,
+  fullUrl?: string,
+) {
   const isLocal = !options?.remote;
   if (isLocal) {
     return 'glean_local';
   }
 
+  // If we have a full URL, extract the server name from it
+  if (fullUrl) {
+    const serverName = extractServerNameFromUrl(fullUrl);
+    // Special case: "default" server should just be "glean"
+    if (serverName === 'default') {
+      return 'glean';
+    }
+    return serverName ? `glean_${serverName}` : 'glean';
+  }
+
   return options?.agents ? 'glean_agents' : 'glean';
-}
-
-function buildMcpUrl(instanceOrUrl: string, target: RemoteMcpTargets) {
-  const baseUrl =
-    instanceOrUrl.startsWith('http://') || instanceOrUrl.startsWith('https://')
-      ? // url: strip path and add /mcp
-        new URL(instanceOrUrl).origin + '/mcp'
-      : // instance
-        `https://${instanceOrUrl}-be.glean.com/mcp`;
-
-  return `${baseUrl}/${target}/sse`;
 }
 
 /**
@@ -317,11 +320,14 @@ export function updateMcpServersConfig(
   newConfig: MCPServersConfig,
 ) {
   const result = { ...existingConfig };
-  for (const serverName of ['glean', 'glean_local', 'glean_agents']) {
-    if (serverName in newConfig) {
+
+  // Update any Glean-related servers (glean, glean_local, glean_agents, glean_*, etc.)
+  for (const serverName in newConfig) {
+    if (serverName === 'glean' || serverName.startsWith('glean_')) {
       result[serverName] = newConfig[serverName];
     }
   }
+
   return result;
 }
 
