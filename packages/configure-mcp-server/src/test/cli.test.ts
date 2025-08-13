@@ -114,21 +114,19 @@ describe('CLI', () => {
             --workspace     Create workspace configuration instead of global (VS Code only)
 
           Options for remote
-            --agents        Connect your Glean Agents to your MCP client.  If unset, will connect the default tools.
             --client, -c    MCP client to configure for (claude-code, claude, cursor, goose, vscode, windsurf)
-            --token, -t     Glean API token (required)
-            --instance, -i  Glean instance name
-            --url, -u       Full MCP server URL (e.g., https://my-be.glean.com/mcp/custom-agent)
-            --env, -e       Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
+            --url, -u       Full MCP server URL (required, e.g., https://my-be.glean.com/mcp/default)
+            --token, -t     Glean API token (optional, uses OAuth if not provided)
+            --env, -e       Path to .env file containing GLEAN_URL and GLEAN_API_TOKEN
             --workspace     Create workspace configuration instead of global (VS Code only)
 
           Examples
-            $ npx @gleanwork/configure-mcp-server remote --client cursor --token glean_api_xyz --instance my-company
-            $ npx @gleanwork/configure-mcp-server remote --agents --client claude --token glean_api_xyz --instance my-company
+            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client cursor
+            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/agents --client claude --token glean_api_xyz
             $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/analytics --client cursor
-            $ npx @gleanwork/configure-mcp-server remote --client goose --token glean_api_xyz --instance my-company
-            $ npx @gleanwork/configure-mcp-server remote --client windsurf --env ~/.glean.env
-            $ npx @gleanwork/configure-mcp-server remote --client vscode --token glean_api_xyz --instance my-company --workspace
+            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client goose
+            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client windsurf --env ~/.glean.env
+            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client vscode --workspace
 
           Run 'npx @gleanwork/configure-mcp-server help' for more details on supported clients
 
@@ -172,21 +170,19 @@ describe('CLI', () => {
             --workspace     Create workspace configuration instead of global (VS Code only)
 
           Options for remote
-            --agents        Connect your Glean Agents to your MCP client.  If unset, will connect the default tools.
             --client, -c    MCP client to configure for (claude-code, claude, cursor, goose, vscode, windsurf)
-            --token, -t     Glean API token (required)
-            --instance, -i  Glean instance name
-            --url, -u       Full MCP server URL (e.g., https://my-be.glean.com/mcp/custom-agent)
-            --env, -e       Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
+            --url, -u       Full MCP server URL (required, e.g., https://my-be.glean.com/mcp/default)
+            --token, -t     Glean API token (optional, uses OAuth if not provided)
+            --env, -e       Path to .env file containing GLEAN_URL and GLEAN_API_TOKEN
             --workspace     Create workspace configuration instead of global (VS Code only)
 
           Examples
-            $ npx @gleanwork/configure-mcp-server remote --client cursor --token glean_api_xyz --instance my-company
-            $ npx @gleanwork/configure-mcp-server remote --agents --client claude --token glean_api_xyz --instance my-company
+            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client cursor
+            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/agents --client claude --token glean_api_xyz
             $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/analytics --client cursor
-            $ npx @gleanwork/configure-mcp-server remote --client goose --token glean_api_xyz --instance my-company
-            $ npx @gleanwork/configure-mcp-server remote --client windsurf --env ~/.glean.env
-            $ npx @gleanwork/configure-mcp-server remote --client vscode --token glean_api_xyz --instance my-company --workspace
+            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client goose
+            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client windsurf --env ~/.glean.env
+            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client vscode --workspace
 
           Run 'npx @gleanwork/configure-mcp-server help' for more details on supported clients
 
@@ -1661,7 +1657,7 @@ Error configuring client: API token is required. Please provide a token with the
 
       expect(result.exitCode).toEqual(1);
       expect(result.stderr).toContain(
-        'Remote configuration requires a full URL',
+        'Remote configurations require a full URL (--url)',
       );
     });
 
