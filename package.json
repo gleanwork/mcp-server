@@ -9,6 +9,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "test": "pnpm -r test",
+    "test:all": "pnpm -r test && pnpm lint",
     "lint": "npm-run-all --sequential lint:*",
     "lint:workspaces": "pnpm -r lint",
     "lint:package-json": "sort-package-json",
