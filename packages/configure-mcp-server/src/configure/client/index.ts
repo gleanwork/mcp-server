@@ -162,7 +162,7 @@ export function createMcpServersConfig(
       instanceOrUrl.startsWith('http://') ||
       instanceOrUrl.startsWith('https://')
     ) {
-      env.GLEAN_BASE_URL = instanceOrUrl;
+      env.GLEAN_URL = instanceOrUrl;
     } else {
       env.GLEAN_INSTANCE = instanceOrUrl;
     }

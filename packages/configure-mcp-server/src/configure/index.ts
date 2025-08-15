@@ -75,7 +75,7 @@ function loadCredentials(options: ConfigureOptions): {
         result.instanceOrUrl =
           envConfig.parsed?.GLEAN_INSTANCE ||
           envConfig.parsed?.GLEAN_SUBDOMAIN ||
-          envConfig.parsed?.GLEAN_BASE_URL;
+          envConfig.parsed?.GLEAN_URL;
         result.apiToken = envConfig.parsed?.GLEAN_API_TOKEN;
       }
     } catch (error: any) {
@@ -99,7 +99,7 @@ function loadCredentials(options: ConfigureOptions): {
     result.instanceOrUrl =
       process.env.GLEAN_INSTANCE ||
       process.env.GLEAN_SUBDOMAIN ||
-      process.env.GLEAN_BASE_URL;
+      process.env.GLEAN_URL;
   }
 
   if (!result.apiToken) {
@@ -135,6 +135,14 @@ export async function configure(client: string, options: ConfigureOptions) {
       'Configuration failed: --workspace flag is only supported for VS Code',
     );
     process.exit(1);
+  }
+
+  // Handle conflicting --instance and --url flags
+  if (options.instance && options.url) {
+    console.warn(
+      'Warning: Both --instance and --url were provided. The --instance flag will be ignored when --url is specified.',
+    );
+    delete options.instance;
   }
 
   // For remote configurations, require a URL, not an instance name
@@ -212,7 +220,7 @@ export async function configure(client: string, options: ConfigureOptions) {
       instanceOrUrl.startsWith('http://') ||
       instanceOrUrl.startsWith('https://')
     ) {
-      process.env.GLEAN_BASE_URL = instanceOrUrl;
+      process.env.GLEAN_URL = instanceOrUrl;
     } else {
       process.env.GLEAN_INSTANCE = instanceOrUrl;
     }
@@ -380,7 +388,7 @@ export async function validateFlags(
   const hasEnvironmentInstance = Boolean(
     process.env.GLEAN_INSTANCE ||
       process.env.GLEAN_SUBDOMAIN ||
-      process.env.GLEAN_BASE_URL,
+      process.env.GLEAN_URL,
   );
 
   const hasEnvParam = Boolean(env);
@@ -401,15 +409,9 @@ Continuing with configuration, but you will need to set credentials manually lat
   }
 
   if (instance && url) {
-    console.error(
-      'Error: Use either --url (for full MCP server URLs) or --instance (for instance names), but not both.',
+    console.warn(
+      'Warning: Both --instance and --url were provided. The --instance flag will be ignored when --url is specified.',
     );
-    console.error(
-      '  --url: Full MCP server URL (e.g., https://my-be.glean.com/mcp/analytics)',
-    );
-    console.error('  --instance: Glean instance name (e.g., my-company)');
-    console.error('Run with --help for usage information');
-    return false;
   }
 
   if (!hasAnyToken && !hasAnyInstance && !hasEnvParam) {

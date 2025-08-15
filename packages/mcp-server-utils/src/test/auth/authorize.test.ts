@@ -61,9 +61,9 @@ describe('authorize (device flow)', () => {
     originalXdgData = process.env.XDG_DATA_HOME;
     originalXdgState = process.env.XDG_STATE_HOME;
     originalXdgConfig = process.env.XDG_CONFIG_HOME;
-    originalBaseUrl = process.env.GLEAN_BASE_URL;
+    originalBaseUrl = process.env.GLEAN_URL;
     tmpDir = setupXdgTemp();
-    process.env.GLEAN_BASE_URL = 'https://glean.example.com';
+    process.env.GLEAN_URL = 'https://glean.example.com';
     // Mock process.stdin.isTTY to true for all tests by default
     originalIsTTY = Object.getOwnPropertyDescriptor(
       process.stdin,
@@ -84,8 +84,8 @@ describe('authorize (device flow)', () => {
     else delete process.env.XDG_STATE_HOME;
     if (originalXdgConfig) process.env.XDG_CONFIG_HOME = originalXdgConfig;
     else delete process.env.XDG_CONFIG_HOME;
-    if (originalBaseUrl) process.env.GLEAN_BASE_URL = originalBaseUrl;
-    else delete process.env.GLEAN_BASE_URL;
+    if (originalBaseUrl) process.env.GLEAN_URL = originalBaseUrl;
+    else delete process.env.GLEAN_URL;
     fs.rmSync(tmpDir, { recursive: true, force: true });
     server.resetHandlers();
     Logger.reset();

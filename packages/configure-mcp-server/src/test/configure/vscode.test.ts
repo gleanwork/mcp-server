@@ -190,7 +190,7 @@ describe('VS Code MCP Client', () => {
               "command": "npx",
               "env": {
                 "GLEAN_API_TOKEN": "test-token",
-                "GLEAN_BASE_URL": "https://example.com/rest/api/v1",
+                "GLEAN_URL": "https://example.com/rest/api/v1",
               },
               "type": "stdio",
             },
@@ -289,7 +289,7 @@ describe('VS Code MCP Client', () => {
             "command": "npx",
             "env": {
               "GLEAN_API_TOKEN": "test-token",
-              "GLEAN_BASE_URL": "https://example.com/rest/api/v1",
+              "GLEAN_URL": "https://example.com/rest/api/v1",
             },
             "type": "stdio",
           },

@@ -65,7 +65,7 @@ describe('CLI', () => {
     delete process.env.GLEAN_API_TOKEN;
     delete process.env.GLEAN_INSTANCE;
     delete process.env.GLEAN_SUBDOMAIN;
-    delete process.env.GLEAN_BASE_URL;
+    delete process.env.GLEAN_URL;
     process.env._SKIP_INSTANCE_PREFLIGHT = 'true';
 
     project = await setupProject();
@@ -1786,7 +1786,7 @@ Error configuring client: API token is required. Please provide a token with the
       expect(Object.keys(config.mcpServers)[0]).toBe('glean_custom-agent');
     });
 
-    it('errors when both --url and --instance are provided', async () => {
+    it('warns when both --url and --instance are provided and ignores instance', async () => {
       const result = await runBin(
         'remote',
         '--url',
@@ -1804,14 +1804,27 @@ Error configuring client: API token is required. Please provide a token with the
         },
       );
 
-      expect(result.exitCode).toEqual(1);
-      expect(normalizeOutput(result.stderr, project.baseDir))
-        .toMatchInlineSnapshot(`
-          "Error: Use either --url (for full MCP server URLs) or --instance (for instance names), but not both.
-            --url: Full MCP server URL (e.g., https://my-be.glean.com/mcp/analytics)
-            --instance: Glean instance name (e.g., my-company)
-          Run with --help for usage information"
-        `);
+      expect(result.exitCode).toEqual(0);
+      // Check both stdout and stderr for the warning message
+      const output = normalizeOutput(
+        result.stdout + result.stderr,
+        project.baseDir,
+      );
+      expect(output).toContain(
+        'Warning: Both --instance and --url were provided. The --instance flag will be ignored when --url is specified.',
+      );
+
+      // Verify that the URL was used, not the instance
+      const configPath = path.join(project.baseDir, '.cursor', 'mcp.json');
+      const configFileContents = fs.readFileSync(configPath, 'utf-8');
+      const config = JSON.parse(configFileContents);
+      expect(Object.keys(config.mcpServers)[0]).toBe('glean_analytics');
+      expect(config.mcpServers.glean_analytics.command).toBe('npx');
+      // For remote configurations, mcp-remote is used
+      expect(config.mcpServers.glean_analytics.args[1]).toMatch(/mcp-remote/);
+      expect(config.mcpServers.glean_analytics.args).toContain(
+        'https://my-be.glean.com/mcp/analytics',
+      );
     });
   });
 
@@ -1821,9 +1834,9 @@ Error configuring client: API token is required. Please provide a token with the
       const tempStateDir = fs.mkdtempSync(
         path.join(os.tmpdir(), 'cli-oauth-test-'),
       );
-      // Only set GLEAN_BASE_URL to a value that will fail
+      // Only set GLEAN_URL to a value that will fail
       const env = {
-        GLEAN_BASE_URL: 'https://glean-be.example.com',
+        GLEAN_URL: 'https://glean-be.example.com',
         XDG_STATE_HOME: tempStateDir,
       };
 

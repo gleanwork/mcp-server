@@ -5,7 +5,7 @@ import '@gleanwork/mcp-test-utils/mocks/setup';
 describe('Preflight Validation', () => {
   beforeEach(() => {
     // Reset any environment variables that might affect the tests
-    delete process.env.GLEAN_BASE_URL;
+    delete process.env.GLEAN_URL;
     delete process.env.GLEAN_INSTANCE;
   });
 
