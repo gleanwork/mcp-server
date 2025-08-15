@@ -12,7 +12,6 @@ export const claudeConfigPath: MCPConfigPath = {
   configFileName: 'claude_desktop_config.json',
 };
 
-// Custom path resolver for Claude Desktop
 function claudePathResolver(homedir: string) {
   let baseDir: string;
 

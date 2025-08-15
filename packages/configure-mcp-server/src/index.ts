@@ -53,37 +53,7 @@ async function main() {
 
   const clientList = Object.keys(availableClients).join(', ');
 
-  const help_default = `
-    Usage
-      Configure popular MCP clients to add Glean as an MCP server.
-
-      $ npx @gleanwork/configure-mcp-server --client <client-name> [options]
-
-    Commands
-      configure   Configure MCP settings for a specific client/host
-      help        Show this help message
-
-    Options for configure
-      --client, -c    MCP client to configure for (${clientList || 'loading available clients...'})
-      --token, -t     Glean API token (required)
-      --instance, -i  Glean instance name
-      --env, -e       Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
-      --workspace     Create workspace configuration instead of global (VS Code only)
-
-    Examples
-      $ npx @gleanwork/configure-mcp-server --client cursor --token glean_api_xyz --instance my-company
-      $ npx @gleanwork/configure-mcp-server --client claude --token glean_api_xyz --instance my-company
-      $ npx @gleanwork/configure-mcp-server --client goose --token glean_api_xyz --instance my-company
-      $ npx @gleanwork/configure-mcp-server --client windsurf --env ~/.glean.env
-      $ npx @gleanwork/configure-mcp-server --client vscode --token glean_api_xyz --instance my-company --workspace
-
-    Run 'npx @gleanwork/configure-mcp-server help' for more details on supported clients
-
-    Version: v${VERSION}
-`;
-
-  const betaEnabled = process.env.GLEAN_BETA_ENABLED;
-  const help_beta = `
+  const help = `
     Usage
       Configure popular MCP clients to add Glean as an MCP server.
 
@@ -108,19 +78,19 @@ async function main() {
       --workspace     Create workspace configuration instead of global (VS Code only)
 
     Options for remote
-      --agents        Connect your Glean Agents to your MCP client.  If unset, will connect the default tools.
       --client, -c    MCP client to configure for (${clientList || 'loading available clients...'})
-      --token, -t     Glean API token (required)
-      --instance, -i  Glean instance name
-      --env, -e       Path to .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
+      --url, -u       Full MCP server URL (required, e.g., https://my-be.glean.com/mcp/default)
+      --token, -t     Glean API token (optional, uses OAuth if not provided)
+      --env, -e       Path to .env file containing GLEAN_URL and GLEAN_API_TOKEN
       --workspace     Create workspace configuration instead of global (VS Code only)
 
     Examples
-      $ npx @gleanwork/configure-mcp-server remote --client cursor --token glean_api_xyz --instance my-company
-      $ npx @gleanwork/configure-mcp-server remote --agents --client claude --token glean_api_xyz --instance my-company
-      $ npx @gleanwork/configure-mcp-server remote --client goose --token glean_api_xyz --instance my-company
-      $ npx @gleanwork/configure-mcp-server remote --client windsurf --env ~/.glean.env
-      $ npx @gleanwork/configure-mcp-server remote --client vscode --token glean_api_xyz --instance my-company --workspace
+      $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client cursor
+      $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/agents --client claude --token glean_api_xyz
+      $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/analytics --client cursor
+      $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client goose
+      $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client windsurf --env ~/.glean.env
+      $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client vscode --workspace
 
     Run 'npx @gleanwork/configure-mcp-server help' for more details on supported clients
 
@@ -128,7 +98,7 @@ async function main() {
 
 `;
 
-  const cli = meow(betaEnabled ? help_beta : help_default, {
+  const cli = meow(help, {
     importMeta: import.meta,
     flags: {
       agents: {
@@ -179,20 +149,18 @@ async function main() {
   const command = cli.input.length === 0 ? 'local' : cli.input[0].toLowerCase();
   switch (command) {
     case 'remote': {
-      if (!betaEnabled) {
-        console.warn(`
-Please note Glean-hosted MCP servers are in private beta.  Make sure your
-instance is opted into the private beta or your assistant won't be able to
-connect after configuration.
-
-`);
-      }
-
       const { client, token, instance, url, env, workspace, agents } =
         cli.flags;
 
       if (!(await validateFlags(client, token, instance, url, env))) {
         process.exit(1);
+      }
+
+      // Warn if --agents is used with --url since the server is determined by the URL
+      if (url && agents) {
+        console.warn(
+          'Note: --agents flag is ignored when using --url. The server is determined by the URL path.\n',
+        );
       }
 
       try {

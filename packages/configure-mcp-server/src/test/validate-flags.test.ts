@@ -14,7 +14,7 @@ describe('validateFlags', () => {
     delete process.env.GLEAN_API_TOKEN;
     delete process.env.GLEAN_INSTANCE;
     delete process.env.GLEAN_SUBDOMAIN;
-    delete process.env.GLEAN_BASE_URL;
+    delete process.env.GLEAN_URL;
   });
 
   afterEach(() => {
@@ -164,7 +164,7 @@ describe('validateFlags', () => {
 
   it('should return true when token and base URL are available via environment variables', async () => {
     process.env.GLEAN_API_TOKEN = 'env-token';
-    process.env.GLEAN_BASE_URL = 'https://example.glean.com';
+    process.env.GLEAN_URL = 'https://example.glean.com';
 
     const result = await validateFlags(
       'client',
@@ -182,7 +182,7 @@ describe('validateFlags', () => {
     process.env.GLEAN_API_TOKEN = 'env-token';
     delete process.env.GLEAN_INSTANCE;
     delete process.env.GLEAN_SUBDOMAIN;
-    delete process.env.GLEAN_BASE_URL;
+    delete process.env.GLEAN_URL;
 
     const result = await validateFlags(
       'client',

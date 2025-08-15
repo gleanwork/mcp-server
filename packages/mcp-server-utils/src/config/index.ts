@@ -147,7 +147,7 @@ export async function getConfig<T extends GetConfigOptions = GetConfigOptions>(
 
 function getLocalConfig(): GleanConfig {
   const instance = process.env.GLEAN_INSTANCE || process.env.GLEAN_SUBDOMAIN;
-  const baseUrl = process.env.GLEAN_BASE_URL;
+  const baseUrl = process.env.GLEAN_URL;
   const token = process.env.GLEAN_API_TOKEN;
   const actAs = process.env.GLEAN_ACT_AS;
   const issuer = process.env.GLEAN_OAUTH_ISSUER;

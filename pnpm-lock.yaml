@@ -53,9 +53,6 @@ importers:
 
   packages/configure-mcp-server:
     dependencies:
-      '@gleanwork/connect-mcp-server':
-        specifier: ^0.2.4
-        version: 0.2.4
       '@gleanwork/local-mcp-server':
         specifier: workspace:*
         version: link:../local-mcp-server
@@ -65,6 +62,9 @@ importers:
       dotenv:
         specifier: ^17.2.1
         version: 17.2.1
+      mcp-remote:
+        specifier: ^0.1.18
+        version: 0.1.18
       meow:
         specifier: ^13.2.0
         version: 13.2.0
@@ -2901,6 +2901,10 @@ packages:
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
+
+  mcp-remote@0.1.18:
+    resolution: {integrity: sha512-cLh5Grn5fTafsjRFe1BSUjkcs26J7nRrUd8J5OGkOvC/q5n9EKHKt0dvqNzsGScRC78xsMjSfRkiyM4OuojV/w==}
+    hasBin: true
 
   mdast-util-from-markdown@2.0.2:
     resolution: {integrity: sha512-uZhTV/8NBuw0WHkPTrCqDOl0zVe1BIng5ZtHoDk49ME1qqcjYmmLmOf0gELgcRMxN4w2iuIeVso5/6QymSrgmA==}
@@ -7096,6 +7100,14 @@ snapshots:
       minimatch: 3.1.2
 
   math-intrinsics@1.1.0: {}
+
+  mcp-remote@0.1.18:
+    dependencies:
+      express: 4.21.2
+      open: 10.2.0
+      strict-url-sanitise: 0.0.1
+    transitivePeerDependencies:
+      - supports-color
 
   mdast-util-from-markdown@2.0.2:
     dependencies:

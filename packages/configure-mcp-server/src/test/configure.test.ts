@@ -130,7 +130,7 @@ describe('configure', () => {
             "command": "npx",
             "env": {
               "GLEAN_API_TOKEN": "test-token",
-              "GLEAN_BASE_URL": "https://example.com/rest/api/v1",
+              "GLEAN_URL": "https://example.com/rest/api/v1",
             },
             "type": "stdio",
           },
@@ -203,7 +203,7 @@ describe('configure', () => {
 
   it('should handle OAuth flow when no token is provided', async () => {
     const options: ConfigureOptions = {
-      instance: 'test-instance',
+      url: 'https://test-instance-be.glean.com/mcp/default',
       remote: true,
     };
 
@@ -221,10 +221,8 @@ describe('configure', () => {
           "glean": {
             "args": [
               "-y",
-              "@gleanwork/connect-mcp-server@0.2.4",
-              "https://test-instance-be.glean.com/mcp/default/sse",
-              "--header",
-              "X-Glean-Auth-Type:OAUTH",
+              "mcp-remote@0.1.18",
+              "https://test-instance-be.glean.com/mcp/default",
             ],
             "command": "npx",
             "env": {},
@@ -237,7 +235,7 @@ describe('configure', () => {
 
   it('should handle OAuth flow with agents target', async () => {
     const options = {
-      instance: 'test-instance',
+      url: 'https://test-instance-be.glean.com/mcp/agents',
       remote: true,
       agents: true,
     };
@@ -256,10 +254,8 @@ describe('configure', () => {
           "glean_agents": {
             "args": [
               "-y",
-              "@gleanwork/connect-mcp-server@0.2.4",
-              "https://test-instance-be.glean.com/mcp/agents/sse",
-              "--header",
-              "X-Glean-Auth-Type:OAUTH",
+              "mcp-remote@0.1.18",
+              "https://test-instance-be.glean.com/mcp/agents",
             ],
             "command": "npx",
             "env": {},
@@ -273,7 +269,7 @@ describe('configure', () => {
   it('should configure remote server using API token', async () => {
     const options: ConfigureOptions = {
       token: 'test-token',
-      instance: 'test-instance',
+      url: 'https://test-instance-be.glean.com/mcp/default',
       remote: true,
     };
 
@@ -287,15 +283,11 @@ describe('configure', () => {
           "glean": {
             "args": [
               "-y",
-              "@gleanwork/connect-mcp-server@0.2.4",
-              "https://test-instance-be.glean.com/mcp/default/sse",
-              "--header",
-              "Authorization:\${AUTH_HEADER}",
+              "mcp-remote@0.1.18",
+              "https://test-instance-be.glean.com/mcp/default",
             ],
             "command": "npx",
-            "env": {
-              "AUTH_HEADER": "Bearer test-token",
-            },
+            "env": {},
             "type": "stdio",
           },
         },

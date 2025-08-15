@@ -7,7 +7,7 @@ import '@gleanwork/mcp-test-utils/mocks/setup';
 describe('Search Tool', () => {
   beforeEach(() => {
     // delete BASE_URL because it takes precedence over INSTANCE
-    delete process.env.GLEAN_BASE_URL;
+    delete process.env.GLEAN_URL;
     process.env.GLEAN_INSTANCE = 'test';
     process.env.GLEAN_API_TOKEN = 'test-token';
   });

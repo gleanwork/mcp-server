@@ -35,7 +35,7 @@ describe('getSDKOptions (integration, msw)', () => {
     'GLEAN_API_TOKEN',
     'GLEAN_INSTANCE',
     'GLEAN_SUBDOMAIN',
-    'GLEAN_BASE_URL',
+    'GLEAN_URL',
     'GLEAN_ACT_AS',
     'GLEAN_OAUTH_CLIENT_ID',
     'GLEAN_OAUTH_ISSUER',
@@ -76,7 +76,7 @@ describe('getSDKOptions (integration, msw)', () => {
   it('should return correct SDKOptions for Glean token config (no actAs)', async () => {
     // Arrange: set env vars and config
     process.env.GLEAN_API_TOKEN = 'test-token';
-    process.env.GLEAN_BASE_URL = 'https://glean.example.com';
+    process.env.GLEAN_URL = 'https://glean.example.com';
     // No actAs
 
     // Act
@@ -88,7 +88,7 @@ describe('getSDKOptions (integration, msw)', () => {
 
   it('should set X-Glean-Auth-Type header for OAuth config', async () => {
     // Arrange: set env vars and config for OAuth
-    process.env.GLEAN_BASE_URL = 'https://glean.example.com';
+    process.env.GLEAN_URL = 'https://glean.example.com';
 
     // Write oauth.json to XDG_STATE_HOME/glean/oauth.json
     const stateDir = path.join(process.env.XDG_STATE_HOME!, 'glean');
@@ -147,7 +147,7 @@ describe('getSDKOptions (integration, msw)', () => {
 
   it('should set X-Glean-Act-As header for Glean token config with actAs', async () => {
     process.env.GLEAN_API_TOKEN = 'test-token';
-    process.env.GLEAN_BASE_URL = 'https://glean.example.com';
+    process.env.GLEAN_URL = 'https://glean.example.com';
     process.env.GLEAN_ACT_AS = 'impersonated-user';
 
     const receivedHeaders: Record<string, string> = {};
@@ -185,7 +185,7 @@ describe('getSDKOptions (integration, msw)', () => {
 
   it('should throw error if both token and OAuth env vars are set (conflict)', async () => {
     process.env.GLEAN_API_TOKEN = 'test-token';
-    process.env.GLEAN_BASE_URL = 'https://glean.example.com';
+    process.env.GLEAN_URL = 'https://glean.example.com';
     process.env.GLEAN_OAUTH_CLIENT_ID = 'client-id';
     process.env.GLEAN_OAUTH_ISSUER = 'https://issuer.example.com';
     process.env.GLEAN_OAUTH_AUTHORIZATION_ENDPOINT =
