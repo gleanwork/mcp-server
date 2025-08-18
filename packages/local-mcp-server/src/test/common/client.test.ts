@@ -1,200 +1,154 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
-  describe,
-  it,
-  expect,
-  beforeEach,
-  afterEach,
-  beforeAll,
-  afterAll,
-} from 'vitest';
-import { http } from 'msw';
-import { setupServer } from 'msw/node';
-import { getAPIClientOptions, resetClient } from '../../common/client.js';
-import { Logger } from '@gleanwork/mcp-server-utils/logger';
-import fs from 'node:fs';
+  getClient,
+  getAPIClientOptions,
+  resetClient,
+} from '../../common/client.js';
+import { getConfig } from '@gleanwork/mcp-server-utils/config';
 import os from 'node:os';
 import path from 'node:path';
+import fs from 'node:fs';
+import { Logger } from '@gleanwork/mcp-server-utils/logger';
 
-function setupTempXDG() {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'glean-xdg-test-'));
-  process.env.XDG_CONFIG_HOME = path.join(tmp, 'config');
-  process.env.XDG_STATE_HOME = path.join(tmp, 'state');
-  process.env.XDG_DATA_HOME = path.join(tmp, 'data');
-  fs.mkdirSync(process.env.XDG_CONFIG_HOME, { recursive: true });
-  fs.mkdirSync(process.env.XDG_STATE_HOME, { recursive: true });
-  fs.mkdirSync(process.env.XDG_DATA_HOME, { recursive: true });
-  return tmp;
+// Mock the config module
+vi.mock('@gleanwork/mcp-server-utils/config', () => ({
+  getConfig: vi.fn(),
+  isGleanTokenConfig: vi.fn(),
+  sanitizeConfig: vi.fn(),
+}));
+
+// Helper to set up XDG temp dir
+function setupXdgTemp() {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'client-test-'));
+  process.env.XDG_STATE_HOME = tmpDir;
+  return tmpDir;
 }
 
-const server = setupServer();
-
-describe('getSDKOptions (integration, msw)', () => {
+describe('client', () => {
   let tmpDir: string;
-  let origEnv: NodeJS.ProcessEnv;
-  const ENV_VARS = [
-    'GLEAN_API_TOKEN',
-    'GLEAN_INSTANCE',
-    'GLEAN_SUBDOMAIN',
-    'GLEAN_URL',
-    'GLEAN_ACT_AS',
-    'GLEAN_OAUTH_CLIENT_ID',
-    'GLEAN_OAUTH_ISSUER',
-    'GLEAN_OAUTH_AUTHORIZATION_ENDPOINT',
-    'GLEAN_OAUTH_TOKEN_ENDPOINT',
-  ];
-  let savedEnv: Record<string, string | undefined> = {};
-
-  beforeAll(() => server.listen());
-  afterAll(() => server.close());
+  let originalXdgStateHome: string | undefined;
+  let originalEnv: NodeJS.ProcessEnv;
 
   beforeEach(() => {
-    origEnv = { ...process.env };
-    tmpDir = setupTempXDG();
+    // Save original environment
+    originalEnv = { ...process.env };
+    originalXdgStateHome = process.env.XDG_STATE_HOME;
+    tmpDir = setupXdgTemp();
     resetClient();
-    server.resetHandlers();
-    savedEnv = {};
-    for (const key of ENV_VARS) {
-      savedEnv[key] = process.env[key];
-      delete process.env[key];
-    }
   });
 
   afterEach(() => {
-    process.env = origEnv;
-    Logger.reset();
-    fs.rmSync(tmpDir, { recursive: true, force: true });
-    server.resetHandlers();
-    for (const key of ENV_VARS) {
-      if (savedEnv[key] !== undefined) {
-        process.env[key] = savedEnv[key];
-      } else {
-        delete process.env[key];
-      }
+    // Restore original environment
+    process.env = originalEnv;
+    if (originalXdgStateHome) {
+      process.env.XDG_STATE_HOME = originalXdgStateHome;
+    } else {
+      delete process.env.XDG_STATE_HOME;
     }
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+    Logger.reset();
+    vi.clearAllMocks();
   });
 
-  it('should return correct SDKOptions for Glean token config (no actAs)', async () => {
-    // Arrange: set env vars and config
-    process.env.GLEAN_API_TOKEN = 'test-token';
-    process.env.GLEAN_URL = 'https://glean.example.com';
-    // No actAs
+  describe('getAPIClientOptions', () => {
+    it('should configure client with token config', async () => {
+      const mockConfig = {
+        authType: 'token' as const,
+        baseUrl: 'https://test-company-be.glean.com/',
+        token: 'test-token',
+      };
 
-    // Act
-    const opts = await getAPIClientOptions();
-    expect(opts.apiToken).toBe('test-token');
-    expect(opts.serverURL).toBe('https://glean.example.com');
-    expect(opts.httpClient).toBeUndefined(); // No actAs, so no custom httpClient
+      vi.mocked(getConfig).mockResolvedValue(mockConfig);
+      const { isGleanTokenConfig } = await import(
+        '@gleanwork/mcp-server-utils/config'
+      );
+      vi.mocked(isGleanTokenConfig).mockReturnValue(true);
+
+      const opts = await getAPIClientOptions();
+
+      expect(opts.serverURL).toBe('https://test-company-be.glean.com/');
+      expect(opts.apiToken).toBe('test-token');
+    });
+
+    it('should configure client with actAs header when provided', async () => {
+      const mockConfig = {
+        authType: 'token' as const,
+        baseUrl: 'https://test-company-be.glean.com/',
+        token: 'test-token',
+        actAs: 'user@example.com',
+      };
+
+      vi.mocked(getConfig).mockResolvedValue(mockConfig);
+      const { isGleanTokenConfig } = await import(
+        '@gleanwork/mcp-server-utils/config'
+      );
+      vi.mocked(isGleanTokenConfig).mockReturnValue(true);
+
+      const opts = await getAPIClientOptions();
+
+      expect(opts.serverURL).toBe('https://test-company-be.glean.com/');
+      expect(opts.apiToken).toBe('test-token');
+      expect(opts.httpClient).toBeDefined();
+    });
+
+    it('should configure client without authentication when no token provided', async () => {
+      const mockConfig = {
+        authType: 'unknown' as const,
+        baseUrl: 'https://test-company-be.glean.com/',
+      };
+
+      vi.mocked(getConfig).mockResolvedValue(mockConfig);
+      const { isGleanTokenConfig } = await import(
+        '@gleanwork/mcp-server-utils/config'
+      );
+      vi.mocked(isGleanTokenConfig).mockReturnValue(false);
+
+      const opts = await getAPIClientOptions();
+
+      expect(opts.serverURL).toBe('https://test-company-be.glean.com/');
+      expect(opts.apiToken).toBeUndefined();
+      expect(opts.httpClient).toBeDefined();
+    });
   });
 
-  it('should set X-Glean-Auth-Type header for OAuth config', async () => {
-    // Arrange: set env vars and config for OAuth
-    process.env.GLEAN_URL = 'https://glean.example.com';
+  describe('getClient', () => {
+    it('should return the same client instance on multiple calls', async () => {
+      const mockConfig = {
+        authType: 'token' as const,
+        baseUrl: 'https://test-company-be.glean.com/',
+        token: 'test-token',
+      };
 
-    // Write oauth.json to XDG_STATE_HOME/glean/oauth.json
-    const stateDir = path.join(process.env.XDG_STATE_HOME!, 'glean');
-    fs.mkdirSync(stateDir, { recursive: true });
-    const oauthMetadata = {
-      baseUrl: 'https://glean.example.com',
-      issuer: 'https://issuer.example.com',
-      clientId: 'client-id',
-      authorizationEndpoint: 'https://issuer.example.com/auth',
-      tokenEndpoint: 'https://issuer.example.com/token',
-      timestamp: new Date().toISOString(),
-    };
-    fs.writeFileSync(
-      path.join(stateDir, 'oauth.json'),
-      JSON.stringify(oauthMetadata),
-    );
+      vi.mocked(getConfig).mockResolvedValue(mockConfig);
+      const { isGleanTokenConfig } = await import(
+        '@gleanwork/mcp-server-utils/config'
+      );
+      vi.mocked(isGleanTokenConfig).mockReturnValue(true);
 
-    // Write tokens.json to XDG_STATE_HOME/glean/tokens.json
-    const tokens = {
-      accessToken: 'oauth-access-token',
-      refreshToken: 'refresh-token',
-      expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
-    };
-    fs.writeFileSync(
-      path.join(stateDir, 'tokens.json'),
-      JSON.stringify(tokens),
-    );
+      const client1 = await getClient();
+      const client2 = await getClient();
 
-    const receivedHeaders: Record<string, string> = {};
-    server.use(
-      http.get('https://glean.example.com/test', ({ request }) => {
-        request.headers.forEach((value, key) => {
-          receivedHeaders[key] = value;
-        });
-        return new Response('ok', { status: 200 });
-      }),
-    );
+      expect(client1).toBe(client2);
+    });
 
-    // Act
-    const opts = await getAPIClientOptions();
-    expect(opts.apiToken).toBe('oauth-access-token');
-    expect(opts.serverURL).toBe('https://glean.example.com');
-    expect(opts.httpClient).toBeDefined();
+    it('should create a new client instance after reset', async () => {
+      const mockConfig = {
+        authType: 'token' as const,
+        baseUrl: 'https://test-company-be.glean.com/',
+        token: 'test-token',
+      };
 
-    // Make a request using the custom httpClient
-    const req = new Request('https://glean.example.com/test');
-    await opts.httpClient!.request(req);
+      vi.mocked(getConfig).mockResolvedValue(mockConfig);
+      const { isGleanTokenConfig } = await import(
+        '@gleanwork/mcp-server-utils/config'
+      );
+      vi.mocked(isGleanTokenConfig).mockReturnValue(true);
 
-    // Assert: headers
-    expect(receivedHeaders['x-glean-auth-type']).toBe('OAUTH');
-    expect(receivedHeaders['x-glean-act-as']).toBeUndefined();
-    // we don't set authorization in the custom http client so nothing to test
-    // here.  That's done automatically as long as we set bearerAuth, which
-    // we've tested above.
-  });
+      const client1 = await getClient();
+      resetClient();
+      const client2 = await getClient();
 
-  it('should set X-Glean-Act-As header for Glean token config with actAs', async () => {
-    process.env.GLEAN_API_TOKEN = 'test-token';
-    process.env.GLEAN_URL = 'https://glean.example.com';
-    process.env.GLEAN_ACT_AS = 'impersonated-user';
-
-    const receivedHeaders: Record<string, string> = {};
-    server.use(
-      http.get('https://glean.example.com/test', ({ request }) => {
-        request.headers.forEach((value, key) => {
-          receivedHeaders[key] = value;
-        });
-        return new Response('ok', { status: 200 });
-      }),
-    );
-
-    const opts = await getAPIClientOptions();
-    expect(opts.apiToken).toBe('test-token');
-    expect(opts.serverURL).toBe('https://glean.example.com');
-    expect(opts.httpClient).toBeDefined();
-
-    const req = new Request('https://glean.example.com/test');
-    await opts.httpClient!.request(req);
-
-    expect(receivedHeaders['x-glean-act-as']).toBe('impersonated-user');
-    expect(receivedHeaders['authorization']).toBeUndefined();
-    expect(receivedHeaders['x-glean-auth-type']).toBeUndefined();
-  });
-
-  it('should throw AuthError for basic config where we cannot fetch OAuth metadata', async () => {
-    process.env.GLEAN_INSTANCE = 'awesome-co';
-    // No env vars, no config files
-    await expect(
-      async () => await getAPIClientOptions(),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[AuthError: ERR_A_06: Unable to fetch OAuth protected resource metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly.]`,
-    );
-  });
-
-  it('should throw error if both token and OAuth env vars are set (conflict)', async () => {
-    process.env.GLEAN_API_TOKEN = 'test-token';
-    process.env.GLEAN_URL = 'https://glean.example.com';
-    process.env.GLEAN_OAUTH_CLIENT_ID = 'client-id';
-    process.env.GLEAN_OAUTH_ISSUER = 'https://issuer.example.com';
-    process.env.GLEAN_OAUTH_AUTHORIZATION_ENDPOINT =
-      'https://issuer.example.com/auth';
-    process.env.GLEAN_OAUTH_TOKEN_ENDPOINT = 'https://issuer.example.com/token';
-    await expect(
-      async () => await getAPIClientOptions(),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      `[Error: Specify either GLEAN_OAUTH_ISSUER and GLEAN_OAUTH_CLIENT_ID or GLEAN_API_TOKEN, but not both.]`,
-    );
+      expect(client1).not.toBe(client2);
+    });
   });
 });

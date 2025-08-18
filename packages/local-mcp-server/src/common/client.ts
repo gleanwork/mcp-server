@@ -16,15 +16,8 @@
 import { HTTPClient } from '@gleanwork/api-client/lib/http.js';
 import { VERSION } from './version.js';
 import {
-  AuthError,
-  AuthErrorCode,
-  ensureAuthTokenPresence,
-  loadTokens,
-} from '@gleanwork/mcp-server-utils/auth';
-import {
   getConfig,
   isGleanTokenConfig,
-  isOAuthConfig,
   sanitizeConfig,
 } from '@gleanwork/mcp-server-utils/config';
 import { trace } from '@gleanwork/mcp-server-utils/logger';
@@ -69,34 +62,14 @@ function buildHttpClientWithGlobalHeaders(
 }
 
 export async function getAPIClientOptions(): Promise<SDKOptions> {
-  const config = await getConfig({ discoverOAuth: true });
+  const config = await getConfig();
   const opts: SDKOptions = {};
 
   opts.serverURL = config.baseUrl;
 
   trace('initializing client', opts.serverURL);
 
-  if (isOAuthConfig(config)) {
-    if (!(await ensureAuthTokenPresence())) {
-      throw new AuthError(
-        'No OAuth tokens found. Please run `npx @gleanwork/configure-mcp-server auth` to authenticate.',
-        { code: AuthErrorCode.InvalidConfig },
-      );
-    }
-
-    const tokens = loadTokens();
-    if (tokens === null) {
-      throw new AuthError(
-        'No OAuth tokens found. Please run `npx @gleanwork/configure-mcp-server auth` to authenticate.',
-        { code: AuthErrorCode.InvalidConfig },
-      );
-    }
-    opts.apiToken = tokens?.accessToken;
-    opts.httpClient = buildHttpClientWithGlobalHeaders({
-      'X-Glean-Auth-Type': 'OAUTH',
-      'user-agent': USER_AGENT,
-    });
-  } else if (isGleanTokenConfig(config)) {
+  if (isGleanTokenConfig(config)) {
     opts.apiToken = config.token;
 
     const { actAs } = config;
@@ -108,13 +81,13 @@ export async function getAPIClientOptions(): Promise<SDKOptions> {
     }
   } else {
     trace(
-      'Unexpected code; getConfig() should have errored or returned a valid config by now',
+      'No API token provided. Requests will be made without authentication.',
       sanitizeConfig(config),
     );
-    throw new AuthError(
-      'Missing or invalid Glean configuration. Please check that your environment variables are set correctly (e.g. GLEAN_INSTANCE or GLEAN_SUBDOMAIN).',
-      { code: AuthErrorCode.InvalidConfig },
-    );
+    // Continue without authentication - let the API reject if needed
+    opts.httpClient = buildHttpClientWithGlobalHeaders({
+      'user-agent': USER_AGENT,
+    });
   }
 
   return opts;

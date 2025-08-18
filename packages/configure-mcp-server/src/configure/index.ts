@@ -19,14 +19,9 @@ import {
   MCPConfig,
   ConfigFileContents,
 } from './client/index.js';
-import {
-  ensureAuthTokenPresence,
-  setupMcpRemote,
-} from '@gleanwork/mcp-server-utils/auth';
 import { trace, error } from '@gleanwork/mcp-server-utils/logger';
 import { validateInstance } from '@gleanwork/mcp-server-utils/util';
 import { VERSION } from '../common/version.js';
-import { isOAuthEnabled } from '../common/env.js';
 
 export type { MCPConfig, ConfigFileContents } from './client/index.js';
 
@@ -47,11 +42,13 @@ export interface ConfigureOptions {
  * Load environment variables from .env file or existing environment
  */
 function loadCredentials(options: ConfigureOptions): {
-  instanceOrUrl?: string;
+  instance?: string;
+  url?: string;
   apiToken?: string;
 } {
-  const result: { instanceOrUrl?: string; apiToken?: string } = {
-    instanceOrUrl: undefined,
+  const result: { instance?: string; url?: string; apiToken?: string } = {
+    instance: undefined,
+    url: undefined,
     apiToken: undefined,
   };
 
@@ -72,10 +69,16 @@ function loadCredentials(options: ConfigureOptions): {
           );
         }
 
-        result.instanceOrUrl =
+        // Check for URL first, then instance
+        if (envConfig.parsed?.GLEAN_URL) {
+          result.url = envConfig.parsed.GLEAN_URL;
+        } else if (
           envConfig.parsed?.GLEAN_INSTANCE ||
-          envConfig.parsed?.GLEAN_SUBDOMAIN ||
-          envConfig.parsed?.GLEAN_URL;
+          envConfig.parsed?.GLEAN_SUBDOMAIN
+        ) {
+          result.instance =
+            envConfig.parsed.GLEAN_INSTANCE || envConfig.parsed.GLEAN_SUBDOMAIN;
+        }
         result.apiToken = envConfig.parsed?.GLEAN_API_TOKEN;
       }
     } catch (error: any) {
@@ -83,23 +86,27 @@ function loadCredentials(options: ConfigureOptions): {
     }
   }
 
+  // Direct options take precedence over env file
   if (options.instance) {
-    result.instanceOrUrl = options.instance;
+    result.instance = options.instance;
   }
 
   if (options.url) {
-    result.instanceOrUrl = options.url;
+    result.url = options.url;
   }
 
   if (options.token) {
     result.apiToken = options.token;
   }
 
-  if (!result.instanceOrUrl) {
-    result.instanceOrUrl =
-      process.env.GLEAN_INSTANCE ||
-      process.env.GLEAN_SUBDOMAIN ||
-      process.env.GLEAN_URL;
+  // Fall back to environment variables if not set via options or env file
+  if (!result.instance && !result.url) {
+    if (process.env.GLEAN_URL) {
+      result.url = process.env.GLEAN_URL;
+    } else if (process.env.GLEAN_INSTANCE || process.env.GLEAN_SUBDOMAIN) {
+      result.instance =
+        process.env.GLEAN_INSTANCE || process.env.GLEAN_SUBDOMAIN;
+    }
   }
 
   if (!result.apiToken) {
@@ -188,55 +195,47 @@ export async function configure(client: string, options: ConfigureOptions) {
 
   try {
     // Load credentials from all sources first (flags, env files, environment)
-    const { instanceOrUrl, apiToken } = loadCredentials(options);
+    const { instance, url, apiToken } = loadCredentials(options);
 
-    // If we have both token and instance from any source, use token auth
-    if (apiToken && instanceOrUrl) {
-      trace('configuring Glean token auth');
-      const newConfig = clientConfig.configTemplate(
-        instanceOrUrl,
-        apiToken,
-        options,
-      );
-      writeConfigFile(configFilePath, newConfig, clientConfig, options);
-      return;
-    }
+    // Determine what we're configuring based on what's provided
+    const instanceOrUrl = url || instance;
 
-    // No token available from any source, check if OAuth is enabled
-    const oauthEnabled = isOAuthEnabled();
-    if (!oauthEnabled) {
-      throw new Error(
-        'API token is required. Please provide a token with the --token option or in your .env file.',
-      );
-    }
-
-    // For OAuth flow
-    if (!instanceOrUrl) {
-      throw new Error('Instance or URL is required for OAuth configuration');
-    }
-
-    // Set environment variables for OAuth flow
-    if (
-      instanceOrUrl.startsWith('http://') ||
-      instanceOrUrl.startsWith('https://')
-    ) {
-      process.env.GLEAN_URL = instanceOrUrl;
+    // Validate based on configuration type
+    if (options.remote) {
+      // Remote: URL required, token optional (DCR is default)
+      if (!url) {
+        throw new Error(
+          'Remote configuration requires a URL (--url). Please provide it via command line options or in your .env file.',
+        );
+      }
+      if (apiToken) {
+        trace('Remote configuration with explicit token (bypassing DCR)');
+      } else {
+        trace('Remote configuration using DCR (no token provided)');
+      }
     } else {
-      process.env.GLEAN_INSTANCE = instanceOrUrl;
+      // Local: both instance and token required
+      if (!instance && !url) {
+        throw new Error(
+          'Local configuration requires an instance (--instance) or URL. Please provide it via command line options or in your .env file.',
+        );
+      }
+      if (!apiToken) {
+        throw new Error(
+          'Local configuration requires an API token (--token). Please provide it via command line options or in your .env file.',
+        );
+      }
+      trace('Local configuration with instance and token');
     }
 
-    const authSuccess = await ensureAuthTokenPresence();
-    if (!authSuccess) {
-      throw new Error('OAuth authorization failed');
-    }
-
-    await setupMcpRemote({
-      target: options.agents ? 'agents' : 'default',
-    });
-
+    trace(
+      apiToken
+        ? 'configuring with token auth'
+        : 'configuring without token (DCR will be used for remote)',
+    );
     const newConfig = clientConfig.configTemplate(
       instanceOrUrl,
-      undefined,
+      apiToken,
       options,
     );
     writeConfigFile(configFilePath, newConfig, clientConfig, options);
@@ -396,7 +395,29 @@ export async function validateFlags(
   const hasAnyInstance = Boolean(hasDeployment || hasEnvironmentInstance);
   const hasAnyToken = Boolean(hasToken || hasEnvironmentToken);
 
-  if (hasAnyToken && !hasAnyInstance) {
+  if (instance && url) {
+    console.warn(
+      'Warning: Both --instance and --url were provided. The --instance flag will be ignored when --url is specified.',
+    );
+  }
+
+  // For validation, we don't know if it's local or remote command
+  // So we need to be more permissive and let the configure function handle the specifics
+
+  // If neither instance/URL nor token is provided and no env file
+  if (!hasAnyInstance && !hasAnyToken && !hasEnvParam) {
+    console.error('Error: You must provide either:');
+    console.error(
+      '  1. Both --token and --instance for local configuration, or',
+    );
+    console.error('  2. --url for remote configuration, or');
+    console.error('  3. --env pointing to a .env file with configuration');
+    console.error('Run with --help for usage information');
+    return false;
+  }
+
+  // Warn about partial configurations (but don't fail - let configure handle it)
+  if (hasAnyToken && !hasAnyInstance && !hasEnvParam) {
     console.error(`
 "Warning: Configuring without complete credentials.
 You must provide either:
@@ -406,22 +427,6 @@ You must provide either:
 Continuing with configuration, but you will need to set credentials manually later."
 `);
     return true;
-  }
-
-  if (instance && url) {
-    console.warn(
-      'Warning: Both --instance and --url were provided. The --instance flag will be ignored when --url is specified.',
-    );
-  }
-
-  if (!hasAnyToken && !hasAnyInstance && !hasEnvParam) {
-    console.error('Error: You must provide either:');
-    console.error('  1. Both --token and --instance for authentication, or');
-    console.error(
-      '  2. --env pointing to a .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN',
-    );
-    console.error('Run with --help for usage information');
-    return false;
   }
 
   return true;

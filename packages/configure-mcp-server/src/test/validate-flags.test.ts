@@ -63,8 +63,9 @@ describe('validateFlags', () => {
     expect(result).toBe(false);
     expect(consoleState.getState('error')).toMatchInlineSnapshot(`
       "Error: You must provide either:
-        1. Both --token and --instance for authentication, or
-        2. --env pointing to a .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
+        1. Both --token and --instance for local configuration, or
+        2. --url for remote configuration, or
+        3. --env pointing to a .env file with configuration
       Run with --help for usage information"
     `);
   });
@@ -91,7 +92,7 @@ describe('validateFlags', () => {
     `);
   });
 
-  it('should return true when only instance is provided (OAuth flow)', async () => {
+  it('should return true when only instance is provided (warning shown)', async () => {
     const result = await validateFlags(
       'client',
       undefined,
@@ -101,7 +102,7 @@ describe('validateFlags', () => {
     );
 
     expect(result).toBe(true);
-    expect(consoleState.getState('error')).toEqual('');
+    expect(consoleState.getState('error')).toMatchInlineSnapshot(`""`);
   });
 
   it('should return true when both token and instance are provided', async () => {
@@ -205,7 +206,7 @@ describe('validateFlags', () => {
     `);
   });
 
-  it('should return true when only instance is available via environment (OAuth flow)', async () => {
+  it('should return true when only instance is available via environment (warning shown)', async () => {
     delete process.env.GLEAN_API_TOKEN;
     process.env.GLEAN_INSTANCE = 'env-instance';
 
@@ -218,7 +219,7 @@ describe('validateFlags', () => {
     );
 
     expect(result).toBe(true);
-    expect(consoleState.getState('error')).toEqual('');
+    expect(consoleState.getState('error')).toMatchInlineSnapshot(`""`);
   });
 
   it('should return true when token flag is provided but instance comes from environment', async () => {

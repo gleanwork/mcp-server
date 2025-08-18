@@ -1,11 +1,10 @@
 /**
- * @fileoverview Read documents tool implementation for the Glean MCP server.
+ * @fileoverview Tool for reading documents from Glean
  *
- * This module provides an interface to read documents from Glean through the MCP protocol.
- * It defines the schema for read documents parameters and implements the functionality using
- * the Glean client SDK.
+ * This tool allows reading documents from Glean by ID or URL.
+ * It provides a simplified interface for LLM interactions.
  *
- * @module tools/read-documents
+ * @module tools/read_documents
  */
 
 import {
@@ -13,15 +12,8 @@ import {
   GetDocumentsRequestIncludeField,
 } from '@gleanwork/api-client/models/components';
 import {
-  AuthError,
-  AuthErrorCode,
-  ensureAuthTokenPresence,
-  loadTokens,
-} from '@gleanwork/mcp-server-utils/auth';
-import {
   getConfig,
   isGleanTokenConfig,
-  isOAuthConfig,
 } from '@gleanwork/mcp-server-utils/config';
 import { z } from 'zod';
 
@@ -57,16 +49,19 @@ function convertToAPIReadDocumentsRequest(
   input: ToolReadDocumentsRequest,
 ): GetDocumentsRequest {
   return {
-    documentSpecs: input.documentSpecs,
+    documentSpecs: input.documentSpecs.map((spec) => ({
+      ...(spec.id && { id: spec.id }),
+      ...(spec.url && { url: spec.url }),
+    })),
     includeFields: [GetDocumentsRequestIncludeField.DocumentContent],
   };
 }
 
 /**
- * Reads documents from Glean.
+ * Reads documents from Glean using the provided document specifications.
  *
- * @param params The read documents parameters using the simplified schema
- * @returns The documents
+ * @param params The read documents request parameters
+ * @returns A formatted string containing the document content
  * @throws If the read documents request fails
  */
 export async function readDocuments(params: ToolReadDocumentsRequest) {
@@ -75,40 +70,20 @@ export async function readDocuments(params: ToolReadDocumentsRequest) {
   // There's a bug in the client SDK, so using fetch directly for now
   // See https://github.com/gleanwork/api-client-typescript/issues/45
 
-  const config = await getConfig({ discoverOAuth: true });
+  const config = await getConfig();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
-  if (isOAuthConfig(config)) {
-    if (!(await ensureAuthTokenPresence())) {
-      throw new AuthError(
-        'No OAuth tokens found. Please run `npx @gleanwork/configure-mcp-server auth` to authenticate.',
-        { code: AuthErrorCode.InvalidConfig },
-      );
-    }
 
-    const tokens = loadTokens();
-    if (tokens === null) {
-      throw new AuthError(
-        'No OAuth tokens found. Please run `npx @gleanwork/configure-mcp-server auth` to authenticate.',
-        { code: AuthErrorCode.InvalidConfig },
-      );
-    }
-    headers['X-Glean-Auth-Type'] = 'OAUTH';
-    headers['Authorization'] = `Bearer ${tokens?.accessToken}`;
-  } else if (isGleanTokenConfig(config)) {
+  if (isGleanTokenConfig(config)) {
     headers['Authorization'] = `Bearer ${config.token}`;
 
     const { actAs } = config;
     if (actAs) {
       headers['X-Glean-Act-As'] = actAs;
     }
-  } else {
-    throw new AuthError(
-      'Missing or invalid Glean configuration. Please check that your environment variables are set correctly (e.g. GLEAN_INSTANCE or GLEAN_SUBDOMAIN).',
-      { code: AuthErrorCode.InvalidConfig },
-    );
   }
+  // If no token config, continue without auth headers - let API reject if needed
 
   const response = await fetch(`${config.baseUrl}rest/api/v1/getdocuments`, {
     method: 'POST',
@@ -119,84 +94,69 @@ export async function readDocuments(params: ToolReadDocumentsRequest) {
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(
-      `API request failed with status ${response.status}: ${errorText}`,
+      `Failed to read documents: ${response.status} ${response.statusText}. ${errorText}`,
     );
   }
 
-  const contentType = response.headers.get('content-type');
-  if (!contentType || !contentType.includes('application/json')) {
-    const responseText = await response.text();
-    throw new Error(
-      `Expected JSON response but got ${contentType}: ${responseText}`,
-    );
+  const data = (await response.json()) as any;
+
+  if (!data.documents || !Array.isArray(data.documents)) {
+    throw new Error('Invalid response format from Glean API');
   }
 
-  return response.json();
-}
+  // Format the response for LLM consumption
+  let result = '';
 
-/**
- * Formats read documents results into a human-readable text format.
- *
- * @param documentsResponse The raw documents response from Glean API
- * @returns Formatted documents as text
- */
-export function formatResponse(documentsResponse: any): string {
-  if (
-    !documentsResponse ||
-    !documentsResponse.documents ||
-    typeof documentsResponse.documents !== 'object'
-  ) {
-    return 'No documents found.';
-  }
+  for (const doc of data.documents) {
+    result += `\n--- Document ---\n`;
 
-  const documents = Object.values(documentsResponse.documents) as any[];
+    if (doc.title) {
+      result += `Title: ${doc.title}\n`;
+    }
 
-  if (documents.length === 0) {
-    return 'No documents found.';
-  }
+    if (doc.url) {
+      result += `URL: ${doc.url}\n`;
+    }
 
-  const formattedDocuments = documents
-    .map((doc: any, index: number) => {
-      const title = doc.title || 'No title';
-      const url = doc.url || '';
-      const docType = doc.docType || 'Document';
-      const datasource = doc.datasource || 'Unknown source';
+    if (doc.id) {
+      result += `ID: ${doc.id}\n`;
+    }
 
-      let content = '';
-      if (
-        doc.content &&
-        doc.content.fullTextList &&
-        Array.isArray(doc.content.fullTextList)
-      ) {
-        content = doc.content.fullTextList.join('\n');
-      } else if (doc.content && typeof doc.content === 'string') {
-        content = doc.content;
-      } else {
-        content = 'No content available';
-      }
-
+    // Add metadata if available
+    if (doc.metadata) {
       let metadata = '';
-      if (doc.metadata?.author?.name) {
+      if (doc.metadata.createdAt) {
+        metadata += `Created: ${new Date(doc.metadata.createdAt).toLocaleDateString()}\n`;
+      }
+      if (doc.metadata.updatedAt) {
+        metadata += `Updated: ${new Date(doc.metadata.updatedAt).toLocaleDateString()}\n`;
+      }
+      if (doc.metadata.author?.name) {
         metadata += `Author: ${doc.metadata.author.name}\n`;
       }
-      if (doc.metadata?.createTime) {
-        metadata += `Created: ${new Date(doc.metadata.createTime).toLocaleDateString()}\n`;
+      if (doc.metadata.datasource) {
+        metadata += `Source: ${doc.metadata.datasource}\n`;
       }
-      if (doc.metadata?.updateTime) {
-        metadata += `Updated: ${new Date(doc.metadata.updateTime).toLocaleDateString()}\n`;
+      if (metadata) {
+        result += metadata;
       }
+    }
 
-      return `[${index + 1}] ${title}
-        Type: ${docType}
-        Source: ${datasource}
-        ${metadata}URL: ${url}
+    result += '\n';
 
-        Content:
-        ${content}`;
-    })
-    .join('\n\n---\n\n');
+    // Add document body
+    if (doc.body?.mimeType === 'text/plain' && doc.body.textContent) {
+      result += `Content:\n${doc.body.textContent}\n`;
+    } else if (doc.body?.mimeType === 'text/html' && doc.body.textContent) {
+      // For HTML content, we could strip tags or convert to markdown
+      // For now, just include as-is with a note
+      result += `Content (HTML):\n${doc.body.textContent}\n`;
+    } else if (doc.body) {
+      result += `Content: [${doc.body.mimeType || 'Unknown format'}]\n`;
+    }
 
-  const totalDocuments = documents.length;
+    result += '\n';
+  }
 
-  return `Retrieved ${totalDocuments} document${totalDocuments === 1 ? '' : 's'}:\n\n${formattedDocuments}`;
+  return result.trim();
 }

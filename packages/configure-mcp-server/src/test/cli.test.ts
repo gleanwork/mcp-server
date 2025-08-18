@@ -1,6 +1,5 @@
 import path from 'path';
 import fs from 'fs';
-import os from 'os';
 import { createBinTester, BinTesterProject } from '@scalvert/bin-tester';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -60,7 +59,6 @@ describe('CLI', () => {
   beforeEach(async () => {
     originalEnv = { ...process.env };
 
-    process.env.GLEAN_OAUTH_DISABLED = 'true';
     delete process.env.GLEAN_BETA_ENABLED;
     delete process.env.GLEAN_API_TOKEN;
     delete process.env.GLEAN_INSTANCE;
@@ -116,17 +114,33 @@ describe('CLI', () => {
           Options for remote
             --client, -c    MCP client to configure for (claude-code, claude, cursor, goose, vscode, windsurf)
             --url, -u       Full MCP server URL (required, e.g., https://my-be.glean.com/mcp/default)
-            --token, -t     Glean API token (optional, uses OAuth if not provided)
-            --env, -e       Path to .env file containing GLEAN_URL and GLEAN_API_TOKEN
+            --token, -t     Glean API token (optional, DCR will be used if not provided)
+            --env, -e       Path to .env file containing GLEAN_URL and optionally GLEAN_API_TOKEN
             --workspace     Create workspace configuration instead of global (VS Code only)
 
+
           Examples
-            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client cursor
-            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/agents --client claude --token glean_api_xyz
-            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/analytics --client cursor
-            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client goose
-            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client windsurf --env ~/.glean.env
-            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client vscode --workspace
+
+            Local:
+
+            npx @gleanwork/configure-mcp-server local --instance acme --client cursor --token glean_api_xyz
+            npx @gleanwork/configure-mcp-server local --instance acme --client claude --token glean_api_xyz
+            npx @gleanwork/configure-mcp-server local --instance acme --client cursor --token glean_api_xyz
+            npx @gleanwork/configure-mcp-server local --instance acme --client goose --token glean_api_xyz
+            npx @gleanwork/configure-mcp-server local --instance acme --client windsurf --env ~/.glean.env
+            npx @gleanwork/configure-mcp-server local --instance acme --client vscode --workspace --token glean_api_xyz
+
+            Remote:
+
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client cursor
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/agents --client claude
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/analytics --client cursor
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client goose
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client windsurf
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client vscode --workspace
+          
+            # With explicit token (bypasses DCR):
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client cursor --token glean_api_xyz
 
           Run 'npx @gleanwork/configure-mcp-server help' for more details on supported clients
 
@@ -172,17 +186,33 @@ describe('CLI', () => {
           Options for remote
             --client, -c    MCP client to configure for (claude-code, claude, cursor, goose, vscode, windsurf)
             --url, -u       Full MCP server URL (required, e.g., https://my-be.glean.com/mcp/default)
-            --token, -t     Glean API token (optional, uses OAuth if not provided)
-            --env, -e       Path to .env file containing GLEAN_URL and GLEAN_API_TOKEN
+            --token, -t     Glean API token (optional, DCR will be used if not provided)
+            --env, -e       Path to .env file containing GLEAN_URL and optionally GLEAN_API_TOKEN
             --workspace     Create workspace configuration instead of global (VS Code only)
 
+
           Examples
-            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client cursor
-            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/agents --client claude --token glean_api_xyz
-            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/analytics --client cursor
-            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client goose
-            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client windsurf --env ~/.glean.env
-            $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client vscode --workspace
+
+            Local:
+
+            npx @gleanwork/configure-mcp-server local --instance acme --client cursor --token glean_api_xyz
+            npx @gleanwork/configure-mcp-server local --instance acme --client claude --token glean_api_xyz
+            npx @gleanwork/configure-mcp-server local --instance acme --client cursor --token glean_api_xyz
+            npx @gleanwork/configure-mcp-server local --instance acme --client goose --token glean_api_xyz
+            npx @gleanwork/configure-mcp-server local --instance acme --client windsurf --env ~/.glean.env
+            npx @gleanwork/configure-mcp-server local --instance acme --client vscode --workspace --token glean_api_xyz
+
+            Remote:
+
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client cursor
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/agents --client claude
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/analytics --client cursor
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client goose
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client windsurf
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client vscode --workspace
+          
+            # With explicit token (bypasses DCR):
+            npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client cursor --token glean_api_xyz
 
           Run 'npx @gleanwork/configure-mcp-server help' for more details on supported clients
 
@@ -220,7 +250,7 @@ describe('CLI', () => {
 
   for (const command of ['local', 'remote']) {
     describe(command, () => {
-      it('fails when only token provided without OAuth enabled', async () => {
+      it('fails when only token provided', async () => {
         const result = await runBin(
           '--client',
           'cursor',
@@ -238,19 +268,19 @@ describe('CLI', () => {
 
         expect(result.exitCode).toEqual(1);
         expect(result.stderr).toMatchInlineSnapshot(`
-        "
-        "Warning: Configuring without complete credentials.
-        You must provide either:
-          1. Both --token and --instance, or
-          2. --env pointing to a .env file containing GLEAN_API_TOKEN and GLEAN_INSTANCE
+          "
+          "Warning: Configuring without complete credentials.
+          You must provide either:
+            1. Both --token and --instance, or
+            2. --env pointing to a .env file containing GLEAN_API_TOKEN and GLEAN_INSTANCE
 
-        Continuing with configuration, but you will need to set credentials manually later."
+          Continuing with configuration, but you will need to set credentials manually later."
 
-        Error configuring client: API token is required. Please provide a token with the --token option or in your .env file."
-      `);
+          Error configuring client: Local configuration requires an instance (--instance) or URL. Please provide it via command line options or in your .env file."
+        `);
       });
 
-      it('fails when only instance provided without OAuth enabled', async () => {
+      it('fails when only instance provided', async () => {
         const result = await runBin(
           '--client',
           'cursor',
@@ -268,11 +298,11 @@ describe('CLI', () => {
 
         expect(result.exitCode).toEqual(1);
         expect(result.stderr).toMatchInlineSnapshot(
-          `"Error configuring client: API token is required. Please provide a token with the --token option or in your .env file."`,
+          `"Error configuring client: Local configuration requires an API token (--token). Please provide it via command line options or in your .env file."`,
         );
       });
 
-      it('fails when env file has only token without OAuth enabled', async () => {
+      it('fails when env file has only token', async () => {
         await project.write({
           '.env': 'GLEAN_API_TOKEN=env-token\n',
         });
@@ -294,11 +324,11 @@ describe('CLI', () => {
 
         expect(result.exitCode).toEqual(1);
         expect(result.stderr).toMatchInlineSnapshot(
-          `"Error configuring client: API token is required. Please provide a token with the --token option or in your .env file."`,
+          `"Error configuring client: Local configuration requires an instance (--instance) or URL. Please provide it via command line options or in your .env file."`,
         );
       });
 
-      it('fails when env file has only instance without OAuth enabled', async () => {
+      it('fails when env file has only instance', async () => {
         await project.write({
           '.env': 'GLEAN_INSTANCE=env-instance\n',
         });
@@ -320,11 +350,11 @@ describe('CLI', () => {
 
         expect(result.exitCode).toEqual(1);
         expect(result.stderr).toMatchInlineSnapshot(
-          `"Error configuring client: API token is required. Please provide a token with the --token option or in your .env file."`,
+          `"Error configuring client: Local configuration requires an API token (--token). Please provide it via command line options or in your .env file."`,
         );
       });
 
-      it('fails when neither token/instance nor OAuth enabled', async () => {
+      it('fails when neither token nor instance provided', async () => {
         const result = await runBin('--client', 'cursor', {
           env: {
             GLEAN_MCP_CONFIG_DIR: project.baseDir,
@@ -333,11 +363,12 @@ describe('CLI', () => {
 
         expect(result.exitCode).toEqual(1);
         expect(result.stderr).toMatchInlineSnapshot(`
-        "Error: You must provide either:
-          1. Both --token and --instance for authentication, or
-          2. --env pointing to a .env file containing GLEAN_INSTANCE and GLEAN_API_TOKEN
-        Run with --help for usage information"
-      `);
+          "Error: You must provide either:
+            1. Both --token and --instance for local configuration, or
+            2. --url for remote configuration, or
+            3. --env pointing to a .env file with configuration
+          Run with --help for usage information"
+        `);
       });
     });
   }
@@ -720,8 +751,10 @@ describe('CLI', () => {
       expect(
         normalizeOutput(result.stderr, project.baseDir),
       ).toMatchInlineSnapshot(
-        `"Warning: .env file not found at <TMP_DIR>/nonexistent.env
-Error configuring client: API token is required. Please provide a token with the --token option or in your .env file."`,
+        `
+        "Warning: .env file not found at <TMP_DIR>/nonexistent.env
+        Error configuring client: Local configuration requires an instance (--instance) or URL. Please provide it via command line options or in your .env file."
+      `,
       );
     });
 
@@ -1824,32 +1857,6 @@ Error configuring client: API token is required. Please provide a token with the
       expect(config.mcpServers.glean_analytics.args[1]).toMatch(/mcp-remote/);
       expect(config.mcpServers.glean_analytics.args).toContain(
         'https://my-be.glean.com/mcp/analytics',
-      );
-    });
-  });
-
-  describe('unlisted OAuth commands', () => {
-    it('Prints user-friendly error messages on failures', async () => {
-      // Set up a temp XDG_STATE_HOME
-      const tempStateDir = fs.mkdtempSync(
-        path.join(os.tmpdir(), 'cli-oauth-test-'),
-      );
-      // Only set GLEAN_URL to a value that will fail
-      const env = {
-        GLEAN_URL: 'https://glean-be.example.com',
-        XDG_STATE_HOME: tempStateDir,
-      };
-
-      const result = await runBin('auth', { env });
-
-      expect(result.exitCode).toBe(1);
-      expect(
-        normalizeOutput(result.stdout, project.baseDir),
-      ).toMatchInlineSnapshot(`""`);
-      expect(
-        normalizeOutput(result.stderr, project.baseDir),
-      ).toMatchInlineSnapshot(
-        `"Authorization failed: ERR_A_06: Unable to fetch OAuth protected resource metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly."`,
       );
     });
   });
