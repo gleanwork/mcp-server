@@ -128,10 +128,10 @@ describe('VS Code MCP Client', () => {
     `);
   });
 
-  it('should generate a valid VS Code workspace config template with instance (remote: default)', () => {
+  it('should generate a valid VS Code workspace config template with URL (remote: default)', () => {
     const options: ConfigureOptions = { workspace: true, remote: true };
     const config = vscodeClient.configTemplate(
-      'example-instance',
+      'https://example-instance-be.glean.com/mcp/default',
       'test-token',
       options,
     );
@@ -140,32 +140,22 @@ describe('VS Code MCP Client', () => {
       {
         "servers": {
           "glean": {
-            "args": [
-              "-y",
-              "@gleanwork/connect-mcp-server@0.2.4",
-              "https://example-instance-be.glean.com/mcp/default/sse",
-              "--header",
-              "Authorization:\${AUTH_HEADER}",
-            ],
-            "command": "npx",
-            "env": {
-              "AUTH_HEADER": "Bearer test-token",
-            },
-            "type": "stdio",
+            "type": "http",
+            "url": "https://example-instance-be.glean.com/mcp/default",
           },
         },
       }
     `);
   });
 
-  it('should generate a valid VS Code workspace config template with instance (remote: agents)', () => {
+  it('should generate a valid VS Code workspace config template with URL (remote: agents)', () => {
     const options: ConfigureOptions = {
       workspace: true,
       remote: true,
       agents: true,
     };
     const config = vscodeClient.configTemplate(
-      'example-instance',
+      'https://example-instance-be.glean.com/mcp/agents',
       'test-token',
       options,
     );
@@ -174,18 +164,8 @@ describe('VS Code MCP Client', () => {
       {
         "servers": {
           "glean_agents": {
-            "args": [
-              "-y",
-              "@gleanwork/connect-mcp-server@0.2.4",
-              "https://example-instance-be.glean.com/mcp/agents/sse",
-              "--header",
-              "Authorization:\${AUTH_HEADER}",
-            ],
-            "command": "npx",
-            "env": {
-              "AUTH_HEADER": "Bearer test-token",
-            },
-            "type": "stdio",
+            "type": "http",
+            "url": "https://example-instance-be.glean.com/mcp/agents",
           },
         },
       }
@@ -210,7 +190,7 @@ describe('VS Code MCP Client', () => {
               "command": "npx",
               "env": {
                 "GLEAN_API_TOKEN": "test-token",
-                "GLEAN_BASE_URL": "https://example.com/rest/api/v1",
+                "GLEAN_URL": "https://example.com/rest/api/v1",
               },
               "type": "stdio",
             },
@@ -309,7 +289,7 @@ describe('VS Code MCP Client', () => {
             "command": "npx",
             "env": {
               "GLEAN_API_TOKEN": "test-token",
-              "GLEAN_BASE_URL": "https://example.com/rest/api/v1",
+              "GLEAN_URL": "https://example.com/rest/api/v1",
             },
             "type": "stdio",
           },

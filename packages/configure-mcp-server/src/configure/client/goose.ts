@@ -32,6 +32,17 @@ function toGooseConfig(servers: MCPServersConfig): GooseConfig {
   const extensions: Record<string, GooseExtensionConfig> = {};
   for (const [name, server] of Object.entries(servers)) {
     if (!server) continue;
+
+    // Goose only supports stdio configs (with command and args)
+    // This shouldn't happen in practice since Goose uses createMcpServersConfig
+    // which always generates stdio configs, but check defensively
+    if (!server.command || !server.args) {
+      console.warn(
+        `Skipping server ${name}: Goose requires stdio configuration`,
+      );
+      continue;
+    }
+
     extensions[name] = {
       args: server.args,
       bundled: null,
@@ -39,7 +50,7 @@ function toGooseConfig(servers: MCPServersConfig): GooseConfig {
       description: '',
       enabled: true,
       env_keys: [],
-      envs: server.env,
+      envs: server.env || {},
       name: 'glean',
       timeout: 300,
       type: server.type ?? 'stdio',

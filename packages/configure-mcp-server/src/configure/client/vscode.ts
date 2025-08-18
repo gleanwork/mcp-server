@@ -5,7 +5,6 @@
  */
 
 import path from 'path';
-import fs from 'fs';
 import {
   MCPConfigPath,
   createBaseClient,
@@ -15,6 +14,8 @@ import {
   ConfigFileContents,
   createMcpServersConfig,
   updateMcpServersConfig,
+  MCPServersConfig,
+  buildMcpServerName,
 } from './index.js';
 import type { ConfigureOptions } from '../index.js';
 
@@ -48,6 +49,44 @@ function getVSCodeUserSettingsPath(homedir: string): string {
 }
 
 /**
+ * Creates VS Code MCP servers configuration
+ * VS Code has native HTTP support for remote servers
+ */
+function createVSCodeMcpServersConfig(
+  instanceOrUrl?: string,
+  apiToken?: string,
+  options?: ConfigureOptions,
+): MCPServersConfig {
+  const isLocal = !options?.remote;
+
+  // For local servers, use the standard stdio configuration
+  if (isLocal) {
+    return createMcpServersConfig(instanceOrUrl, apiToken, options);
+  }
+
+  // For remote servers, VS Code supports native HTTP
+  // Remote configuration requires a full URL
+  if (
+    !instanceOrUrl?.startsWith('http://') &&
+    !instanceOrUrl?.startsWith('https://')
+  ) {
+    throw new Error(
+      'Remote configuration requires a full URL (starting with http:// or https://)',
+    );
+  }
+
+  const serverUrl = instanceOrUrl;
+  const mcpServerName = buildMcpServerName(options || {}, serverUrl);
+
+  return {
+    [mcpServerName]: {
+      type: 'http',
+      url: serverUrl,
+    },
+  };
+}
+
+/**
  * Creates VS Code workspace configuration format
  */
 function createVSCodeWorkspaceConfig(
@@ -56,7 +95,7 @@ function createVSCodeWorkspaceConfig(
   options?: ConfigureOptions,
 ): VSCodeWorkspaceConfig {
   return {
-    servers: createMcpServersConfig(instanceOrUrl, apiToken, options),
+    servers: createVSCodeMcpServersConfig(instanceOrUrl, apiToken, options),
   };
 }
 
@@ -93,7 +132,7 @@ vscodeClient.configTemplate = (
 
   return {
     mcp: {
-      servers: createMcpServersConfig(instanceOrUrl, apiToken, options),
+      servers: createVSCodeMcpServersConfig(instanceOrUrl, apiToken, options),
     },
   };
 };

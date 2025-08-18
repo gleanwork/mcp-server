@@ -75,7 +75,7 @@ function loadCredentials(options: ConfigureOptions): {
         result.instanceOrUrl =
           envConfig.parsed?.GLEAN_INSTANCE ||
           envConfig.parsed?.GLEAN_SUBDOMAIN ||
-          envConfig.parsed?.GLEAN_BASE_URL;
+          envConfig.parsed?.GLEAN_URL;
         result.apiToken = envConfig.parsed?.GLEAN_API_TOKEN;
       }
     } catch (error: any) {
@@ -99,7 +99,7 @@ function loadCredentials(options: ConfigureOptions): {
     result.instanceOrUrl =
       process.env.GLEAN_INSTANCE ||
       process.env.GLEAN_SUBDOMAIN ||
-      process.env.GLEAN_BASE_URL;
+      process.env.GLEAN_URL;
   }
 
   if (!result.apiToken) {
@@ -137,6 +137,23 @@ export async function configure(client: string, options: ConfigureOptions) {
     process.exit(1);
   }
 
+  // Handle conflicting --instance and --url flags
+  if (options.instance && options.url) {
+    console.warn(
+      'Warning: Both --instance and --url were provided. The --instance flag will be ignored when --url is specified.',
+    );
+    delete options.instance;
+  }
+
+  // For remote configurations, require a URL, not an instance name
+  if (options.remote && options.instance && !options.url) {
+    console.error(
+      'Configuration failed: Remote configurations require a full URL (--url), not an instance name (--instance)',
+    );
+    console.error('Example: --url https://my-company-be.glean.com/mcp/default');
+    process.exit(1);
+  }
+
   const clientConfig = availableClients[normalizedClient];
   console.log(`Configuring Glean MCP for ${clientConfig.displayName}...`);
 
@@ -160,9 +177,7 @@ export async function configure(client: string, options: ConfigureOptions) {
       );
       console.error();
       console.error('Troubleshooting tips:');
-      console.error(
-        '1. Check that the instance name is spelled correctly  (e.g. "acme" for acme-be.glean.com)',
-      );
+      console.error('1. Check that the instance name or URL is correct');
       console.error(
         '  • Visit https://app.glean.com/admin/about-glean and look for "Server instance"',
       );
@@ -205,9 +220,7 @@ export async function configure(client: string, options: ConfigureOptions) {
       instanceOrUrl.startsWith('http://') ||
       instanceOrUrl.startsWith('https://')
     ) {
-      process.env.GLEAN_BASE_URL = instanceOrUrl.endsWith('/rest/api/v1')
-        ? instanceOrUrl
-        : `${instanceOrUrl}/rest/api/v1`;
+      process.env.GLEAN_URL = instanceOrUrl;
     } else {
       process.env.GLEAN_INSTANCE = instanceOrUrl;
     }
@@ -375,7 +388,7 @@ export async function validateFlags(
   const hasEnvironmentInstance = Boolean(
     process.env.GLEAN_INSTANCE ||
       process.env.GLEAN_SUBDOMAIN ||
-      process.env.GLEAN_BASE_URL,
+      process.env.GLEAN_URL,
   );
 
   const hasEnvParam = Boolean(env);
@@ -396,12 +409,9 @@ Continuing with configuration, but you will need to set credentials manually lat
   }
 
   if (instance && url) {
-    // --url is unlisted.  It's only for dev so you can specify a local server.
-    console.error(
-      'Error: Specify your Glean instance with either --url or --instance but not both.',
+    console.warn(
+      'Warning: Both --instance and --url were provided. The --instance flag will be ignored when --url is specified.',
     );
-    console.error('Run with --help for usage information');
-    return false;
   }
 
   if (!hasAnyToken && !hasAnyInstance && !hasEnvParam) {
