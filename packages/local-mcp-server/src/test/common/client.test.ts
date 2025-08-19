@@ -139,7 +139,7 @@ describe('getSDKOptions (integration, msw)', () => {
 
     // Assert: headers
     expect(receivedHeaders['x-glean-auth-type']).toBe('OAUTH');
-    expect(receivedHeaders['x-glean-act-as']).toBeUndefined();
+    expect(receivedHeaders['x-glean-actas']).toBeUndefined();
     // we don't set authorization in the custom http client so nothing to test
     // here.  That's done automatically as long as we set bearerAuth, which
     // we've tested above.
@@ -168,7 +168,7 @@ describe('getSDKOptions (integration, msw)', () => {
     const req = new Request('https://glean.example.com/test');
     await opts.httpClient!.request(req);
 
-    expect(receivedHeaders['x-glean-act-as']).toBe('impersonated-user');
+    expect(receivedHeaders['x-glean-actas']).toBe('impersonated-user');
     expect(receivedHeaders['authorization']).toBeUndefined();
     expect(receivedHeaders['x-glean-auth-type']).toBeUndefined();
   });
