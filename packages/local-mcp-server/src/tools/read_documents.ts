@@ -78,7 +78,7 @@ export async function readDocuments(params: ToolReadDocumentsRequest) {
 
     const { actAs } = config;
     if (actAs) {
-      headers['X-Glean-Act-As'] = actAs;
+      headers['X-Glean-ActAs'] = actAs;
     }
   }
 
