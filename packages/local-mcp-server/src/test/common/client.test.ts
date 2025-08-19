@@ -145,7 +145,7 @@ describe('getSDKOptions (integration, msw)', () => {
     // we've tested above.
   });
 
-  it('should set X-Glean-Act-As header for Glean token config with actAs', async () => {
+  it('should set X-Glean-ActAs header for Glean token config with actAs', async () => {
     process.env.GLEAN_API_TOKEN = 'test-token';
     process.env.GLEAN_URL = 'https://glean.example.com';
     process.env.GLEAN_ACT_AS = 'impersonated-user';

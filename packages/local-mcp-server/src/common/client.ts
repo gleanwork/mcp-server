@@ -102,7 +102,7 @@ export async function getAPIClientOptions(): Promise<SDKOptions> {
     const { actAs } = config;
     if (actAs) {
       opts.httpClient = buildHttpClientWithGlobalHeaders({
-        'X-Glean-Act-As': actAs,
+        'X-Glean-ActAs': actAs,
         'user-agent': USER_AGENT,
       });
     }
