@@ -138,14 +138,14 @@ describe('getSDKOptions (integration, msw)', () => {
     await opts.httpClient!.request(req);
 
     // Assert: headers
-    expect(receivedHeaders['x-glean-auth-type']).toBe('OAUTH');
-    expect(receivedHeaders['x-glean-act-as']).toBeUndefined();
+    expect(receivedHeaders['X-Glean-Auth-Type']).toBe('OAUTH');
+    expect(receivedHeaders['X-Glean-ActAs']).toBeUndefined();
     // we don't set authorization in the custom http client so nothing to test
     // here.  That's done automatically as long as we set bearerAuth, which
     // we've tested above.
   });
 
-  it('should set X-Glean-Act-As header for Glean token config with actAs', async () => {
+  it('should set X-Glean-ActAs header for Glean token config with actAs', async () => {
     process.env.GLEAN_API_TOKEN = 'test-token';
     process.env.GLEAN_URL = 'https://glean.example.com';
     process.env.GLEAN_ACT_AS = 'impersonated-user';
@@ -168,9 +168,9 @@ describe('getSDKOptions (integration, msw)', () => {
     const req = new Request('https://glean.example.com/test');
     await opts.httpClient!.request(req);
 
-    expect(receivedHeaders['x-glean-act-as']).toBe('impersonated-user');
+    expect(receivedHeaders['X-Glean-ActAs']).toBe('impersonated-user');
     expect(receivedHeaders['authorization']).toBeUndefined();
-    expect(receivedHeaders['x-glean-auth-type']).toBeUndefined();
+    expect(receivedHeaders['X-Glean-Auth-Type']).toBeUndefined();
   });
 
   it('should throw AuthError for basic config where we cannot fetch OAuth metadata', async () => {
