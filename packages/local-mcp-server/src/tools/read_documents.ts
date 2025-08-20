@@ -1,10 +1,11 @@
 /**
- * @fileoverview Tool for reading documents from Glean
+ * @fileoverview Read documents tool implementation for the Glean MCP server.
  *
- * This tool allows reading documents from Glean by ID or URL.
- * It provides a simplified interface for LLM interactions.
+ * This module provides an interface to read documents from Glean through the MCP protocol.
+ * It defines the schema for read documents parameters and implements the functionality using
+ * the Glean client SDK.
  *
- * @module tools/read_documents
+ * @module tools/read-documents
  */
 
 import {
@@ -49,19 +50,16 @@ function convertToAPIReadDocumentsRequest(
   input: ToolReadDocumentsRequest,
 ): GetDocumentsRequest {
   return {
-    documentSpecs: input.documentSpecs.map((spec) => ({
-      ...(spec.id && { id: spec.id }),
-      ...(spec.url && { url: spec.url }),
-    })),
+    documentSpecs: input.documentSpecs,
     includeFields: [GetDocumentsRequestIncludeField.DocumentContent],
   };
 }
 
 /**
- * Reads documents from Glean using the provided document specifications.
+ * Reads documents from Glean.
  *
- * @param params The read documents request parameters
- * @returns A formatted string containing the document content
+ * @param params The read documents parameters using the simplified schema
+ * @returns The formatted documents as text
  * @throws If the read documents request fails
  */
 export async function readDocuments(params: ToolReadDocumentsRequest) {
@@ -83,7 +81,6 @@ export async function readDocuments(params: ToolReadDocumentsRequest) {
       headers['X-Glean-Act-As'] = actAs;
     }
   }
-  // If no token config, continue without auth headers - let API reject if needed
 
   const response = await fetch(`${config.baseUrl}rest/api/v1/getdocuments`, {
     method: 'POST',
@@ -98,65 +95,93 @@ export async function readDocuments(params: ToolReadDocumentsRequest) {
     );
   }
 
-  const data = (await response.json()) as any;
-
-  if (!data.documents || !Array.isArray(data.documents)) {
-    throw new Error('Invalid response format from Glean API');
+  const contentType = response.headers.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    const responseText = await response.text();
+    throw new Error(
+      `Expected JSON response but got ${contentType}: ${responseText}`,
+    );
   }
 
-  // Format the response for LLM consumption
-  let result = '';
+  const documentsResponse = await response.json();
+  return formatResponse(documentsResponse);
+}
 
-  for (const doc of data.documents) {
-    result += `\n--- Document ---\n`;
+/**
+ * Formats read documents results into a human-readable text format.
+ *
+ * @param documentsResponse The raw documents response from Glean API
+ * @returns Formatted documents as text
+ */
+export function formatResponse(documentsResponse: any): string {
+  if (
+    !documentsResponse ||
+    !documentsResponse.documents ||
+    !Array.isArray(documentsResponse.documents)
+  ) {
+    return 'No documents found.';
+  }
 
-    if (doc.title) {
-      result += `Title: ${doc.title}\n`;
-    }
+  const documents = documentsResponse.documents;
 
-    if (doc.url) {
-      result += `URL: ${doc.url}\n`;
-    }
+  if (documents.length === 0) {
+    return 'No documents found.';
+  }
 
-    if (doc.id) {
-      result += `ID: ${doc.id}\n`;
-    }
+  const formattedDocuments = documents
+    .map((doc: any, index: number) => {
+      const title = doc.title || 'No title';
+      const url = doc.url || '';
+      const docType = doc.docType || 'Document';
+      const datasource =
+        doc.metadata?.datasource || doc.datasource || 'Unknown source';
 
-    // Add metadata if available
-    if (doc.metadata) {
+      let content = '';
+      if (doc.body?.textContent) {
+        content = doc.body.textContent;
+      } else if (
+        doc.content &&
+        doc.content.fullTextList &&
+        Array.isArray(doc.content.fullTextList)
+      ) {
+        content = doc.content.fullTextList.join('\n');
+      } else if (doc.content && typeof doc.content === 'string') {
+        content = doc.content;
+      } else {
+        content = 'No content available';
+      }
+
       let metadata = '';
-      if (doc.metadata.createdAt) {
-        metadata += `Created: ${new Date(doc.metadata.createdAt).toLocaleDateString()}\n`;
-      }
-      if (doc.metadata.updatedAt) {
-        metadata += `Updated: ${new Date(doc.metadata.updatedAt).toLocaleDateString()}\n`;
-      }
-      if (doc.metadata.author?.name) {
+      if (doc.metadata?.author?.name) {
         metadata += `Author: ${doc.metadata.author.name}\n`;
       }
-      if (doc.metadata.datasource) {
-        metadata += `Source: ${doc.metadata.datasource}\n`;
+      if (doc.metadata?.createdAt) {
+        metadata += `Created: ${new Date(doc.metadata.createdAt).toLocaleDateString()}\n`;
+      } else if (doc.metadata?.createTime) {
+        metadata += `Created: ${new Date(doc.metadata.createTime).toLocaleDateString()}\n`;
       }
-      if (metadata) {
-        result += metadata;
+      if (doc.metadata?.updatedAt) {
+        metadata += `Updated: ${new Date(doc.metadata.updatedAt).toLocaleDateString()}\n`;
+      } else if (doc.metadata?.updateTime) {
+        metadata += `Updated: ${new Date(doc.metadata.updateTime).toLocaleDateString()}\n`;
       }
-    }
 
-    result += '\n';
+      let contentLabel = 'Content:';
+      if (doc.body?.mimeType === 'text/html') {
+        contentLabel = 'Content (HTML):';
+      }
 
-    // Add document body
-    if (doc.body?.mimeType === 'text/plain' && doc.body.textContent) {
-      result += `Content:\n${doc.body.textContent}\n`;
-    } else if (doc.body?.mimeType === 'text/html' && doc.body.textContent) {
-      // For HTML content, we could strip tags or convert to markdown
-      // For now, just include as-is with a note
-      result += `Content (HTML):\n${doc.body.textContent}\n`;
-    } else if (doc.body) {
-      result += `Content: [${doc.body.mimeType || 'Unknown format'}]\n`;
-    }
+      return `[${index + 1}] ${title}
+        Type: ${docType}
+        Source: ${datasource}
+        ${metadata}URL: ${url}
 
-    result += '\n';
-  }
+        ${contentLabel}
+        ${content}`;
+    })
+    .join('\n\n---\n\n');
 
-  return result.trim();
+  const totalDocuments = documents.length;
+
+  return `Retrieved ${totalDocuments} document${totalDocuments === 1 ? '' : 's'}:\n\n${formattedDocuments}`;
 }
