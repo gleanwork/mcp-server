@@ -148,8 +148,8 @@ importers:
   packages/local-mcp-server:
     dependencies:
       '@gleanwork/api-client':
-        specifier: 0.7.1
-        version: 0.7.1(zod@3.25.67)
+        specifier: 0.9.1
+        version: 0.9.1(zod@3.25.67)
       '@gleanwork/mcp-server-utils':
         specifier: workspace:*
         version: link:../mcp-server-utils
@@ -264,8 +264,8 @@ importers:
         specifier: ^9.32.0
         version: 9.32.0
       '@gleanwork/api-client':
-        specifier: 0.6.7
-        version: 0.6.7(zod@3.25.67)
+        specifier: 0.9.1
+        version: 0.9.1(zod@3.25.67)
       '@gleanwork/mcp-test-utils':
         specifier: workspace:*
         version: link:../mcp-test-utils
@@ -803,23 +803,8 @@ packages:
   '@gar/promisify@1.1.3':
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
 
-  '@gleanwork/api-client@0.6.7':
-    resolution: {integrity: sha512-seZq0f797RFFOkAcyqEje09zIvyK4eW3ByjUtimVcwLYwJJTKQ1LITNGwsmCOKLwQPyQtrIJXzvlKaSr1jLxKw==}
-    peerDependencies:
-      '@tanstack/react-query': ^5
-      react: ^18 || ^19
-      react-dom: ^18 || ^19
-      zod: '>= 3'
-    peerDependenciesMeta:
-      '@tanstack/react-query':
-        optional: true
-      react:
-        optional: true
-      react-dom:
-        optional: true
-
-  '@gleanwork/api-client@0.7.1':
-    resolution: {integrity: sha512-cqg+bBBn6kNwe2yg6QMfTDtcuRMNCREccIDV14av/0FwTnMzrroUvNnBEStQoiSeRCB32/nKrG/GIAyxBXTPTA==}
+  '@gleanwork/api-client@0.9.1':
+    resolution: {integrity: sha512-vJeBG/fbghSbGJMStx0hLx9IWE5Y8ZNPP1W4j67pPKBaPTb2S3HLk3CKCWaJQ2WxDAkSjzqJODHOJLr9V06b/A==}
     peerDependencies:
       '@tanstack/react-query': ^5
       react: ^18 || ^19
@@ -4663,11 +4648,7 @@ snapshots:
 
   '@gar/promisify@1.1.3': {}
 
-  '@gleanwork/api-client@0.6.7(zod@3.25.67)':
-    dependencies:
-      zod: 3.25.67
-
-  '@gleanwork/api-client@0.7.1(zod@3.25.67)':
+  '@gleanwork/api-client@0.9.1(zod@3.25.67)':
     dependencies:
       zod: 3.25.67
 
