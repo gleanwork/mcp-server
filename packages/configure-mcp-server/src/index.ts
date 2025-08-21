@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 /**
- * @fileoverview Glean Model Context Protocol (MCP) Configuration and Auth Utilities
+ * @fileoverview Glean Model Context Protocol (MCP) Configuration Utilities
  *
  * This is the main entry point for the @gleanwork/configure-mcp-server
- * package. It handles configuration and authentication functionality:
+ * package. It handles MCP client configuration for various host applications,
+ * supporting both local and remote MCP server setups.
  *
- * 1. Configuring MCP settings for different hosts
- * 2. Managing authentication and OAuth flows
+ * 1. Configuring MCP settings for different host applications
+ * 2. Supporting local MCP servers with instance + token authentication
+ * 3. Supporting remote MCP servers with URL-based configuration
  *
  * @module @gleanwork/mcp-server
  */
@@ -21,19 +23,7 @@ import {
   availableClients,
   ensureClientsLoaded,
 } from './configure/client/index.js';
-import {
-  Logger,
-  trace,
-  LogLevel,
-  error,
-} from '@gleanwork/mcp-server-utils/logger';
-import {
-  discoverOAuthConfig,
-  forceAuthorize,
-  forceRefreshTokens,
-  setupMcpRemote,
-} from '@gleanwork/mcp-server-utils/auth';
-import { chat, formatResponse } from '@gleanwork/local-mcp-server/tools/chat';
+import { Logger, trace, LogLevel } from '@gleanwork/mcp-server-utils/logger';
 import { VERSION } from './common/version.js';
 import { checkAndOpenLaunchWarning } from '@gleanwork/mcp-server-utils/util';
 
@@ -80,17 +70,33 @@ async function main() {
     Options for remote
       --client, -c    MCP client to configure for (${clientList || 'loading available clients...'})
       --url, -u       Full MCP server URL (required, e.g., https://my-be.glean.com/mcp/default)
-      --token, -t     Glean API token (optional, uses OAuth if not provided)
-      --env, -e       Path to .env file containing GLEAN_URL and GLEAN_API_TOKEN
+      --token, -t     Glean API token (optional, OAuth will be used if not provided)
+      --env, -e       Path to .env file containing GLEAN_URL and optionally GLEAN_API_TOKEN
       --workspace     Create workspace configuration instead of global (VS Code only)
 
+    
     Examples
-      $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client cursor
-      $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/agents --client claude --token glean_api_xyz
-      $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/analytics --client cursor
-      $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client goose
-      $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client windsurf --env ~/.glean.env
-      $ npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client vscode --workspace
+
+      Local:
+
+      npx @gleanwork/configure-mcp-server local --instance acme --client cursor --token glean_api_xyz
+      npx @gleanwork/configure-mcp-server local --instance acme --client claude --token glean_api_xyz
+      npx @gleanwork/configure-mcp-server local --instance acme --client cursor --token glean_api_xyz
+      npx @gleanwork/configure-mcp-server local --instance acme --client goose --token glean_api_xyz
+      npx @gleanwork/configure-mcp-server local --instance acme --client windsurf --env ~/.glean.env
+      npx @gleanwork/configure-mcp-server local --instance acme --client vscode --workspace --token glean_api_xyz
+
+      Remote:
+
+      npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client cursor
+      npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/agents --client claude
+      npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/analytics --client cursor
+      npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client goose
+      npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client windsurf
+      npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client vscode --workspace
+      
+      # With explicit token (bypasses DCR):
+      npx @gleanwork/configure-mcp-server remote --url https://my-be.glean.com/mcp/default --client cursor --token glean_api_xyz
 
     Run 'npx @gleanwork/configure-mcp-server help' for more details on supported clients
 
@@ -204,69 +210,6 @@ async function main() {
     case 'help': {
       console.log(cli.help);
       await listSupportedClients();
-      break;
-    }
-
-    // Auth commands
-    case 'auth': {
-      try {
-        await forceAuthorize();
-        console.log('Authorized successfully.');
-      } catch (err: any) {
-        error('Authorization error', err);
-        console.error(`Authorization failed: ${err.message}`);
-        process.exit(1);
-      }
-      break;
-    }
-
-    case 'auth-discover': {
-      try {
-        const config = await discoverOAuthConfig();
-        trace('auth-discover', config);
-      } catch (error: any) {
-        console.error(`Authorization discovery failed: ${error.message}`);
-        process.exit(1);
-      }
-      break;
-    }
-
-    case 'auth-refresh': {
-      try {
-        await forceRefreshTokens();
-        console.log('Refreshed authorization token.');
-      } catch (error: any) {
-        console.error(`Refreshing access token failed: ${error.message}`);
-        process.exit(1);
-      }
-      break;
-    }
-
-    case 'auth-test': {
-      try {
-        const chatResponse = await chat({ message: 'Who am I?' });
-        trace('auth-test search', formatResponse(chatResponse));
-        console.log('Access token accepted.');
-      } catch (err: any) {
-        error('auth-test error', err);
-        console.error(
-          `Failed to validate access token with server: ${err.message}`,
-        );
-        process.exit(1);
-      }
-      break;
-    }
-
-    case 'setup-mcp-remote': {
-      try {
-        trace('setup-mcp-remote(tools)');
-        await setupMcpRemote({ target: 'default' });
-        console.log('mcp-remote set up');
-      } catch (err: any) {
-        error('setup-mcp-remote error', err);
-        console.error(`Failed to set up mcp-remote: ${err.message}`);
-        process.exit(1);
-      }
       break;
     }
 

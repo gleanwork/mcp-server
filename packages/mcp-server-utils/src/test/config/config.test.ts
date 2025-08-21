@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { http, HttpResponse } from 'msw';
-import { server } from '@gleanwork/mcp-test-utils/mocks/setup';
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -9,7 +7,6 @@ import {
   getConfig,
   isBasicConfig,
   isGleanTokenConfig,
-  isOAuthConfig,
 } from '../../config/index.js';
 
 // Helper to set up XDG temp dir
@@ -40,146 +37,72 @@ describe('getConfig', () => {
       delete process.env.XDG_STATE_HOME;
     }
     fs.rmSync(tmpDir, { recursive: true, force: true });
-    server.resetHandlers();
     Logger.reset();
   });
 
-  describe('without discoverOAuth option', () => {
-    it('returns basic config when only instance is provided', async () => {
-      process.env.GLEAN_INSTANCE = 'test-company';
-      const config = await getConfig();
-      expect(isBasicConfig(config)).toBe(true);
-      expect(config).toMatchInlineSnapshot(`
-        {
-          "authType": "unknown",
-          "baseUrl": "https://test-company-be.glean.com/",
-        }
-      `);
-    });
+  it('returns basic config when only instance is provided', async () => {
+    process.env.GLEAN_INSTANCE = 'test-company';
+    const config = await getConfig();
 
-    it('returns token config when token is provided', async () => {
-      process.env.GLEAN_INSTANCE = 'test-company';
-      process.env.GLEAN_API_TOKEN = 'test-token';
-      const config = await getConfig();
-      expect(isGleanTokenConfig(config)).toBe(true);
-      expect(config).toMatchInlineSnapshot(`
-        {
-          "authType": "token",
-          "baseUrl": "https://test-company-be.glean.com/",
-          "token": "test-token",
-        }
-      `);
-    });
-
-    it('throws error when both token and OAuth env vars are set', async () => {
-      process.env.GLEAN_INSTANCE = 'test-company';
-      process.env.GLEAN_API_TOKEN = 'test-token';
-      process.env.GLEAN_OAUTH_ISSUER = 'https://auth.example.com';
-      process.env.GLEAN_OAUTH_CLIENT_ID = 'test-client';
-      await expect(getConfig()).rejects.toThrowErrorMatchingInlineSnapshot(
-        `[Error: Specify either GLEAN_OAUTH_ISSUER and GLEAN_OAUTH_CLIENT_ID or GLEAN_API_TOKEN, but not both.]`,
-      );
-    });
+    expect(isBasicConfig(config)).toBe(true);
+    expect(config.baseUrl).toBe('https://test-company-be.glean.com/');
+    expect(config.authType).toBe('unknown');
   });
 
-  describe('with discoverOAuth option', () => {
-    it('does not make network request for token config', async () => {
-      process.env.GLEAN_INSTANCE = 'test-company';
-      process.env.GLEAN_API_TOKEN = 'test-token';
-      const baseUrl = 'https://test-company-be.glean.com';
-      const oauthUrl = `${baseUrl}/.well-known/oauth-protected-resource`;
+  it('returns token config when token is provided', async () => {
+    process.env.GLEAN_INSTANCE = 'test-company';
+    process.env.GLEAN_API_TOKEN = 'test-token';
 
-      // Set up a handler that will fail if called
-      server.use(
-        http.get(oauthUrl, () => {
-          throw new Error('Network request should not be made');
-        }),
-      );
+    const config = await getConfig();
 
-      const config = await getConfig({ discoverOAuth: true });
-      expect(isGleanTokenConfig(config)).toBe(true);
-      expect(config).toMatchInlineSnapshot(`
-        {
-          "authType": "token",
-          "baseUrl": "https://test-company-be.glean.com/",
-          "token": "test-token",
-        }
-      `);
-    });
+    expect(isGleanTokenConfig(config)).toBe(true);
+    expect(config.baseUrl).toBe('https://test-company-be.glean.com/');
+    expect(config.authType).toBe('token');
+    if (isGleanTokenConfig(config)) {
+      expect(config.token).toBe('test-token');
+    }
+  });
 
-    it('makes network request and returns OAuth config for basic config', async () => {
-      process.env.GLEAN_INSTANCE = 'test-company';
-      const baseUrl = 'https://test-company-be.glean.com';
-      const oauthUrl = `${baseUrl}/.well-known/oauth-protected-resource`;
-      const authUrl =
-        'https://auth.example.com/.well-known/openid-configuration';
+  it('uses GLEAN_URL when provided', async () => {
+    process.env.GLEAN_URL = 'https://custom.glean.com/';
+    process.env.GLEAN_API_TOKEN = 'test-token';
 
-      // Mock the OAuth protected resource metadata endpoint
-      server.use(
-        http.get(oauthUrl, () =>
-          HttpResponse.json({
-            authorization_servers: ['https://auth.example.com'],
-            glean_device_flow_client_id: 'test-client',
-          }),
-        ),
-        // Mock the OpenID configuration endpoint
-        http.get(authUrl, () =>
-          HttpResponse.json({
-            device_authorization_endpoint: 'https://auth.example.com/device',
-            token_endpoint: 'https://auth.example.com/token',
-          }),
-        ),
-      );
+    const config = await getConfig();
 
-      const config = await getConfig({ discoverOAuth: true });
-      expect(isOAuthConfig(config)).toBe(true);
-      expect(config).toMatchInlineSnapshot(`
-        {
-          "authType": "oauth",
-          "authorizationEndpoint": "https://auth.example.com/device",
-          "baseUrl": "https://test-company-be.glean.com/",
-          "clientId": "test-client",
-          "issuer": "https://auth.example.com",
-          "tokenEndpoint": "https://auth.example.com/token",
-        }
-      `);
-    });
+    expect(isGleanTokenConfig(config)).toBe(true);
+    expect(config.baseUrl).toBe('https://custom.glean.com/');
+    if (isGleanTokenConfig(config)) {
+      expect(config.token).toBe('test-token');
+    }
+  });
 
-    it('throws error when OAuth metadata fetch fails', async () => {
-      process.env.GLEAN_INSTANCE = 'test-company';
-      const baseUrl = 'https://test-company-be.glean.com';
-      const oauthUrl = `${baseUrl}/.well-known/oauth-protected-resource`;
+  it('includes actAs when provided', async () => {
+    process.env.GLEAN_INSTANCE = 'test-company';
+    process.env.GLEAN_API_TOKEN = 'test-token';
+    process.env.GLEAN_ACT_AS = 'user@example.com';
 
-      // Mock the OAuth protected resource metadata endpoint to fail
-      server.use(http.get(oauthUrl, () => HttpResponse.error()));
+    const config = await getConfig();
 
-      await expect(
-        getConfig({ discoverOAuth: true }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        `[AuthError: ERR_A_06: Unable to fetch OAuth protected resource metadata: please contact your Glean administrator and ensure device flow authorization is configured correctly.]`,
-      );
-    });
+    expect(isGleanTokenConfig(config)).toBe(true);
+    if (isGleanTokenConfig(config)) {
+      expect(config.actAs).toBe('user@example.com');
+    }
+  });
 
-    it('throws error when OAuth metadata is missing required fields', async () => {
-      process.env.GLEAN_INSTANCE = 'test-company';
-      const baseUrl = 'https://test-company-be.glean.com';
-      const oauthUrl = `${baseUrl}/.well-known/oauth-protected-resource`;
+  it('throws error when no instance or URL is provided', async () => {
+    process.env.GLEAN_API_TOKEN = 'test-token';
 
-      // Mock the OAuth protected resource metadata endpoint with missing fields
-      server.use(
-        http.get(oauthUrl, () =>
-          HttpResponse.json({
-            // Missing authorization_servers
-            glean_device_flow_client_id: 'test-client',
-          }),
-        ),
-      );
+    await expect(getConfig()).rejects.toThrow(
+      'GLEAN_INSTANCE environment variable is required',
+    );
+  });
 
-      await expect(
-        getConfig({ discoverOAuth: true }),
-      ).rejects.toThrowErrorMatchingInlineSnapshot(
-        `[AuthError: ERR_A_09: OAuth protected resource metadata did not include any authorization servers: please contact your Glean administrator and ensure device flow authorization is configured correctly.]`,
-      );
-    });
+  it('uses GLEAN_SUBDOMAIN as fallback for instance', async () => {
+    process.env.GLEAN_SUBDOMAIN = 'test-subdomain';
+    process.env.GLEAN_API_TOKEN = 'test-token';
+
+    const config = await getConfig();
+
+    expect(config.baseUrl).toBe('https://test-subdomain-be.glean.com/');
   });
 });

@@ -15,32 +15,12 @@ global.fetch = mockFetch;
 vi.mock('@gleanwork/mcp-server-utils/config', () => ({
   getConfig: vi.fn(),
   isGleanTokenConfig: vi.fn(),
-  isOAuthConfig: vi.fn(),
-}));
-
-vi.mock('@gleanwork/mcp-server-utils/auth', () => ({
-  ensureAuthTokenPresence: vi.fn(),
-  loadTokens: vi.fn(),
-  AuthError: class AuthError extends Error {
-    constructor(message: string, options?: { code?: string }) {
-      super(message);
-      this.name = 'AuthError';
-    }
-  },
-  AuthErrorCode: {
-    InvalidConfig: 'InvalidConfig',
-  },
 }));
 
 import {
   getConfig,
   isGleanTokenConfig,
-  isOAuthConfig,
 } from '@gleanwork/mcp-server-utils/config';
-import {
-  ensureAuthTokenPresence,
-  loadTokens,
-} from '@gleanwork/mcp-server-utils/auth';
 
 describe('read-documents tool', () => {
   beforeEach(() => {
@@ -148,7 +128,6 @@ describe('read-documents tool', () => {
         authType: 'token',
       });
       vi.mocked(isGleanTokenConfig).mockReturnValue(true);
-      vi.mocked(isOAuthConfig).mockReturnValue(false);
 
       const request = { documentSpecs: [{ id: 'doc-123' }] };
       const result = await readDocuments(request);
@@ -199,7 +178,6 @@ describe('read-documents tool', () => {
         authType: 'token',
       });
       vi.mocked(isGleanTokenConfig).mockReturnValue(true);
-      vi.mocked(isOAuthConfig).mockReturnValue(false);
 
       const request = { documentSpecs: [{ url: 'https://example.com/doc1' }] };
       const result = await readDocuments(request);
@@ -215,67 +193,6 @@ describe('read-documents tool', () => {
           headers: {
             'Content-Type': 'application/json',
             Authorization: 'Bearer test-token',
-          },
-        },
-      );
-      expect(result).toEqual(mockResponse);
-    });
-
-    it('should make fetch request with OAuth authorization header when using OAuth config', async () => {
-      const mockResponse = {
-        documents: {
-          'doc-123': {
-            id: 'doc-123',
-            title: 'Test Document',
-            content: 'Test content',
-          },
-        },
-      };
-
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve(mockResponse),
-        text: () => Promise.resolve(''),
-        headers: {
-          get: (name: string) => {
-            if (name === 'content-type') return 'application/json';
-            return null;
-          },
-        },
-      });
-
-      vi.mocked(getConfig).mockResolvedValue({
-        baseUrl: 'https://test-instance-be.glean.com/',
-        authType: 'oauth',
-        issuer: 'https://issuer.example.com',
-        clientId: 'client-id',
-        authorizationEndpoint: 'https://issuer.example.com/auth',
-        tokenEndpoint: 'https://issuer.example.com/token',
-      });
-      vi.mocked(isGleanTokenConfig).mockReturnValue(false);
-      vi.mocked(isOAuthConfig).mockReturnValue(true);
-      vi.mocked(ensureAuthTokenPresence).mockResolvedValue(true);
-      vi.mocked(loadTokens).mockReturnValue({
-        accessToken: 'oauth-access-token',
-        refreshToken: 'oauth-refresh-token',
-        isExpired: vi.fn().mockReturnValue(false),
-      } as any);
-
-      const request = { documentSpecs: [{ id: 'doc-123' }] };
-      const result = await readDocuments(request);
-
-      expect(mockFetch).toHaveBeenCalledWith(
-        'https://test-instance-be.glean.com/rest/api/v1/getdocuments',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            documentSpecs: [{ id: 'doc-123' }],
-            includeFields: ['DOCUMENT_CONTENT'],
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Glean-Auth-Type': 'OAUTH',
-            Authorization: 'Bearer oauth-access-token',
           },
         },
       );

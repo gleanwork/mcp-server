@@ -24,7 +24,6 @@ import * as search from './tools/search.js';
 import * as chat from './tools/chat.js';
 import * as peopleProfileSearch from './tools/people_profile_search.js';
 import * as readDocuments from './tools/read_documents.js';
-import {} from '@gleanwork/mcp-server-utils/auth';
 import {
   formatGleanError,
   isGleanError,
