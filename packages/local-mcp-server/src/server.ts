@@ -177,9 +177,10 @@ export async function callToolHandler(
           request.params.arguments,
         );
         const result = await readDocuments.readDocuments(args);
+        const formattedResults = readDocuments.formatResponse(result);
 
         return {
-          content: [{ type: 'text', text: result }],
+          content: [{ type: 'text', text: formattedResults }],
           isError: false,
         };
       }

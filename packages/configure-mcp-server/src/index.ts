@@ -70,7 +70,7 @@ async function main() {
     Options for remote
       --client, -c    MCP client to configure for (${clientList || 'loading available clients...'})
       --url, -u       Full MCP server URL (required, e.g., https://my-be.glean.com/mcp/default)
-      --token, -t     Glean API token (optional, DCR will be used if not provided)
+      --token, -t     Glean API token (optional, OAuth will be used if not provided)
       --env, -e       Path to .env file containing GLEAN_URL and optionally GLEAN_API_TOKEN
       --workspace     Create workspace configuration instead of global (VS Code only)
 

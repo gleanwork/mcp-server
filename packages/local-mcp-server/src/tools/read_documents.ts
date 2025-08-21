@@ -59,7 +59,7 @@ function convertToAPIReadDocumentsRequest(
  * Reads documents from Glean.
  *
  * @param params The read documents parameters using the simplified schema
- * @returns The formatted documents as text
+ * @returns The documents
  * @throws If the read documents request fails
  */
 export async function readDocuments(params: ToolReadDocumentsRequest) {
@@ -91,7 +91,7 @@ export async function readDocuments(params: ToolReadDocumentsRequest) {
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(
-      `Failed to read documents: ${response.status} ${response.statusText}. ${errorText}`,
+      `API request failed with status ${response.status}: ${errorText}`,
     );
   }
 
@@ -103,8 +103,7 @@ export async function readDocuments(params: ToolReadDocumentsRequest) {
     );
   }
 
-  const documentsResponse = await response.json();
-  return formatResponse(documentsResponse);
+  return response.json();
 }
 
 /**
@@ -117,12 +116,12 @@ export function formatResponse(documentsResponse: any): string {
   if (
     !documentsResponse ||
     !documentsResponse.documents ||
-    !Array.isArray(documentsResponse.documents)
+    typeof documentsResponse.documents !== 'object'
   ) {
     return 'No documents found.';
   }
 
-  const documents = documentsResponse.documents;
+  const documents = Object.values(documentsResponse.documents) as any[];
 
   if (documents.length === 0) {
     return 'No documents found.';
@@ -133,13 +132,10 @@ export function formatResponse(documentsResponse: any): string {
       const title = doc.title || 'No title';
       const url = doc.url || '';
       const docType = doc.docType || 'Document';
-      const datasource =
-        doc.metadata?.datasource || doc.datasource || 'Unknown source';
+      const datasource = doc.datasource || 'Unknown source';
 
       let content = '';
-      if (doc.body?.textContent) {
-        content = doc.body.textContent;
-      } else if (
+      if (
         doc.content &&
         doc.content.fullTextList &&
         Array.isArray(doc.content.fullTextList)
@@ -155,20 +151,11 @@ export function formatResponse(documentsResponse: any): string {
       if (doc.metadata?.author?.name) {
         metadata += `Author: ${doc.metadata.author.name}\n`;
       }
-      if (doc.metadata?.createdAt) {
-        metadata += `Created: ${new Date(doc.metadata.createdAt).toLocaleDateString()}\n`;
-      } else if (doc.metadata?.createTime) {
+      if (doc.metadata?.createTime) {
         metadata += `Created: ${new Date(doc.metadata.createTime).toLocaleDateString()}\n`;
       }
-      if (doc.metadata?.updatedAt) {
-        metadata += `Updated: ${new Date(doc.metadata.updatedAt).toLocaleDateString()}\n`;
-      } else if (doc.metadata?.updateTime) {
+      if (doc.metadata?.updateTime) {
         metadata += `Updated: ${new Date(doc.metadata.updateTime).toLocaleDateString()}\n`;
-      }
-
-      let contentLabel = 'Content:';
-      if (doc.body?.mimeType === 'text/html') {
-        contentLabel = 'Content (HTML):';
       }
 
       return `[${index + 1}] ${title}
@@ -176,7 +163,7 @@ export function formatResponse(documentsResponse: any): string {
         Source: ${datasource}
         ${metadata}URL: ${url}
 
-        ${contentLabel}
+        Content:
         ${content}`;
     })
     .join('\n\n---\n\n');

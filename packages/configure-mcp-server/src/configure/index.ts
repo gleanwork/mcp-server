@@ -231,7 +231,7 @@ export async function configure(client: string, options: ConfigureOptions) {
     trace(
       apiToken
         ? 'configuring with token auth'
-        : 'configuring without token (DCR will be used for remote)',
+        : 'configuring without token (OAuth will be used for remote)',
     );
     const newConfig = clientConfig.configTemplate(
       instanceOrUrl,
