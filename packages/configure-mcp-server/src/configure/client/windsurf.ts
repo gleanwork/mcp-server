@@ -4,18 +4,10 @@
  * https://docs.windsurf.com/windsurf/mcp
  */
 
-import path from 'path';
-import { MCPConfigPath, createBaseClient } from './index.js';
+import { createBaseClient } from './index.js';
+import { CLIENT } from '@gleanwork/mcp-config-schema';
 
-export const windsurfConfigPath: MCPConfigPath = {
-  configDir: path.join('.codeium', 'windsurf'),
-  configFileName: 'mcp_config.json',
-};
-
-/**
- * Windsurf client configuration
- */
-const windsurfClient = createBaseClient('Windsurf', windsurfConfigPath, [
+const windsurfClient = createBaseClient(CLIENT.WINDSURF, [
   'Open Windsurf Settings > Advanced Settings',
   'Scroll to the Cascade section',
   'Press the refresh button after configuration',

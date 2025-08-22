@@ -203,15 +203,9 @@ describe('configure', () => {
     expect(config).toMatchInlineSnapshot(`
       {
         "mcpServers": {
-          "glean": {
-            "args": [
-              "-y",
-              "mcp-remote@0.1.18",
-              "https://test-instance-be.glean.com/mcp/default",
-            ],
-            "command": "npx",
-            "env": {},
-            "type": "stdio",
+          "glean_default": {
+            "type": "http",
+            "url": "https://test-instance-be.glean.com/mcp/default",
           },
         },
       }

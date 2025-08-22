@@ -6,7 +6,6 @@
 
 import path from 'path';
 import {
-  MCPConfigPath,
   createBaseClient,
   VSCodeGlobalConfig,
   VSCodeWorkspaceConfig,
@@ -14,77 +13,10 @@ import {
   ConfigFileContents,
   createMcpServersConfig,
   updateMcpServersConfig,
-  MCPServersConfig,
-  buildMcpServerName,
+  createUniversalPathResolver,
 } from './index.js';
 import type { ConfigureOptions } from '../index.js';
-
-// VS Code user settings location varies by platform
-function getVSCodeUserSettingsPath(homedir: string): string {
-  // Windows: %APPDATA%\Code\User\settings.json
-  // macOS: ~/Library/Application Support/Code/User/settings.json
-  // Linux: ~/.config/Code/User/settings.json
-  const platform = process.platform;
-
-  if (platform === 'win32') {
-    return path.join(
-      process.env.APPDATA || '',
-      'Code',
-      'User',
-      'settings.json',
-    );
-  } else if (platform === 'darwin') {
-    return path.join(
-      homedir,
-      'Library',
-      'Application Support',
-      'Code',
-      'User',
-      'settings.json',
-    );
-  } else {
-    // Linux or other platforms
-    return path.join(homedir, '.config', 'Code', 'User', 'settings.json');
-  }
-}
-
-/**
- * Creates VS Code MCP servers configuration
- * VS Code has native HTTP support for remote servers
- */
-function createVSCodeMcpServersConfig(
-  instanceOrUrl?: string,
-  apiToken?: string,
-  options?: ConfigureOptions,
-): MCPServersConfig {
-  const isLocal = !options?.remote;
-
-  // For local servers, use the standard stdio configuration
-  if (isLocal) {
-    return createMcpServersConfig(instanceOrUrl, apiToken, options);
-  }
-
-  // For remote servers, VS Code supports native HTTP
-  // Remote configuration requires a full URL
-  if (
-    !instanceOrUrl?.startsWith('http://') &&
-    !instanceOrUrl?.startsWith('https://')
-  ) {
-    throw new Error(
-      'Remote configuration requires a full URL (starting with http:// or https://)',
-    );
-  }
-
-  const serverUrl = instanceOrUrl;
-  const mcpServerName = buildMcpServerName(options || {}, serverUrl);
-
-  return {
-    [mcpServerName]: {
-      type: 'http',
-      url: serverUrl,
-    },
-  };
-}
+import { CLIENT } from '@gleanwork/mcp-config-schema';
 
 /**
  * Creates VS Code workspace configuration format
@@ -95,16 +27,16 @@ function createVSCodeWorkspaceConfig(
   options?: ConfigureOptions,
 ): VSCodeWorkspaceConfig {
   return {
-    servers: createVSCodeMcpServersConfig(instanceOrUrl, apiToken, options),
+    servers: createMcpServersConfig(
+      instanceOrUrl,
+      apiToken,
+      options,
+      CLIENT.VSCODE,
+    ),
   };
 }
 
-export const vscodeConfigPath: MCPConfigPath = {
-  configDir: '',
-  configFileName: '',
-};
-
-const vscodeClient = createBaseClient('VS Code', vscodeConfigPath, [
+const vscodeClient = createBaseClient(CLIENT.VSCODE, [
   'Enable MCP support in VS Code by adding "chat.mcp.enabled": true to your user settings',
   'Restart VS Code',
   'Open the Chat view (Ctrl+Alt+I or ⌃⌘I) and select "Agent" mode from the dropdown',
@@ -117,7 +49,8 @@ vscodeClient.configFilePath = (homedir: string, options?: ConfigureOptions) => {
   if (options?.workspace) {
     return path.join(process.cwd(), '.vscode', 'mcp.json');
   }
-  return getVSCodeUserSettingsPath(homedir);
+  // Use the universal resolver for global config
+  return createUniversalPathResolver(CLIENT.VSCODE)(homedir, options);
 };
 
 // Override configTemplate to handle workspace vs global format
@@ -132,7 +65,12 @@ vscodeClient.configTemplate = (
 
   return {
     mcp: {
-      servers: createVSCodeMcpServersConfig(instanceOrUrl, apiToken, options),
+      servers: createMcpServersConfig(
+        instanceOrUrl,
+        apiToken,
+        options,
+        CLIENT.VSCODE,
+      ),
     },
   };
 };

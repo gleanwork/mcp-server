@@ -7,33 +7,33 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import yaml from 'yaml';
 import type { ConfigureOptions } from '../index.js';
+import {
+  MCPConfigRegistry,
+  ClientId,
+  CLIENT,
+  type ServerConfig,
+  type McpServersConfig,
+  buildMcpServerName,
+  extractServerNameFromUrl,
+} from '@gleanwork/mcp-config-schema';
 import mcpRemotePackageJson from 'mcp-remote/package.json' with { type: 'json' };
 
 const mcpRemoteVersion = mcpRemotePackageJson.version;
 
-export interface MCPConfigPath {
-  configDir: string;
-  configFileName: string;
-}
+/**
+ * Re-export types from the schema package for backward compatibility
+ */
+export type MCPServerConfig = ServerConfig;
 
 /**
- * MCP Server configuration
+ * Extract the servers collection type from the wrapped config
+ * The package's McpServersConfig is { mcpServers: ... }, but we need just the inner part
  */
-export interface MCPServerConfig {
-  type?: string;
-  command?: string;
-  args?: Array<string>;
-  env?: Record<string, string>;
-  url?: string;
-}
-
-export interface MCPServersConfig {
-  glean?: MCPServerConfig;
-  glean_agents?: MCPServerConfig;
-  glean_local?: MCPServerConfig;
-  [key: string]: MCPServerConfig | undefined;
-}
+export type MCPServersConfig = McpServersConfig extends { mcpServers: infer S }
+  ? S
+  : Record<string, ServerConfig>;
 
 /**
  * Standard MCP configuration format (Claude, Cursor, Windsurf)
@@ -60,28 +60,6 @@ export interface VSCodeWorkspaceConfig {
   [key: string]: unknown;
 }
 
-export interface GooseExtensionConfig {
-  args: string[];
-  bundled: null | string;
-  cmd: string;
-  description: string;
-  enabled: boolean;
-  env_keys: string[];
-  envs: Record<string, string>;
-  name: string;
-  timeout: number;
-  type: string;
-}
-
-export interface GooseConfig {
-  extensions: {
-    glean?: GooseExtensionConfig;
-    glean_local?: GooseExtensionConfig;
-    glean_agents?: GooseExtensionConfig;
-    [key: string]: GooseExtensionConfig | undefined;
-  };
-}
-
 /**
  * Union of all possible MCP configuration formats
  */
@@ -89,7 +67,7 @@ export type MCPConfig =
   | StandardMCPConfig
   | VSCodeGlobalConfig
   | VSCodeWorkspaceConfig
-  | GooseConfig;
+  | Record<string, any>; // Goose and other YAML-based configs
 
 /**
  * Generic config file contents that might contain MCP configuration
@@ -151,103 +129,134 @@ export function createMcpServersConfig(
   instanceOrUrl = '<glean instance name or URL>',
   apiToken?: string,
   options?: ConfigureOptions,
+  clientId: ClientId = CLIENT.CURSOR,
 ): MCPServersConfig {
-  const env: Record<string, string> = {};
-  const isLocal = !options?.remote;
+  const registry = new MCPConfigRegistry();
+  const builder = registry.createBuilder(clientId);
 
-  // For local servers, set the appropriate instance or URL
-  if (isLocal) {
-    // If it looks like a URL, use it directly
-    if (
-      instanceOrUrl.startsWith('http://') ||
-      instanceOrUrl.startsWith('https://')
-    ) {
-      env.GLEAN_URL = instanceOrUrl;
-    } else {
-      env.GLEAN_INSTANCE = instanceOrUrl;
+  const isRemote = options?.remote === true;
+
+  const configOutput = builder.buildConfiguration({
+    mode: isRemote ? 'remote' : 'local',
+    serverUrl: isRemote ? instanceOrUrl : undefined,
+    instance: !isRemote ? instanceOrUrl : undefined,
+    apiToken: apiToken,
+    serverName: isRemote
+      ? buildMcpServerName({
+          mode: 'remote',
+          serverUrl: instanceOrUrl,
+          agents: options?.agents,
+        })
+      : undefined,
+    includeWrapper: false,
+  });
+
+  let parsed: any;
+  try {
+    parsed = JSON.parse(configOutput);
+  } catch {
+    try {
+      parsed = yaml.parse(configOutput);
+    } catch (yamlError) {
+      throw new Error(`Failed to parse configuration output: ${yamlError}`);
     }
   }
 
-  // For local servers include the API token in env
-  if (isLocal && apiToken) {
-    env.GLEAN_API_TOKEN = apiToken;
-  }
+  let servers: MCPServersConfig;
 
-  if (isLocal) {
-    return {
-      glean_local: {
-        type: 'stdio',
-        command: 'npx',
-        args: ['-y', '@gleanwork/local-mcp-server'],
-        env,
-      },
-    };
-  }
-
-  // remote set up
-  // For remote, we require a full URL to be provided
-  if (
-    !instanceOrUrl.startsWith('http://') &&
-    !instanceOrUrl.startsWith('https://')
-  ) {
-    throw new Error(
-      'Remote configuration requires a full URL (starting with http:// or https://)',
-    );
-  }
-
-  const serverUrl = instanceOrUrl;
-  const mcpServerName = buildMcpServerName(options, serverUrl);
-
-  const args = ['-y', `mcp-remote@${mcpRemoteVersion}`, serverUrl];
-
-  return {
-    [mcpServerName]: {
-      command: 'npx',
-      args,
-      type: 'stdio',
-      env,
-    },
-  };
-}
-
-/**
- * Extracts the server name from a full MCP URL
- * e.g., https://my-be.glean.com/mcp/analytics -> analytics
- */
-export function extractServerNameFromUrl(url: string): string | null {
-  const match = url.match(/\/mcp\/([^/]+)(?:\/|$)/);
-  return match ? match[1] : null;
-}
-
-export function buildMcpServerName(
-  options: ConfigureOptions,
-  fullUrl?: string,
-) {
-  const isLocal = !options?.remote;
-  if (isLocal) {
-    return 'glean_local';
-  }
-
-  // If we have a full URL, extract the server name from it
-  if (fullUrl) {
-    const serverName = extractServerNameFromUrl(fullUrl);
-    // Special case: "default" server should just be "glean"
-    if (serverName === 'default') {
-      return 'glean';
+  if (parsed.mcpServers) {
+    servers = parsed.mcpServers;
+  } else if (parsed.mcp?.servers) {
+    servers = parsed.mcp.servers;
+  } else if (parsed.servers) {
+    servers = parsed.servers;
+  } else if (parsed.extensions) {
+    servers = {};
+    for (const [name, ext] of Object.entries(parsed.extensions) as [
+      string,
+      any,
+    ][]) {
+      servers[name] = {
+        type: ext.type,
+        command: ext.cmd,
+        args: ext.args,
+        env: ext.envs,
+      };
     }
-    return serverName ? `glean_${serverName}` : 'glean';
+  } else if (clientId === CLIENT.GOOSE) {
+    servers = {};
+    for (const [name, ext] of Object.entries(parsed) as [string, any][]) {
+      servers[name] = {
+        type: ext.type || 'stdio',
+        command: ext.cmd,
+        args: ext.args,
+        env: ext.envs,
+      };
+    }
+  } else {
+    servers = parsed;
   }
 
-  return options?.agents ? 'glean_agents' : 'glean';
+  if (isRemote) {
+    for (const [serverName, serverConfig] of Object.entries(servers)) {
+      if (
+        serverConfig &&
+        'command' in serverConfig &&
+        serverConfig.command === 'npx' &&
+        'args' in serverConfig &&
+        serverConfig.args
+      ) {
+        serverConfig.args = serverConfig.args.map((arg: string) => {
+          if (arg === 'mcp-remote' || arg.startsWith('mcp-remote@')) {
+            return `mcp-remote@${mcpRemoteVersion}`;
+          }
+          return arg;
+        });
+      }
+    }
+  }
+
+  return servers;
 }
 
 /**
- * Creates a standard file path resolver that respects GLEAN_MCP_CONFIG_DIR
+ * Creates a universal path resolver using the package's config metadata
  */
-export function createStandardPathResolver(configPath: MCPConfigPath) {
-  return (homedir: string) => {
-    const baseDir = process.env.GLEAN_MCP_CONFIG_DIR || homedir;
-    return path.join(baseDir, configPath.configDir, configPath.configFileName);
+export function createUniversalPathResolver(clientId: ClientId) {
+  return (homedir: string, options?: ConfigureOptions) => {
+    const registry = new MCPConfigRegistry();
+    const clientInfo = registry.getConfig(clientId);
+    if (!clientInfo) {
+      throw new Error(`Unknown client: ${clientId}`);
+    }
+    const configPaths = clientInfo.configPath;
+
+    if (process.env.GLEAN_MCP_CONFIG_DIR) {
+      const platform = process.platform as 'darwin' | 'linux' | 'win32';
+      const pathTemplate = configPaths[platform];
+
+      if (!pathTemplate) {
+        throw new Error(`Unsupported platform: ${platform}`);
+      }
+
+      // Extract the path after $HOME or %USERPROFILE%
+      const relativePath = pathTemplate
+        .replace(/^\$HOME[\\/]?/, '')
+        .replace(/^%USERPROFILE%[\\/]?/, '');
+      return path.join(process.env.GLEAN_MCP_CONFIG_DIR, relativePath);
+    }
+
+    const platform = process.platform as 'darwin' | 'linux' | 'win32';
+    const pathTemplate = configPaths[platform];
+
+    if (!pathTemplate) {
+      throw new Error(`Unsupported platform: ${platform}`);
+    }
+
+    return pathTemplate
+      .replace('$HOME', homedir)
+      .replace('%USERPROFILE%', homedir)
+      .replace(/\\/g, path.sep);
   };
 }
 
@@ -271,27 +280,41 @@ ${instructions.map((instr, i) => `${i + 1}. ${instr}`).join('\n')}
  * Creates a base client configuration that can be extended
  */
 export function createBaseClient(
-  displayName: string,
-  configPath: MCPConfigPath,
+  clientId: ClientId,
   instructions: string[],
-  pathResolverOverride?: (homedir: string) => string,
+  pathResolverOverride?: (
+    homedir: string,
+    options?: ConfigureOptions,
+  ) => string,
   mcpServersHook: (
     servers: MCPServersConfig,
     options?: ConfigureOptions,
   ) => MCPConfig = (servers) => ({ mcpServers: servers }),
 ): MCPClientConfig {
+  const registry = new MCPConfigRegistry();
+  const clientInfo = registry.getConfig(clientId);
+  if (!clientInfo) {
+    throw new Error(`Unknown client: ${clientId}`);
+  }
+  const displayName = clientInfo.displayName;
+
   return {
     displayName,
 
     configFilePath:
-      pathResolverOverride || createStandardPathResolver(configPath),
+      pathResolverOverride || createUniversalPathResolver(clientId),
 
     configTemplate: (
       instanceOrUrl?: string,
       apiToken?: string,
       options?: ConfigureOptions,
     ) => {
-      const servers = createMcpServersConfig(instanceOrUrl, apiToken, options);
+      const servers = createMcpServersConfig(
+        instanceOrUrl,
+        apiToken,
+        options,
+        clientId,
+      );
       return mcpServersHook(servers, options);
     },
 
@@ -321,7 +344,6 @@ export function updateMcpServersConfig(
 ) {
   const result = { ...existingConfig };
 
-  // Update any Glean-related servers (glean, glean_local, glean_agents, glean_*, etc.)
   for (const serverName in newConfig) {
     if (serverName === 'glean' || serverName.startsWith('glean_')) {
       result[serverName] = newConfig[serverName];

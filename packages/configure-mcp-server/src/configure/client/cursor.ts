@@ -4,17 +4,10 @@
  * https://docs.cursor.com/context/model-context-protocol
  */
 
-import { MCPConfigPath, createBaseClient } from './index.js';
+import { createBaseClient } from './index.js';
+import { CLIENT } from '@gleanwork/mcp-config-schema';
 
-export const cursorConfigPath: MCPConfigPath = {
-  configDir: '.cursor',
-  configFileName: 'mcp.json',
-};
-
-/**
- * Cursor client configuration
- */
-const cursorClient = createBaseClient('Cursor', cursorConfigPath, [
+const cursorClient = createBaseClient(CLIENT.CURSOR, [
   'Restart Cursor',
   'Agent will now have access to Glean tools',
   "You'll be asked for approval when Agent uses these tools",
