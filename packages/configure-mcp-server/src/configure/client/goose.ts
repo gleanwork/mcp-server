@@ -1,84 +1,83 @@
-import path from 'path';
-import {
-  MCPConfigPath,
-  MCPClientConfig,
-  GooseConfig,
-  GooseExtensionConfig,
-  createBaseClient,
-  buildMcpServerName,
-  MCPServersConfig,
-} from './index.js';
+import { createBaseClient } from './index.js';
 import type { ConfigureOptions } from '../index.js';
+import {
+  CLIENT,
+  MCPConfigRegistry,
+  buildMcpServerName,
+} from '@gleanwork/mcp-config-schema';
+import yaml from 'yaml';
+import mcpRemotePackageJson from 'mcp-remote/package.json' with { type: 'json' };
 
-export const gooseConfigPath: MCPConfigPath = {
-  configDir: path.join('.config', 'goose'),
-  configFileName: 'config.yaml',
+const mcpRemoteVersion = mcpRemotePackageJson.version;
+
+const gooseClient = createBaseClient(CLIENT.GOOSE, ['Restart Goose']);
+
+// Override configTemplate to use the package's YAML output directly
+gooseClient.configTemplate = (
+  instanceOrUrl?: string,
+  apiToken?: string,
+  options?: ConfigureOptions,
+) => {
+  const registry = new MCPConfigRegistry();
+  const builder = registry.createBuilder(CLIENT.GOOSE);
+  const isRemote = options?.remote === true;
+
+  const configOutput = builder.buildConfiguration({
+    mode: isRemote ? 'remote' : 'local',
+    serverUrl: isRemote ? instanceOrUrl : undefined,
+    instance: !isRemote ? instanceOrUrl : undefined,
+    apiToken: apiToken,
+    serverName: isRemote
+      ? buildMcpServerName({
+          mode: 'remote',
+          serverUrl: instanceOrUrl,
+          agents: options?.agents,
+        })
+      : undefined,
+    includeWrapper: false,
+  });
+
+  // Parse the YAML to pin mcp-remote version if needed
+  const parsed = yaml.parse(configOutput);
+
+  if (isRemote) {
+    for (const [, serverConfig] of Object.entries(parsed)) {
+      if (
+        serverConfig &&
+        typeof serverConfig === 'object' &&
+        'cmd' in serverConfig
+      ) {
+        const config = serverConfig as any;
+        if (config.cmd === 'npx' && config.args) {
+          config.args = config.args.map((arg: string) => {
+            if (arg === 'mcp-remote' || arg.startsWith('mcp-remote@')) {
+              return `mcp-remote@${mcpRemoteVersion}`;
+            }
+            return arg;
+          });
+        }
+      }
+    }
+  }
+
+  return parsed;
 };
 
-function goosePathResolver(homedir: string) {
-  if (process.platform === 'win32') {
-    return path.join(process.env.APPDATA || homedir, 'goose', 'config.yaml');
-  }
-
-  const baseDir = process.env.GLEAN_MCP_CONFIG_DIR || homedir;
-  return path.join(
-    baseDir,
-    gooseConfigPath.configDir,
-    gooseConfigPath.configFileName,
-  );
-}
-
-function toGooseConfig(servers: MCPServersConfig): GooseConfig {
-  const extensions: Record<string, GooseExtensionConfig> = {};
-  for (const [name, server] of Object.entries(servers)) {
-    if (!server) continue;
-
-    // Goose only supports stdio configs (with command and args)
-    // This shouldn't happen in practice since Goose uses createMcpServersConfig
-    // which always generates stdio configs, but check defensively
-    if (!server.command || !server.args) {
-      console.warn(
-        `Skipping server ${name}: Goose requires stdio configuration`,
-      );
-      continue;
-    }
-
-    extensions[name] = {
-      args: server.args,
-      bundled: null,
-      cmd: server.command,
-      description: '',
-      enabled: true,
-      env_keys: [],
-      envs: server.env || {},
-      name: 'glean',
-      timeout: 300,
-      type: server.type ?? 'stdio',
-    };
-  }
-  return { extensions };
-}
-
-function updateConfig(
+// Custom updateConfig for Goose's flat structure
+gooseClient.updateConfig = (
   existingConfig: Record<string, any>,
   newConfig: Record<string, any>,
-  options: ConfigureOptions,
-): Record<string, any> {
+): Record<string, any> => {
   const result = { ...existingConfig };
-  result.extensions = result.extensions || {};
-  const mcpServerName = buildMcpServerName(options);
-  result.extensions[mcpServerName] = newConfig.extensions[mcpServerName];
+
+  // For Goose, servers are at the top level
+  for (const serverName in newConfig) {
+    if (serverName === 'glean' || serverName.startsWith('glean_')) {
+      result[serverName] = newConfig[serverName];
+    }
+  }
+
   return result;
-}
-
-const gooseClient: MCPClientConfig = createBaseClient(
-  'Goose',
-  gooseConfigPath,
-  ['Restart Goose'],
-  goosePathResolver,
-  toGooseConfig,
-);
-
-gooseClient.updateConfig = updateConfig;
+};
 
 export default gooseClient;

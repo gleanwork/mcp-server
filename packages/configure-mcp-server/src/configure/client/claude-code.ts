@@ -4,104 +4,12 @@
  * Similar to Claude Desktop but uses a different config path
  */
 
-import path from 'path';
-import {
-  MCPConfigPath,
-  createBaseClient,
-  MCPServersConfig,
-  StandardMCPConfig,
-  buildMcpServerName,
-} from './index.js';
-import type { ConfigureOptions } from '../index.js';
+import { createBaseClient } from './index.js';
+import { CLIENT } from '@gleanwork/mcp-config-schema';
 
-export const claudeCodeConfigPath: MCPConfigPath = {
-  configDir: '',
-  configFileName: '.claude.json',
-};
-
-function claudeCodePathResolver(homedir: string) {
-  const baseDir = process.env.GLEAN_MCP_CONFIG_DIR || homedir;
-  return path.join(baseDir, claudeCodeConfigPath.configFileName);
-}
-
-function mcpServersHook(servers: MCPServersConfig): StandardMCPConfig {
-  return {
-    mcpServers: servers,
-  };
-}
-
-const claudeCodeClient = createBaseClient(
-  'Claude Code',
-  claudeCodeConfigPath,
-  ['Run `claude mcp list` and verify the server is listed'],
-  claudeCodePathResolver,
-  mcpServersHook,
-);
-
-function createClaudeCodeMcpServersConfig(
-  instanceOrUrl: string,
-  apiToken?: string,
-  options?: ConfigureOptions,
-): MCPServersConfig {
-  const env = {};
-
-  // local set up
-  if (!options?.remote) {
-    const args = ['serve'];
-    if (options?.agents) {
-      args.push('--agents');
-    }
-    if (instanceOrUrl) {
-      args.push('--instance', instanceOrUrl);
-    }
-    if (apiToken) {
-      args.push('--token', apiToken);
-    }
-
-    const mcpServerName = buildMcpServerName(options || {});
-    return {
-      [mcpServerName]: {
-        command: 'npx',
-        args: ['-y', '@gleanwork/local-mcp-server', ...args],
-        type: 'stdio',
-        env,
-      },
-    };
-  }
-
-  // Remote configuration requires a full URL
-  if (
-    !instanceOrUrl.startsWith('http://') &&
-    !instanceOrUrl.startsWith('https://')
-  ) {
-    throw new Error(
-      'Remote configuration requires a full URL (starting with http:// or https://)',
-    );
-  }
-
-  const serverUrl = instanceOrUrl;
-  const mcpServerName = buildMcpServerName(options || {}, serverUrl);
-
-  return {
-    [mcpServerName]: {
-      type: 'http',
-      url: serverUrl,
-    },
-  };
-}
-
-claudeCodeClient.configTemplate = (
-  subdomainOrUrl?: string,
-  apiToken?: string,
-  options?: ConfigureOptions,
-): StandardMCPConfig => {
-  const servers = createClaudeCodeMcpServersConfig(
-    subdomainOrUrl || '<glean instance name or URL>',
-    apiToken,
-    options,
-  );
-  return { mcpServers: servers };
-};
+const claudeCodeClient = createBaseClient(CLIENT.CLAUDE_CODE, [
+  'Run `claude mcp list` and verify the server is listed',
+]);
 
 claudeCodeClient.successMessage = (
   configPath: string,

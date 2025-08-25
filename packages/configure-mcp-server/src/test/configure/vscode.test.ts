@@ -8,7 +8,7 @@ describe('VS Code MCP Client', () => {
   const homedir = os.homedir();
 
   it('should have the correct display name', () => {
-    expect(vscodeClient.displayName).toBe('VS Code');
+    expect(vscodeClient.displayName).toBe('Visual Studio Code');
   });
 
   it('should generate the correct config path based on platform', () => {
@@ -20,7 +20,7 @@ describe('VS Code MCP Client', () => {
         process.env.APPDATA || '',
         'Code',
         'User',
-        'settings.json',
+        'mcp.json',
       );
     } else if (platform === 'darwin') {
       expectedPath = path.join(
@@ -29,16 +29,10 @@ describe('VS Code MCP Client', () => {
         'Application Support',
         'Code',
         'User',
-        'settings.json',
+        'mcp.json',
       );
     } else {
-      expectedPath = path.join(
-        homedir,
-        '.config',
-        'Code',
-        'User',
-        'settings.json',
-      );
+      expectedPath = path.join(homedir, '.config', 'Code', 'User', 'mcp.json');
     }
 
     expect(vscodeClient.configFilePath(homedir)).toBe(expectedPath);
@@ -139,7 +133,7 @@ describe('VS Code MCP Client', () => {
     expect(config).toMatchInlineSnapshot(`
       {
         "servers": {
-          "glean": {
+          "glean_default": {
             "type": "http",
             "url": "https://example-instance-be.glean.com/mcp/default",
           },

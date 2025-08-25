@@ -4,18 +4,47 @@ import { createBinTester, BinTesterProject } from '@scalvert/bin-tester';
 import { fileURLToPath } from 'node:url';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type { ConfigFileContents } from '../configure/index.js';
-
-import { cursorConfigPath } from '../configure/client/cursor.js';
-import { claudeConfigPath } from '../configure/client/claude.js';
-import { claudeCodeConfigPath } from '../configure/client/claude-code.js';
-import { windsurfConfigPath } from '../configure/client/windsurf.js';
-import { gooseConfigPath } from '../configure/client/goose.js';
 import yaml from 'yaml';
+
+// Define config paths - MUST match what the actual CLI uses for each platform
+function getClaudeConfigPath() {
+  // This MUST match what the actual claude.ts client uses
+  if (process.platform === 'darwin') {
+    return {
+      configDir: path.join('Library', 'Application Support', 'Claude'),
+      configFileName: 'claude_desktop_config.json',
+    };
+  } else if (process.platform === 'win32') {
+    return {
+      configDir: 'Claude',
+      configFileName: 'claude_desktop_config.json',
+    };
+  } else {
+    // Linux - uses XDG config directory
+    return {
+      configDir: path.join('.config', 'Claude'),
+      configFileName: 'claude_desktop_config.json',
+    };
+  }
+}
+
+const cursorConfigPath = { configDir: '.cursor', configFileName: 'mcp.json' };
+const claudeConfigPath = getClaudeConfigPath();
+const claudeCodeConfigPath = { configDir: '', configFileName: '.claude.json' };
+const windsurfConfigPath = {
+  configDir: path.join('.codeium', 'windsurf'),
+  configFileName: 'mcp_config.json',
+};
+const gooseConfigPath = {
+  configDir: path.join('.config', 'goose'),
+  configFileName: 'config.yaml',
+};
 
 function normalizeOutput(output: string, baseDir: string): string {
   let normalized = normalizeBaseDirOutput(output, baseDir);
   normalized = normalizeVersionOutput(normalized);
   normalized = normalizeVSCodeConfigPath(normalized);
+  normalized = normalizeClaudeConfigPath(normalized);
 
   return normalized;
 }
@@ -29,9 +58,26 @@ function normalizeVersionOutput(output: string): string {
 }
 
 function normalizeVSCodeConfigPath(output: string): string {
+  // Normalize VS Code config paths (both mcp.json and settings.json)
+  return output
+    .replace(
+      /[^\s"]*(\.config|Library\/Application Support|Code)([/\\][^/\\]+)*[/\\]mcp\.json/g,
+      '<VS_CODE_CONFIG_DIR>/mcp.json',
+    )
+    .replace(
+      /[^\s"]*(\.config|Code|Application Support)([/\\][^/\\]+)*[/\\]settings\.json/g,
+      '<VS_CODE_CONFIG_DIR>/settings.json',
+    );
+}
+
+function normalizeClaudeConfigPath(output: string): string {
+  // Normalize Claude Desktop config paths across platforms
+  // macOS: Library/Application Support/Claude/claude_desktop_config.json
+  // Windows: Claude/claude_desktop_config.json
+  // Linux: Claude/claude_desktop_config.json (hypothetically)
   return output.replace(
-    /[^\s"]*(\.config|Code|Application Support)([/\\][^/\\]+)*[/\\]settings\.json/g,
-    '<VS_CODE_CONFIG_DIR>/settings.json',
+    /[^\s"]*(Library\/Application Support\/Claude|Claude)[/\\]claude_desktop_config\.json/g,
+    '<CLAUDE_CONFIG_DIR>/claude_desktop_config.json',
   );
 }
 
@@ -457,15 +503,13 @@ describe('CLI', () => {
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/local-mcp-server",
-                  "serve",
-                  "--instance",
-                  "test-domain",
-                  "--token",
-                  "glean_api_test"
+                  "@gleanwork/local-mcp-server"
                 ],
                 "type": "stdio",
-                "env": {}
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
+                }
               }
             }
           }"
@@ -540,15 +584,13 @@ describe('CLI', () => {
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/local-mcp-server",
-                  "serve",
-                  "--instance",
-                  "test-domain",
-                  "--token",
-                  "glean_api_test"
+                  "@gleanwork/local-mcp-server"
                 ],
                 "type": "stdio",
-                "env": {}
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
+                }
               }
             }
           }"
@@ -809,12 +851,12 @@ describe('CLI', () => {
           "{
             "mcpServers": {
               "glean_local": {
-                "type": "stdio",
                 "command": "npx",
                 "args": [
                   "-y",
                   "@gleanwork/local-mcp-server"
                 ],
+                "type": "stdio",
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
@@ -890,12 +932,12 @@ describe('CLI', () => {
                 "authorization_token": "Bearer $MY_TOKEN"
               },
               "glean_local": {
-                "type": "stdio",
                 "command": "npx",
                 "args": [
                   "-y",
                   "@gleanwork/local-mcp-server"
                 ],
+                "type": "stdio",
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
@@ -916,6 +958,10 @@ describe('CLI', () => {
       beforeEach(() => {
         configPath = path.join(project.baseDir, configDir);
         configFilePath = path.join(configPath, configFileName);
+        // Ensure parent directories exist for Claude config
+        if (configDir) {
+          fs.mkdirSync(configPath, { recursive: true });
+        }
       });
 
       it('creates a new config file when none exists', async () => {
@@ -939,15 +985,15 @@ describe('CLI', () => {
         expect(result.exitCode).toEqual(0);
         expect(normalizeOutput(result.stdout, project.baseDir))
           .toMatchInlineSnapshot(`
-            "Configuring Glean MCP for Claude Desktop...
-            Created new configuration file at: <TMP_DIR>/Claude/claude_desktop_config.json
+            "Configuring Glean MCP for Claude for Desktop...
+            Created new configuration file at: <CLAUDE_CONFIG_DIR>/claude_desktop_config.json
 
-            Claude Desktop MCP configuration has been configured to: <TMP_DIR>/Claude/claude_desktop_config.json
+            Claude for Desktop MCP configuration has been configured to: <CLAUDE_CONFIG_DIR>/claude_desktop_config.json
 
             To use it:
             1. Restart Claude Desktop
-            2. You should see a hammer icon in the input box, indicating MCP tools are available
-            3. Click the hammer to see available tools
+            2. MCP tools will be available in your conversations
+            3. The model will have access to Glean search and other configured tools
             "
           `);
 
@@ -958,12 +1004,12 @@ describe('CLI', () => {
           "{
             "mcpServers": {
               "glean_local": {
-                "type": "stdio",
                 "command": "npx",
                 "args": [
                   "-y",
                   "@gleanwork/local-mcp-server"
                 ],
+                "type": "stdio",
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
@@ -1011,15 +1057,15 @@ describe('CLI', () => {
         expect(result.exitCode).toEqual(0);
         expect(normalizeOutput(result.stdout, project.baseDir))
           .toMatchInlineSnapshot(`
-            "Configuring Glean MCP for Claude Desktop...
-            Updated configuration file at: <TMP_DIR>/Claude/claude_desktop_config.json
+            "Configuring Glean MCP for Claude for Desktop...
+            Updated configuration file at: <CLAUDE_CONFIG_DIR>/claude_desktop_config.json
 
-            Claude Desktop MCP configuration has been configured to: <TMP_DIR>/Claude/claude_desktop_config.json
+            Claude for Desktop MCP configuration has been configured to: <CLAUDE_CONFIG_DIR>/claude_desktop_config.json
 
             To use it:
             1. Restart Claude Desktop
-            2. You should see a hammer icon in the input box, indicating MCP tools are available
-            3. Click the hammer to see available tools
+            2. MCP tools will be available in your conversations
+            3. The model will have access to Glean search and other configured tools
             "
           `);
 
@@ -1039,12 +1085,12 @@ describe('CLI', () => {
                 "authorization_token": "Bearer $MY_TOKEN"
               },
               "glean_local": {
-                "type": "stdio",
                 "command": "npx",
                 "args": [
                   "-y",
                   "@gleanwork/local-mcp-server"
                 ],
+                "type": "stdio",
                 "env": {
                   "GLEAN_INSTANCE": "test-domain",
                   "GLEAN_API_TOKEN": "glean_api_test"
@@ -1106,15 +1152,13 @@ describe('CLI', () => {
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/local-mcp-server",
-                  "serve",
-                  "--instance",
-                  "test-domain",
-                  "--token",
-                  "glean_api_test"
+                  "@gleanwork/local-mcp-server"
                 ],
                 "type": "stdio",
-                "env": {}
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
+                }
               }
             }
           }"
@@ -1177,15 +1221,13 @@ describe('CLI', () => {
                 "command": "npx",
                 "args": [
                   "-y",
-                  "@gleanwork/local-mcp-server",
-                  "serve",
-                  "--instance",
-                  "test-domain",
-                  "--token",
-                  "glean_api_test"
+                  "@gleanwork/local-mcp-server"
                 ],
                 "type": "stdio",
-                "env": {}
+                "env": {
+                  "GLEAN_INSTANCE": "test-domain",
+                  "GLEAN_API_TOKEN": "glean_api_test"
+                }
               }
             }
           }"
@@ -1245,7 +1287,6 @@ describe('CLI', () => {
           "{
             "mcpServers": {
               "glean_local": {
-                "type": "stdio",
                 "command": "npx",
                 "args": [
                   "-y",
@@ -1327,7 +1368,6 @@ describe('CLI', () => {
                 "authorization_token": "Bearer $MY_TOKEN"
               },
               "glean_local": {
-                "type": "stdio",
                 "command": "npx",
                 "args": [
                   "-y",
@@ -1369,6 +1409,7 @@ describe('CLI', () => {
               HOME: project.baseDir,
               USERPROFILE: project.baseDir,
               APPDATA: project.baseDir,
+              _SKIP_INSTANCE_PREFLIGHT: 'true',
             },
           },
         );
@@ -1390,25 +1431,23 @@ describe('CLI', () => {
         const parsedConfig = yaml.parse(configFileContents);
         expect(parsedConfig).toMatchInlineSnapshot(`
           {
-            "extensions": {
-              "glean_local": {
-                "args": [
-                  "-y",
-                  "@gleanwork/local-mcp-server",
-                ],
-                "bundled": null,
-                "cmd": "npx",
-                "description": "",
-                "enabled": true,
-                "env_keys": [],
-                "envs": {
-                  "GLEAN_API_TOKEN": "glean_api_test",
-                  "GLEAN_INSTANCE": "test-domain",
-                },
-                "name": "glean",
-                "timeout": 300,
-                "type": "stdio",
+            "glean_local": {
+              "args": [
+                "-y",
+                "@gleanwork/local-mcp-server",
+              ],
+              "bundled": null,
+              "cmd": "npx",
+              "description": null,
+              "enabled": true,
+              "env_keys": [],
+              "envs": {
+                "GLEAN_API_TOKEN": "glean_api_test",
+                "GLEAN_INSTANCE": "test-domain",
               },
+              "name": "glean_local",
+              "timeout": 300,
+              "type": "stdio",
             },
           }
         `);
@@ -1438,6 +1477,7 @@ describe('CLI', () => {
               HOME: project.baseDir,
               USERPROFILE: project.baseDir,
               APPDATA: project.baseDir,
+              _SKIP_INSTANCE_PREFLIGHT: 'true',
             },
           },
         );
@@ -1459,25 +1499,23 @@ describe('CLI', () => {
         const parsedConfig = yaml.parse(configFileContents);
         expect(parsedConfig).toMatchInlineSnapshot(`
           {
-            "extensions": {
-              "glean_local": {
-                "args": [
-                  "-y",
-                  "@gleanwork/local-mcp-server",
-                ],
-                "bundled": null,
-                "cmd": "npx",
-                "description": "",
-                "enabled": true,
-                "env_keys": [],
-                "envs": {
-                  "GLEAN_API_TOKEN": "glean_api_test",
-                  "GLEAN_INSTANCE": "test-domain",
-                },
-                "name": "glean",
-                "timeout": 300,
-                "type": "stdio",
+            "glean_local": {
+              "args": [
+                "-y",
+                "@gleanwork/local-mcp-server",
+              ],
+              "bundled": null,
+              "cmd": "npx",
+              "description": null,
+              "enabled": true,
+              "env_keys": [],
+              "envs": {
+                "GLEAN_API_TOKEN": "glean_api_test",
+                "GLEAN_INSTANCE": "test-domain",
               },
+              "name": "glean_local",
+              "timeout": 300,
+              "type": "stdio",
             },
             "some-other-config": {
               "options": {
@@ -1500,7 +1538,7 @@ describe('CLI', () => {
             project.baseDir,
             'Code',
             'User',
-            'settings.json',
+            'mcp.json',
           );
         } else if (platform === 'darwin') {
           configFilePath = path.join(
@@ -1509,7 +1547,7 @@ describe('CLI', () => {
             'Application Support',
             'Code',
             'User',
-            'settings.json',
+            'mcp.json',
           );
         } else {
           configFilePath = path.join(
@@ -1517,7 +1555,7 @@ describe('CLI', () => {
             '.config',
             'Code',
             'User',
-            'settings.json',
+            'mcp.json',
           );
         }
 
@@ -1546,8 +1584,8 @@ describe('CLI', () => {
         const normalized = normalizeOutput(result.stdout, project.baseDir);
 
         expect(normalized).toMatchInlineSnapshot(`
-          "Configuring Glean MCP for VS Code...
-          Created new configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
+          "Configuring Glean MCP for Visual Studio Code...
+          Created new configuration file at: <VS_CODE_CONFIG_DIR>/mcp.json
 
           To use it:
           1. Enable MCP support in VS Code by adding "chat.mcp.enabled": true to your user settings
@@ -1622,8 +1660,8 @@ describe('CLI', () => {
         const normalized = normalizeOutput(result.stdout, project.baseDir);
 
         expect(normalized).toMatchInlineSnapshot(`
-          "Configuring Glean MCP for VS Code...
-          Updated configuration file at: <VS_CODE_CONFIG_DIR>/settings.json
+          "Configuring Glean MCP for Visual Studio Code...
+          Updated configuration file at: <VS_CODE_CONFIG_DIR>/mcp.json
 
           To use it:
           1. Enable MCP support in VS Code by adding "chat.mcp.enabled": true to your user settings
@@ -1734,14 +1772,8 @@ describe('CLI', () => {
         {
           "mcpServers": {
             "glean_analytics": {
-              "args": [
-                "-y",
-                "mcp-remote@0.1.18",
-                "https://my-be.glean.com/mcp/analytics",
-              ],
-              "command": "npx",
-              "env": {},
-              "type": "stdio",
+              "type": "http",
+              "url": "https://my-be.glean.com/mcp/analytics",
             },
           },
         }
@@ -1771,18 +1803,12 @@ describe('CLI', () => {
         'utf8',
       );
       const config = JSON.parse(configFileContents);
-      // Should be "glean", not "glean_default"
-      expect(Object.keys(config.mcpServers)[0]).toBe('glean');
-      expect(config.mcpServers.glean).toMatchInlineSnapshot(`
+      // With the new centralized logic, /mcp/default produces "glean_default"
+      expect(Object.keys(config.mcpServers)[0]).toBe('glean_default');
+      expect(config.mcpServers.glean_default).toMatchInlineSnapshot(`
         {
-          "args": [
-            "-y",
-            "mcp-remote@0.1.18",
-            "https://my-be.glean.com/mcp/default",
-          ],
-          "command": "npx",
-          "env": {},
-          "type": "stdio",
+          "type": "http",
+          "url": "https://my-be.glean.com/mcp/default",
         }
       `);
     });
@@ -1815,8 +1841,8 @@ describe('CLI', () => {
         'utf8',
       );
       const config = JSON.parse(configFileContents);
-      // Server name should be from URL, not from --agents flag
-      expect(Object.keys(config.mcpServers)[0]).toBe('glean_custom-agent');
+      // With the new centralized logic, --agents flag takes precedence
+      expect(Object.keys(config.mcpServers)[0]).toBe('glean_agents');
     });
 
     it('warns when both --url and --instance are provided and ignores instance', async () => {
@@ -1852,10 +1878,9 @@ describe('CLI', () => {
       const configFileContents = fs.readFileSync(configPath, 'utf-8');
       const config = JSON.parse(configFileContents);
       expect(Object.keys(config.mcpServers)[0]).toBe('glean_analytics');
-      expect(config.mcpServers.glean_analytics.command).toBe('npx');
-      // For remote configurations, mcp-remote is used
-      expect(config.mcpServers.glean_analytics.args[1]).toMatch(/mcp-remote/);
-      expect(config.mcpServers.glean_analytics.args).toContain(
+      // Cursor supports native HTTP for remote configurations
+      expect(config.mcpServers.glean_analytics.type).toBe('http');
+      expect(config.mcpServers.glean_analytics.url).toBe(
         'https://my-be.glean.com/mcp/analytics',
       );
     });
