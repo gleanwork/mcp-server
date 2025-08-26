@@ -1,28 +1,31 @@
-
 ## v0.8.0 (2025-08-26)
 
 #### :boom: Breaking Change
-* `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`
-  * [#262](https://github.com/gleanwork/mcp-server/pull/262) chore: Removes device code flow support ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
-  * [#259](https://github.com/gleanwork/mcp-server/pull/259) feat: Updating configure command to streamline installations ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+- `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`
+  - [#262](https://github.com/gleanwork/mcp-server/pull/262) chore: Removes device code flow support ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+  - [#259](https://github.com/gleanwork/mcp-server/pull/259) feat: Updating configure command to streamline installations ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
 
 #### :rocket: Enhancement
-* `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`
-  * [#259](https://github.com/gleanwork/mcp-server/pull/259) feat: Updating configure command to streamline installations ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+- `configure-mcp-server`, `local-mcp-server`, `mcp-server-utils`
+  - [#259](https://github.com/gleanwork/mcp-server/pull/259) feat: Updating configure command to streamline installations ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
 
 #### :bug: Bug Fix
-* `local-mcp-server`
-  * [#264](https://github.com/gleanwork/mcp-server/pull/264) Fix/rename x glean actas header ([@eredi93](https://github.com/eredi93))
+
+- `local-mcp-server`
+  - [#264](https://github.com/gleanwork/mcp-server/pull/264) Fix/rename x glean actas header ([@eredi93](https://github.com/eredi93))
 
 #### :house: Internal
-* `configure-mcp-server`
-  * [#270](https://github.com/gleanwork/mcp-server/pull/270) chore: Extracts `configure-mcp-server` package to its own repository ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
-  * [#265](https://github.com/gleanwork/mcp-server/pull/265) Update to mcp config schema ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+- `configure-mcp-server`
+  - [#270](https://github.com/gleanwork/mcp-server/pull/270) chore: Extracts `configure-mcp-server` package to its own repository ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+  - [#265](https://github.com/gleanwork/mcp-server/pull/265) Update to mcp config schema ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
 
 #### Committers: 2
+
 - Jacopo Scrinzi ([@eredi93](https://github.com/eredi93))
 - Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
-
 
 ## v0.7.18 (2025-08-08)
 
