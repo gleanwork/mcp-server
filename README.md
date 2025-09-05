@@ -7,7 +7,7 @@
 
 This monorepo contains packages for Glean's local MCP server. For more details see the READMEs of the individual packages.
 
-- [@gleanwork/configure-mcp-server](https://github.com/gleanwork/mcp-server/tree/main/packages/configure-mcp-server) for configuring the local MCP server with popular MCP clients.
+- [@gleanwork/configure-mcp-server](https://github.com/gleanwork/configure-mcp-server) for configuring the local MCP server with popular MCP clients.
 - [@gleanwork/local-mcp-server](https://github.com/gleanwork/mcp-server/tree/main/packages/local-mcp-server) on running the local MCP server.
 
 ## Contributing
