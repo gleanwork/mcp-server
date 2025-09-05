@@ -35,7 +35,7 @@ The Glean MCP Server is a [Model Context Protocol (MCP)](https://modelcontextpro
 
 ## MCP Client Configuration
 
-To configure this MCP server in your MCP client (such as Claude Desktop, Windsurf, Cursor, etc.), run [@gleanwork/configure-mcp-server](https://github.com/gleanwork/mcp-server/tree/main/packages/configure-mcp-server) passing in your client, token and instance.
+To configure this MCP server in your MCP client (such as Claude Desktop, Windsurf, Cursor, etc.), run [@gleanwork/configure-mcp-server](https://github.com/gleanwork/configure-mcp-server) passing in your client, token and instance.
 
 ```bash
 # Configure for Cursor
@@ -45,7 +45,7 @@ npx @gleanwork/configure-mcp-server --client cursor --token your_api_token --ins
 npx @gleanwork/configure-mcp-server --client claude --token your_api_token --instance instance_name
 ```
 
-For more details see: [@gleanwork/configure-mcp-server](https://github.com/gleanwork/mcp-server/tree/main/packages/configure-mcp-server).
+For more details see: [@gleanwork/configure-mcp-server](https://github.com/gleanwork/configure-mcp-server).
 
 ### Manual MCP Configuration
 
