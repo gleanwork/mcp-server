@@ -190,7 +190,7 @@ export async function callToolHandler(
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errorDetails = error.errors
+      const errorDetails = error.issues
         .map((err) => {
           return `${err.path.join('.')}: ${err.message}`;
         })
