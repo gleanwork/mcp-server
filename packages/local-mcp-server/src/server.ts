@@ -19,7 +19,6 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import * as search from './tools/search.js';
 import * as chat from './tools/chat.js';
 import * as peopleProfileSearch from './tools/people_profile_search.js';
@@ -66,7 +65,7 @@ export async function listToolsHandler() {
             "datasources": ["drive", "confluence"]
         }
         `,
-        inputSchema: zodToJsonSchema(search.ToolSearchSchema),
+        inputSchema: search.ToolSearchSchema.toJSONSchema(),
       },
       {
         name: TOOL_NAMES.chat,
@@ -82,7 +81,7 @@ export async function listToolsHandler() {
             ]
         }
         `,
-        inputSchema: zodToJsonSchema(chat.ToolChatSchema),
+        inputSchema: chat.ToolChatSchema.toJSONSchema(),
       },
       {
         name: TOOL_NAMES.peopleProfileSearch,
@@ -100,9 +99,7 @@ export async function listToolsHandler() {
         }
 
         `,
-        inputSchema: zodToJsonSchema(
-          peopleProfileSearch.ToolPeopleProfileSearchSchema,
-        ),
+        inputSchema: peopleProfileSearch.ToolPeopleProfileSearchSchema.toJSONSchema(),
       },
       {
         name: TOOL_NAMES.readDocuments,
@@ -119,7 +116,7 @@ export async function listToolsHandler() {
             }
           ]
         `,
-        inputSchema: zodToJsonSchema(readDocuments.ToolReadDocumentsSchema),
+        inputSchema: readDocuments.ToolReadDocumentsSchema.toJSONSchema(),
       },
     ],
   };
