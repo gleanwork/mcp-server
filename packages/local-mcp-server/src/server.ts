@@ -15,6 +15,7 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
+  CallToolRequest,
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
@@ -65,7 +66,7 @@ export async function listToolsHandler() {
             "datasources": ["drive", "confluence"]
         }
         `,
-        inputSchema: search.ToolSearchSchema.toJSONSchema(),
+        inputSchema: z.toJSONSchema(search.ToolSearchSchema),
       },
       {
         name: TOOL_NAMES.chat,
@@ -81,7 +82,7 @@ export async function listToolsHandler() {
             ]
         }
         `,
-        inputSchema: chat.ToolChatSchema.toJSONSchema(),
+        inputSchema: z.toJSONSchema(chat.ToolChatSchema),
       },
       {
         name: TOOL_NAMES.peopleProfileSearch,
@@ -99,7 +100,7 @@ export async function listToolsHandler() {
         }
 
         `,
-        inputSchema: peopleProfileSearch.ToolPeopleProfileSearchSchema.toJSONSchema(),
+        inputSchema: z.toJSONSchema(peopleProfileSearch.ToolPeopleProfileSearchSchema),
       },
       {
         name: TOOL_NAMES.readDocuments,
@@ -116,7 +117,7 @@ export async function listToolsHandler() {
             }
           ]
         `,
-        inputSchema: readDocuments.ToolReadDocumentsSchema.toJSONSchema(),
+        inputSchema: z.toJSONSchema(readDocuments.ToolReadDocumentsSchema),
       },
     ],
   };
@@ -126,7 +127,7 @@ export async function listToolsHandler() {
  * Executes a tool based on the MCP callTool request.
  */
 export async function callToolHandler(
-  request: z.infer<typeof CallToolRequestSchema>,
+  request: CallToolRequest,
 ) {
   try {
     if (!request.params.arguments) {

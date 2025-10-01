@@ -66,7 +66,7 @@ function convertToAPISearchRequest(input: ToolSearchRequest) {
  */
 export async function search(params: ToolSearchRequest) {
   const mappedParams = convertToAPISearchRequest(params);
-  const parsedParams = SearchRequestSchema.parse(mappedParams);
+  const parsedParams = SearchRequestSchema.parse(mappedParams) as SearchRequest;
   const client = await getClient();
 
   return await client.search.query(parsedParams);

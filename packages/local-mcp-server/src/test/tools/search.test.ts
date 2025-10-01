@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { SearchResponse } from '@gleanwork/api-client/models/components';
 import { ToolSearchSchema, search } from '../../tools/search.js';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { z } from 'zod';
 import '@gleanwork/mcp-test-utils/mocks/setup';
 
 describe('Search Tool', () => {
@@ -19,33 +19,28 @@ describe('Search Tool', () => {
 
   describe('JSON Schema Generation', () => {
     it('generates correct JSON schema', () => {
-      expect(zodToJsonSchema(ToolSearchSchema, 'GleanSearch'))
+      expect(z.toJSONSchema(ToolSearchSchema))
         .toMatchInlineSnapshot(`
           {
-            "$ref": "#/definitions/GleanSearch",
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "definitions": {
-              "GleanSearch": {
-                "additionalProperties": false,
-                "properties": {
-                  "datasources": {
-                    "description": "Optional list of data sources to search in. Examples: "github", "gdrive", "confluence", "jira".",
-                    "items": {
-                      "type": "string",
-                    },
-                    "type": "array",
-                  },
-                  "query": {
-                    "description": "The search query. This is what you want to search for.",
-                    "type": "string",
-                  },
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "additionalProperties": false,
+            "properties": {
+              "datasources": {
+                "description": "Optional list of data sources to search in. Examples: "github", "gdrive", "confluence", "jira".",
+                "items": {
+                  "type": "string",
                 },
-                "required": [
-                  "query",
-                ],
-                "type": "object",
+                "type": "array",
+              },
+              "query": {
+                "description": "The search query. This is what you want to search for.",
+                "type": "string",
               },
             },
+            "required": [
+              "query",
+            ],
+            "type": "object",
           }
         `);
     });

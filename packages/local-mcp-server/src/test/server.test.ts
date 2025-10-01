@@ -128,7 +128,7 @@ describe('MCP Server Handlers (integration)', () => {
         "content": [
           {
             "text": "Invalid input:
-      query: Expected string, received number",
+      query: Invalid input: expected string, received number",
             "type": "text",
           },
         ],
@@ -228,7 +228,7 @@ describe('MCP Server Handlers (integration)', () => {
         "content": [
           {
             "text": "Invalid input:
-      pageSize: Number must be less than or equal to 100",
+      pageSize: Too big: expected number to be <=100",
             "type": "text",
           },
         ],
