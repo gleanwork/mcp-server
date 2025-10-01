@@ -21,9 +21,8 @@ describe('People Profile Search Tool', () => {
 
   describe('JSON Schema Generation', () => {
     it('generates correct JSON schema', () => {
-      expect(
-        z.toJSONSchema(ToolPeopleProfileSearchSchema),
-      ).toMatchInlineSnapshot(`
+      expect(z.toJSONSchema(ToolPeopleProfileSearchSchema))
+        .toMatchInlineSnapshot(`
         {
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "additionalProperties": false,

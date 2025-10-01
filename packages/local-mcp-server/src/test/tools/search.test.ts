@@ -19,8 +19,7 @@ describe('Search Tool', () => {
 
   describe('JSON Schema Generation', () => {
     it('generates correct JSON schema', () => {
-      expect(z.toJSONSchema(ToolSearchSchema))
-        .toMatchInlineSnapshot(`
+      expect(z.toJSONSchema(ToolSearchSchema)).toMatchInlineSnapshot(`
           {
             "$schema": "https://json-schema.org/draft/2020-12/schema",
             "additionalProperties": false,

@@ -100,7 +100,9 @@ export async function listToolsHandler() {
         }
 
         `,
-        inputSchema: z.toJSONSchema(peopleProfileSearch.ToolPeopleProfileSearchSchema),
+        inputSchema: z.toJSONSchema(
+          peopleProfileSearch.ToolPeopleProfileSearchSchema,
+        ),
       },
       {
         name: TOOL_NAMES.readDocuments,
@@ -126,9 +128,7 @@ export async function listToolsHandler() {
 /**
  * Executes a tool based on the MCP callTool request.
  */
-export async function callToolHandler(
-  request: CallToolRequest,
-) {
+export async function callToolHandler(request: CallToolRequest) {
   try {
     if (!request.params.arguments) {
       throw new Error('Arguments are required');
