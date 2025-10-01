@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ChatResponse, Author } from '@gleanwork/api-client/models/components';
 import { chat, ToolChatSchema } from '../../tools/chat.js';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { z } from 'zod';
 import '@gleanwork/mcp-test-utils/mocks/setup';
 
 describe('Chat Tool', () => {
@@ -19,35 +19,30 @@ describe('Chat Tool', () => {
 
   describe('JSON Schema Generation', () => {
     it('generates correct JSON schema', () => {
-      expect(zodToJsonSchema(ToolChatSchema, 'GleanChat'))
+      expect(z.toJSONSchema(ToolChatSchema))
         .toMatchInlineSnapshot(`
-        {
-          "$ref": "#/definitions/GleanChat",
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "definitions": {
-            "GleanChat": {
-              "additionalProperties": false,
-              "properties": {
-                "context": {
-                  "description": "Optional previous messages for context. Will be included in order before the current message.",
-                  "items": {
-                    "type": "string",
-                  },
-                  "type": "array",
-                },
-                "message": {
-                  "description": "The user question or message to send to Glean Assistant.",
+          {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "additionalProperties": false,
+            "properties": {
+              "context": {
+                "description": "Optional previous messages for context. Will be included in order before the current message.",
+                "items": {
                   "type": "string",
                 },
+                "type": "array",
               },
-              "required": [
-                "message",
-              ],
-              "type": "object",
+              "message": {
+                "description": "The user question or message to send to Glean Assistant.",
+                "type": "string",
+              },
             },
-          },
-        }
-      `);
+            "required": [
+              "message",
+            ],
+            "type": "object",
+          }
+        `);
     });
   });
 

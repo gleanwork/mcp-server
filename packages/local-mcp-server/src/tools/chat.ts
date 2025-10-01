@@ -64,7 +64,7 @@ function convertToAPIChatRequest(input: ToolChatRequest) {
  */
 export async function chat(params: ToolChatRequest) {
   const mappedParams = convertToAPIChatRequest(params);
-  const parsedParams = ChatRequestSchema.parse(mappedParams);
+  const parsedParams = ChatRequestSchema.parse(mappedParams) as ChatRequest;
   const client = await getClient();
 
   return await client.chat.create(parsedParams);
