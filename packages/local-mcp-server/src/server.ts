@@ -15,11 +15,11 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
+  CallToolRequest,
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 import * as search from './tools/search.js';
 import * as chat from './tools/chat.js';
 import * as peopleProfileSearch from './tools/people_profile_search.js';
@@ -66,7 +66,7 @@ export async function listToolsHandler() {
             "datasources": ["drive", "confluence"]
         }
         `,
-        inputSchema: zodToJsonSchema(search.ToolSearchSchema),
+        inputSchema: z.toJSONSchema(search.ToolSearchSchema),
       },
       {
         name: TOOL_NAMES.chat,
@@ -82,7 +82,7 @@ export async function listToolsHandler() {
             ]
         }
         `,
-        inputSchema: zodToJsonSchema(chat.ToolChatSchema),
+        inputSchema: z.toJSONSchema(chat.ToolChatSchema),
       },
       {
         name: TOOL_NAMES.peopleProfileSearch,
@@ -100,7 +100,7 @@ export async function listToolsHandler() {
         }
 
         `,
-        inputSchema: zodToJsonSchema(
+        inputSchema: z.toJSONSchema(
           peopleProfileSearch.ToolPeopleProfileSearchSchema,
         ),
       },
@@ -119,7 +119,7 @@ export async function listToolsHandler() {
             }
           ]
         `,
-        inputSchema: zodToJsonSchema(readDocuments.ToolReadDocumentsSchema),
+        inputSchema: z.toJSONSchema(readDocuments.ToolReadDocumentsSchema),
       },
     ],
   };
@@ -128,9 +128,7 @@ export async function listToolsHandler() {
 /**
  * Executes a tool based on the MCP callTool request.
  */
-export async function callToolHandler(
-  request: z.infer<typeof CallToolRequestSchema>,
-) {
+export async function callToolHandler(request: CallToolRequest) {
   try {
     if (!request.params.arguments) {
       throw new Error('Arguments are required');
@@ -190,7 +188,7 @@ export async function callToolHandler(
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errorDetails = error.errors
+      const errorDetails = error.issues
         .map((err) => {
           return `${err.path.join('.')}: ${err.message}`;
         })

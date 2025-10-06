@@ -7,7 +7,7 @@ import {
 } from '@gleanwork/api-client/models/components';
 
 // Allowed facet names for filtering people searches.
-export const PEOPLE_FACETS = z.enum([
+export const PEOPLE_FACETS_VALUES = [
   'email',
   'first_name',
   'last_name',
@@ -31,7 +31,7 @@ export const PEOPLE_FACETS = z.enum([
   'industry',
   'has',
   'from',
-]);
+] as const;
 
 /**
  * Simplified schema for people profile search requests designed for LLM interaction
@@ -44,7 +44,18 @@ export const ToolPeopleProfileSearchSchema = z
       .optional(),
 
     filters: z
-      .record(PEOPLE_FACETS, z.string())
+      .record(z.string(), z.string())
+      .refine(
+        (val) =>
+          Object.keys(val).every((key) =>
+            PEOPLE_FACETS_VALUES.includes(key as any),
+          ),
+        {
+          message:
+            'Invalid filter key. Must be one of: ' +
+            PEOPLE_FACETS_VALUES.join(', '),
+        },
+      )
       .describe(
         'Allowed facet fields: email, first_name, last_name, manager_email, department, title, location, city, country, state, region, business_unit, team, team_id, nickname, preferred_name, roletype, reportsto, startafter, startbefore, industry, has, from. Provide as { "facet": "value" }.',
       )
@@ -119,7 +130,9 @@ export async function peopleProfileSearch(
   params: ToolPeopleProfileSearchRequest,
 ) {
   const mappedParams = convertToAPIEntitiesRequest(params);
-  const parsedParams = ListEntitiesRequestSchema.parse(mappedParams);
+  const parsedParams = ListEntitiesRequestSchema.parse(
+    mappedParams,
+  ) as ListEntitiesRequest;
   const client = await getClient();
 
   return await client.entities.list(parsedParams);

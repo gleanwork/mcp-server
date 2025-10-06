@@ -52,13 +52,12 @@
   "dependencies": {
     "@gleanwork/api-client": "0.9.1",
     "@gleanwork/mcp-server-utils": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.15.1",
+    "@modelcontextprotocol/sdk": "^1.18.1",
     "dotenv": "^17.2.1",
     "meow": "^13.2.0",
     "open": "^10.2.0",
-    "tldts": "^7.0.10",
-    "zod": "^3.25.65",
-    "zod-to-json-schema": "^3.24.6"
+    "tldts": "^7.0.16",
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -69,12 +68,12 @@
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.42.0",
     "console-test-helpers": "^0.3.3",
-    "eslint": "^9.32.0",
+    "eslint": "^9.36.0",
     "fixturify": "^3.0.0",
     "form-data": "^4.0.4",
     "fs-extra": "^11.3.0",
     "globals": "^16.3.0",
-    "msw": "^2.10.5",
+    "msw": "^2.11.3",
     "npm-run-all": "^4.1.5",
     "rimraf": "^6.0.1",
     "sort-package-json": "^3.4.0",

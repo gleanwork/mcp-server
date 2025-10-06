@@ -3,7 +3,7 @@ import {
   ToolPeopleProfileSearchSchema,
   peopleProfileSearch,
 } from '../../tools/people_profile_search.js';
-import { zodToJsonSchema } from 'zod-to-json-schema';
+import { z } from 'zod';
 import { ListEntitiesResponse } from '@gleanwork/api-client/models/components';
 import '@gleanwork/mcp-test-utils/mocks/setup';
 
@@ -21,64 +21,34 @@ describe('People Profile Search Tool', () => {
 
   describe('JSON Schema Generation', () => {
     it('generates correct JSON schema', () => {
-      expect(
-        zodToJsonSchema(ToolPeopleProfileSearchSchema, 'PeopleProfileSearch'),
-      ).toMatchInlineSnapshot(`
+      expect(z.toJSONSchema(ToolPeopleProfileSearchSchema))
+        .toMatchInlineSnapshot(`
         {
-          "$ref": "#/definitions/PeopleProfileSearch",
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "definitions": {
-            "PeopleProfileSearch": {
-              "additionalProperties": false,
-              "properties": {
-                "filters": {
-                  "additionalProperties": {
-                    "type": "string",
-                  },
-                  "description": "Allowed facet fields: email, first_name, last_name, manager_email, department, title, location, city, country, state, region, business_unit, team, team_id, nickname, preferred_name, roletype, reportsto, startafter, startbefore, industry, has, from. Provide as { "facet": "value" }.",
-                  "propertyNames": {
-                    "enum": [
-                      "email",
-                      "first_name",
-                      "last_name",
-                      "manager_email",
-                      "department",
-                      "title",
-                      "location",
-                      "city",
-                      "country",
-                      "state",
-                      "region",
-                      "business_unit",
-                      "team",
-                      "team_id",
-                      "nickname",
-                      "preferred_name",
-                      "roletype",
-                      "reportsto",
-                      "startafter",
-                      "startbefore",
-                      "industry",
-                      "has",
-                      "from",
-                    ],
-                  },
-                  "type": "object",
-                },
-                "pageSize": {
-                  "description": "Hint to the server for how many people to return (1-100, default 10).",
-                  "maximum": 100,
-                  "minimum": 1,
-                  "type": "integer",
-                },
-                "query": {
-                  "description": "Free-text query to search people by name, title, etc.",
-                  "type": "string",
-                },
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "additionalProperties": false,
+          "properties": {
+            "filters": {
+              "additionalProperties": {
+                "type": "string",
+              },
+              "description": "Allowed facet fields: email, first_name, last_name, manager_email, department, title, location, city, country, state, region, business_unit, team, team_id, nickname, preferred_name, roletype, reportsto, startafter, startbefore, industry, has, from. Provide as { "facet": "value" }.",
+              "propertyNames": {
+                "type": "string",
               },
               "type": "object",
             },
+            "pageSize": {
+              "description": "Hint to the server for how many people to return (1-100, default 10).",
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+            },
+            "query": {
+              "description": "Free-text query to search people by name, title, etc.",
+              "type": "string",
+            },
           },
+          "type": "object",
         }
       `);
     });
