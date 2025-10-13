@@ -12,4 +12,4 @@ updates:
       semver-patch-days: 3
     groups:
       dev-dependencies:
-        dependency-type: "development"
+        dependency-type: 'development'
