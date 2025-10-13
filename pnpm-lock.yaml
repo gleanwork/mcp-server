@@ -72,8 +72,8 @@ importers:
         specifier: ^10.2.0
         version: 10.2.0
       tldts:
-        specifier: ^7.0.16
-        version: 7.0.16
+        specifier: ^7.0.17
+        version: 7.0.17
       zod:
         specifier: ^4.1.5
         version: 4.1.5
@@ -151,8 +151,8 @@ importers:
         specifier: ^10.2.0
         version: 10.2.0
       tldts:
-        specifier: ^7.0.16
-        version: 7.0.16
+        specifier: ^7.0.17
+        version: 7.0.17
       zod:
         specifier: ^4.1.5
         version: 4.1.5
@@ -4019,11 +4019,11 @@ packages:
     resolution: {integrity: sha512-t2T/WLB2WRgZ9EpE4jgPJ9w+i66UZfDc8wHh0xrwiRNN+UwH98GIJkTeZqX9rg0i0ptwzqW+uYeIF0T4F8LR7A==}
     engines: {node: '>=14.0.0'}
 
-  tldts-core@7.0.16:
-    resolution: {integrity: sha512-XHhPmHxphLi+LGbH0G/O7dmUH9V65OY20R7vH8gETHsp5AZCjBk9l8sqmRKLaGOxnETU7XNSDUPtewAy/K6jbA==}
+  tldts-core@7.0.17:
+    resolution: {integrity: sha512-DieYoGrP78PWKsrXr8MZwtQ7GLCUeLxihtjC1jZsW1DnvSMdKPitJSe8OSYDM2u5H6g3kWJZpePqkp43TfLh0g==}
 
-  tldts@7.0.16:
-    resolution: {integrity: sha512-5bdPHSwbKTeHmXrgecID4Ljff8rQjv7g8zKQPkCozRo2HWWni+p310FSn5ImI+9kWw9kK4lzOB5q/a6iv0IJsw==}
+  tldts@7.0.17:
+    resolution: {integrity: sha512-Y1KQBgDd/NUc+LfOtKS6mNsC9CCaH+m2P1RoIZy7RAPo3C3/t8X45+zgut31cRZtZ3xKPjfn3TkGTrctC2TQIQ==}
     hasBin: true
 
   tmp@0.0.33:
@@ -8528,11 +8528,11 @@ snapshots:
 
   tinyspy@4.0.3: {}
 
-  tldts-core@7.0.16: {}
+  tldts-core@7.0.17: {}
 
-  tldts@7.0.16:
+  tldts@7.0.17:
     dependencies:
-      tldts-core: 7.0.16
+      tldts-core: 7.0.17
 
   tmp@0.0.33:
     dependencies:
@@ -8548,7 +8548,7 @@ snapshots:
 
   tough-cookie@6.0.0:
     dependencies:
-      tldts: 7.0.16
+      tldts: 7.0.17
 
   trim-lines@3.0.1: {}
 
