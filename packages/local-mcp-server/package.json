@@ -57,7 +57,7 @@
     "meow": "^13.2.0",
     "open": "^10.2.0",
     "tldts": "^7.0.17",
-    "zod": "^4.1.5"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
