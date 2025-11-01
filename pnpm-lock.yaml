@@ -54,8 +54,8 @@ importers:
   packages/local-mcp-server:
     dependencies:
       '@gleanwork/api-client':
-        specifier: 0.11.2
-        version: 0.11.2
+        specifier: 0.13.0
+        version: 0.13.0
       '@gleanwork/mcp-server-utils':
         specifier: workspace:*
         version: link:../mcp-server-utils
@@ -164,8 +164,8 @@ importers:
         specifier: ^9.37.0
         version: 9.37.0
       '@gleanwork/api-client':
-        specifier: 0.11.2
-        version: 0.11.2
+        specifier: 0.13.0
+        version: 0.13.0
       '@gleanwork/mcp-test-utils':
         specifier: workspace:*
         version: link:../mcp-test-utils
@@ -854,8 +854,8 @@ packages:
   '@gar/promisify@1.1.3':
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
 
-  '@gleanwork/api-client@0.11.2':
-    resolution: {integrity: sha512-ap2BzJdj3/D+ASF0E+gE3D99A4D7JWM/GT5Wx6BmhEM14uAfz1Sl+x7g4FS5vXCm70QPweRG2e64VOc294HLcQ==}
+  '@gleanwork/api-client@0.13.0':
+    resolution: {integrity: sha512-JVuwEbGJlmc+4FyC16rs6+2l/Vx2GGThW3uXHHdFCPz5cQCQoLeNT86ivPy0k9MQjQVnWaI2q5oZzw7kIxgjiQ==}
     peerDependencies:
       '@tanstack/react-query': ^5
       react: ^18 || ^19
@@ -2449,8 +2449,8 @@ packages:
     resolution: {integrity: sha512-w9UMqWwJxHNOvoNzSJ2oPF5wvYcvP7jUvYzhp67yEhTi17ZDBBC1z9pTdGuzjD+EFIqLSYRweZjqfiPzQ06Ebg==}
     engines: {node: '>= 0.4'}
 
-  get-tsconfig@4.12.0:
-    resolution: {integrity: sha512-LScr2aNr2FbjAjZh2C6X6BxRx1/x+aTDExct/xyq2XKbYOiG5c0aK7pMsSuyc0brz3ibr/lbQiHD9jzt4lccJw==}
+  get-tsconfig@4.13.0:
+    resolution: {integrity: sha512-1VKTZJCwBrvbd+Wn3AOgQP/2Av+TfTCOlE4AcRJE72W1ksZXbAx8PPBR9RzgTeSPzlPMHrbANMH3LbltH73wxQ==}
 
   get-uri@6.0.5:
     resolution: {integrity: sha512-b1O07XYq8eRuVzBNgJLstU6FYc1tS6wnMtF1I1D9lE8LxZSOGZ7LhxN54yPP6mGw5f2CkXY2BQUL9Fx41qvcIg==}
@@ -4793,9 +4793,9 @@ snapshots:
 
   '@gar/promisify@1.1.3': {}
 
-  '@gleanwork/api-client@0.11.2':
+  '@gleanwork/api-client@0.13.0':
     dependencies:
-      zod: 3.25.76
+      zod: 4.1.12
 
   '@gleanwork/connect-mcp-server@0.2.4':
     dependencies:
@@ -6639,7 +6639,7 @@ snapshots:
       es-errors: 1.3.0
       get-intrinsic: 1.3.0
 
-  get-tsconfig@4.12.0:
+  get-tsconfig@4.13.0:
     dependencies:
       resolve-pkg-maps: 1.0.0
     optional: true
@@ -8406,7 +8406,7 @@ snapshots:
   tsx@4.20.3:
     dependencies:
       esbuild: 0.25.11
-      get-tsconfig: 4.12.0
+      get-tsconfig: 4.13.0
     optionalDependencies:
       fsevents: 2.3.3
     optional: true
