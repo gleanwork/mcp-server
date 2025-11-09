@@ -24,15 +24,14 @@ import { z } from 'zod';
 export const ToolReadDocumentsSchema = z.object({
   documentSpecs: z
     .array(
-      z
-        .object({
-          id: z.string().describe('Glean Document ID').optional(),
-          url: z.string().describe('Document URL').optional(),
-        })
-        .refine((data) => data.id || data.url, {
-          message: 'Either id or url must be provided for each document spec',
-          path: ['id', 'url'],
+      z.union([
+        z.object({
+          id: z.string().describe('Glean Document ID'),
         }),
+        z.object({
+          url: z.string().describe('Document URL'),
+        }),
+      ]),
     )
     .describe('List of document specifications to retrieve')
     .min(1, 'At least one document spec must be provided'),
