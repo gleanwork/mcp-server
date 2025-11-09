@@ -16,5 +16,5 @@ jobs:
       - name: Build Docker image
         run: docker build -t glean-mcp-server:test .
 
-      - name: Verify image
-        run: docker run --rm glean-mcp-server:test node --version
+      - name: Verify Glean MCP server starts
+        run: timeout 3 docker run --rm glean-mcp-server:test || [ $? -eq 124 ]
