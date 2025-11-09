@@ -1,0 +1,20 @@
+name: Docker
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t glean-mcp-server:test .
+
+      - name: Verify Glean MCP server starts
+        run: timeout 3 docker run --rm glean-mcp-server:test || [ $? -eq 124 ]
