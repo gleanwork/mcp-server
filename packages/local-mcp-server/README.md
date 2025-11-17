@@ -84,7 +84,7 @@ docker pull ghcr.io/gleanwork/local-mcp-server:latest
 
 ### MCP Client Configuration
 
-Configure your MCP client to use the Docker image:
+Configure your MCP client to use the Docker image. Most MCP clients support passing environment variables via the `env` block:
 
 ```json
 {
@@ -106,12 +106,51 @@ Configure your MCP client to use the Docker image:
 }
 ```
 
+If your MCP client doesn't pass the `env` block to Docker, use `-e` flags in the args instead:
+
+```json
+{
+  "mcpServers": {
+    "glean": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e", "GLEAN_INSTANCE=your-instance",
+        "-e", "GLEAN_API_TOKEN=your-token",
+        "ghcr.io/gleanwork/local-mcp-server:latest"
+      ]
+    }
+  }
+}
+```
+
 **Important:** The `-i` flag is required for stdio transport communication.
 
 ### Environment Variables
 
 - `GLEAN_INSTANCE` (required): Your Glean instance name
 - `GLEAN_API_TOKEN` (required): Your Glean API token
+
+### Troubleshooting
+
+**Container exits immediately:**
+- Verify environment variables are set correctly
+- Check Docker logs: `docker logs <container-id>`
+- Ensure the `-i` flag is present in the args
+
+**Permission or authentication errors:**
+- Verify your `GLEAN_API_TOKEN` is valid
+- Check your `GLEAN_INSTANCE` matches your Glean deployment
+
+**MCP client can't connect:**
+- Verify Docker is installed and running
+- Check that `docker` command is in your PATH
+- Review MCP client logs for error messages
+
+**Environment variables not being passed:**
+- Try using `-e` flags in args instead of the `env` block (see alternative configuration above)
 
 ### Debugging
 

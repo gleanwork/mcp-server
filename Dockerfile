@@ -12,7 +12,9 @@ USER mcpserver
 
 # Install the published @gleanwork/local-mcp-server package from npm
 # Using -g installs it globally in the user's home directory
-RUN npm install -g @gleanwork/local-mcp-server
+# PACKAGE_VERSION can be set at build time to pin to a specific version
+ARG PACKAGE_VERSION=latest
+RUN npm install -g @gleanwork/local-mcp-server@${PACKAGE_VERSION}
 
 # Run the MCP server
 # The server uses stdio transport and keeps running until terminated

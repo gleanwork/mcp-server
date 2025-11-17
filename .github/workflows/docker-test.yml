@@ -24,7 +24,7 @@ jobs:
       - name: Verify MCP server starts with stdio
         run: |
           container_id=$(docker run -d -i glean-mcp-server:test)
-          sleep 2
+          sleep 5
           if docker ps | grep -q "$container_id"; then
             echo "Container is running"
             docker logs "$container_id"
@@ -42,10 +42,11 @@ jobs:
             --memory="2g" \
             --read-only \
             --tmpfs /tmp \
+            --tmpfs /home/mcp/.npm \
             --cap-drop=ALL \
             --security-opt=no-new-privileges:true \
             glean-mcp-server:test)
-          sleep 2
+          sleep 5
           if docker ps | grep -q "$container_id"; then
             echo "Container is running with security constraints"
             docker logs "$container_id"
