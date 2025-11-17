@@ -23,21 +23,27 @@ jobs:
 
       - name: Verify MCP server starts with stdio
         run: |
-          timeout 10s docker run --rm -i glean-mcp-server:test < /dev/null &
-          pid=$!
+          echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | timeout 5s docker run --rm -i glean-mcp-server:test > /tmp/output.txt 2>&1 &
+          docker_pid=$!
           sleep 2
-          if ps -p $pid > /dev/null 2>&1; then
-            echo "Container started successfully with stdio"
-            kill $pid 2>/dev/null || true
-            wait $pid 2>/dev/null || true
+          if kill -0 $docker_pid 2>/dev/null; then
+            echo "Container is running and accepting stdio"
+            kill $docker_pid 2>/dev/null || true
+            wait $docker_pid 2>/dev/null || true
+            if grep -q "jsonrpc" /tmp/output.txt 2>/dev/null; then
+              echo "MCP server responded to initialize request"
+            else
+              echo "Warning: No MCP response detected, but container started"
+            fi
           else
-            echo "Container failed to start or exited immediately"
+            echo "Container exited immediately"
+            cat /tmp/output.txt 2>/dev/null || true
             exit 1
           fi
 
       - name: Test with security constraints
         run: |
-          timeout 10s docker run --rm -i \
+          echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | timeout 5s docker run --rm -i \
             --cpus="1.0" \
             --memory="2g" \
             --read-only \
@@ -45,14 +51,20 @@ jobs:
             --tmpfs /home/mcpserver/.npm \
             --cap-drop=ALL \
             --security-opt=no-new-privileges:true \
-            glean-mcp-server:test < /dev/null &
-          pid=$!
+            glean-mcp-server:test > /tmp/output-secure.txt 2>&1 &
+          docker_pid=$!
           sleep 2
-          if ps -p $pid > /dev/null 2>&1; then
-            echo "Container started successfully with security constraints"
-            kill $pid 2>/dev/null || true
-            wait $pid 2>/dev/null || true
+          if kill -0 $docker_pid 2>/dev/null; then
+            echo "Container is running with security constraints"
+            kill $docker_pid 2>/dev/null || true
+            wait $docker_pid 2>/dev/null || true
+            if grep -q "jsonrpc" /tmp/output-secure.txt 2>/dev/null; then
+              echo "MCP server responded to initialize request"
+            else
+              echo "Warning: No MCP response detected, but container started"
+            fi
           else
-            echo "Container failed to start with security constraints"
+            echo "Container exited immediately with security constraints"
+            cat /tmp/output-secure.txt 2>/dev/null || true
             exit 1
           fi
