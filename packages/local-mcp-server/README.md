@@ -117,8 +117,10 @@ If your MCP client doesn't pass the `env` block to Docker, use `-e` flags in the
         "run",
         "-i",
         "--rm",
-        "-e", "GLEAN_INSTANCE=your-instance",
-        "-e", "GLEAN_API_TOKEN=your-token",
+        "-e",
+        "GLEAN_INSTANCE=your-instance",
+        "-e",
+        "GLEAN_API_TOKEN=your-token",
         "ghcr.io/gleanwork/local-mcp-server:latest"
       ]
     }
@@ -136,20 +138,24 @@ If your MCP client doesn't pass the `env` block to Docker, use `-e` flags in the
 ### Troubleshooting
 
 **Container exits immediately:**
+
 - Verify environment variables are set correctly
 - Check Docker logs: `docker logs <container-id>`
 - Ensure the `-i` flag is present in the args
 
 **Permission or authentication errors:**
+
 - Verify your `GLEAN_API_TOKEN` is valid
 - Check your `GLEAN_INSTANCE` matches your Glean deployment
 
 **MCP client can't connect:**
+
 - Verify Docker is installed and running
 - Check that `docker` command is in your PATH
 - Review MCP client logs for error messages
 
 **Environment variables not being passed:**
+
 - Try using `-e` flags in args instead of the `env` block (see alternative configuration above)
 
 ### Debugging

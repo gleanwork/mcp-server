@@ -42,7 +42,7 @@ jobs:
             --memory="2g" \
             --read-only \
             --tmpfs /tmp \
-            --tmpfs /home/mcp/.npm \
+            --tmpfs /home/mcpserver/.npm \
             --cap-drop=ALL \
             --security-opt=no-new-privileges:true \
             glean-mcp-server:test)
