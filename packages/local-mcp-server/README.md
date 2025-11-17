@@ -70,6 +70,49 @@ To manually configure an MCP client (such as Claude Desktop, Windsurf, Cursor, e
 
 Replace the environment variable values with your actual Glean credentials.
 
+## Docker Deployment
+
+As an alternative to npx, you can run the Glean MCP server in a Docker container. This provides isolation and consistent runtime environments.
+
+Multi-architecture Docker images are published to GitHub Container Registry and work on both Intel/AMD (amd64) and Apple Silicon (arm64) systems.
+
+### Pull the Image
+
+```bash
+docker pull ghcr.io/gleanwork/local-mcp-server:latest
+```
+
+### MCP Client Configuration
+
+Configure your MCP client to use the Docker image:
+
+```json
+{
+  "mcpServers": {
+    "glean": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "ghcr.io/gleanwork/local-mcp-server:latest"
+      ],
+      "env": {
+        "GLEAN_INSTANCE": "your-instance",
+        "GLEAN_API_TOKEN": "your-token"
+      }
+    }
+  }
+}
+```
+
+**Important:** The `-i` flag is required for stdio transport communication.
+
+### Environment Variables
+
+- `GLEAN_INSTANCE` (required): Your Glean instance name
+- `GLEAN_API_TOKEN` (required): Your Glean API token
+
 ### Debugging
 
 Since MCP servers communicate over stdio, debugging can be challenging. We recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), which is available as a package script:

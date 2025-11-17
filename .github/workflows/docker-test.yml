@@ -1,0 +1,57 @@
+name: Docker Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Build and Test Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t glean-mcp-server:test .
+
+      - name: Test image structure
+        run: |
+          docker run --rm glean-mcp-server:test node --version
+          docker run --rm glean-mcp-server:test which npx
+
+      - name: Verify MCP server starts with stdio
+        run: |
+          container_id=$(docker run -d -i glean-mcp-server:test)
+          sleep 2
+          if docker ps | grep -q "$container_id"; then
+            echo "Container is running"
+            docker logs "$container_id"
+            docker stop "$container_id"
+          else
+            echo "Container failed to start"
+            docker logs "$container_id" || true
+            exit 1
+          fi
+
+      - name: Test with security constraints
+        run: |
+          container_id=$(docker run -d -i \
+            --cpus="1.0" \
+            --memory="2g" \
+            --read-only \
+            --tmpfs /tmp \
+            --cap-drop=ALL \
+            --security-opt=no-new-privileges:true \
+            glean-mcp-server:test)
+          sleep 2
+          if docker ps | grep -q "$container_id"; then
+            echo "Container is running with security constraints"
+            docker logs "$container_id"
+            docker stop "$container_id"
+          else
+            echo "Container failed to start with security constraints"
+            docker logs "$container_id" || true
+            exit 1
+          fi
