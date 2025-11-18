@@ -44,6 +44,7 @@ services:
     # tmpfs:
     #   - /tmp
     #   - /home/mcpserver/.npm
+    #   - /home/mcpserver/.local
 
     # Drop all capabilities for enhanced security (optional)
     cap_drop:

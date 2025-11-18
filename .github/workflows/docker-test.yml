@@ -51,6 +51,7 @@ jobs:
             --read-only \
             --tmpfs /tmp \
             --tmpfs /home/mcpserver/.npm \
+            --tmpfs /home/mcpserver/.local \
             --cap-drop=ALL \
             --security-opt=no-new-privileges:true \
             glean-mcp-server:test > /tmp/output-secure.txt 2>&1 &
