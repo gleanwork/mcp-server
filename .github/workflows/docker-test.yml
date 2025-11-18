@@ -23,7 +23,7 @@ jobs:
 
       - name: Verify MCP server starts with stdio
         run: |
-          echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | timeout 5s docker run --rm -i glean-mcp-server:test > /tmp/output.txt 2>&1 &
+          echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}' | timeout 5s docker run --rm -i glean-mcp-server:test > /tmp/output.txt 2>&1 &
           docker_pid=$!
           sleep 2
           if kill -0 $docker_pid 2>/dev/null; then
@@ -43,7 +43,7 @@ jobs:
 
       - name: Test with security constraints
         run: |
-          echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' | timeout 5s docker run --rm -i \
+          echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}' | timeout 5s docker run --rm -i \
             --cpus="1.0" \
             --memory="2g" \
             --read-only \
