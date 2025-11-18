@@ -158,6 +158,12 @@ If your MCP client doesn't pass the `env` block to Docker, use `-e` flags in the
 
 - Try using `-e` flags in args instead of the `env` block (see alternative configuration above)
 
+### Docker Compose
+
+For standalone deployment scenarios, a docker-compose example is available in [examples/docker-compose.yaml](../../examples/docker-compose.yaml). This demonstrates how to run the MCP server with Docker Compose, including resource limits and security options.
+
+Note: Most MCP clients manage container lifecycle directly, so docker-compose is primarily useful for testing or custom deployment scenarios.
+
 ### Debugging
 
 Since MCP servers communicate over stdio, debugging can be challenging. We recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), which is available as a package script:

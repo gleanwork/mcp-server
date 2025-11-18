@@ -3,6 +3,11 @@ name: Publish Docker Image
 on:
   release:
     types: [published]
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
   workflow_dispatch:
 
 jobs:
@@ -12,6 +17,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,7 +43,13 @@ jobs:
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=latest
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.title=Glean MCP Server
+            org.opencontainers.image.description=Model Context Protocol server for Glean API integration
+            org.opencontainers.image.vendor=Glean
 
       - name: Build and push multi-architecture image
         uses: docker/build-push-action@v5
