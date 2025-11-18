@@ -43,8 +43,8 @@ services:
     # read_only: true
     # tmpfs:
     #   - /tmp
-    #   - /home/mcpserver/.npm
-    #   - /home/mcpserver/.local
+    #   - /home/mcpserver/.npm:uid=1001
+    #   - /home/mcpserver/.local:uid=1001
 
     # Drop all capabilities for enhanced security (optional)
     cap_drop:

@@ -50,8 +50,8 @@ jobs:
             --memory="2g" \
             --read-only \
             --tmpfs /tmp \
-            --tmpfs /home/mcpserver/.npm \
-            --tmpfs /home/mcpserver/.local \
+            --tmpfs /home/mcpserver/.npm:uid=1001 \
+            --tmpfs /home/mcpserver/.local:uid=1001 \
             --cap-drop=ALL \
             --security-opt=no-new-privileges:true \
             glean-mcp-server:test > /tmp/output-secure.txt 2>&1 &
