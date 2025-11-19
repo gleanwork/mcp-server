@@ -1,0 +1,54 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Build outputs
+build/
+dist/
+*.tsbuildinfo
+
+# Tests and coverage
+coverage/
+test/
+tests/
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+
+# Development files
+.git/
+.github/
+.vscode/
+.idea/
+*.log
+*.swp
+*.swo
+*~
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# CI/CD
+.circleci/
+.gitlab-ci.yml
+.travis.yml
+
+# Misc
+.DS_Store
+.editorconfig
+.eslintrc*
+.prettierrc*
+.gitignore
+.dockerignore
+Dockerfile*
+docker-compose*.yml

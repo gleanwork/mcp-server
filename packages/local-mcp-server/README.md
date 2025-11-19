@@ -70,6 +70,100 @@ To manually configure an MCP client (such as Claude Desktop, Windsurf, Cursor, e
 
 Replace the environment variable values with your actual Glean credentials.
 
+## Docker Deployment
+
+As an alternative to npx, you can run the Glean MCP server in a Docker container. This provides isolation and consistent runtime environments.
+
+Multi-architecture Docker images are published to GitHub Container Registry and work on both Intel/AMD (amd64) and Apple Silicon (arm64) systems.
+
+### Pull the Image
+
+```bash
+docker pull ghcr.io/gleanwork/local-mcp-server:latest
+```
+
+### MCP Client Configuration
+
+Configure your MCP client to use the Docker image. Most MCP clients support passing environment variables via the `env` block:
+
+```json
+{
+  "mcpServers": {
+    "glean": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "ghcr.io/gleanwork/local-mcp-server:latest"
+      ],
+      "env": {
+        "GLEAN_INSTANCE": "your-instance",
+        "GLEAN_API_TOKEN": "your-token"
+      }
+    }
+  }
+}
+```
+
+If your MCP client doesn't pass the `env` block to Docker, use `-e` flags in the args instead:
+
+```json
+{
+  "mcpServers": {
+    "glean": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GLEAN_INSTANCE=your-instance",
+        "-e",
+        "GLEAN_API_TOKEN=your-token",
+        "ghcr.io/gleanwork/local-mcp-server:latest"
+      ]
+    }
+  }
+}
+```
+
+**Important:** The `-i` flag is required for stdio transport communication.
+
+### Environment Variables
+
+- `GLEAN_INSTANCE` (required): Your Glean instance name
+- `GLEAN_API_TOKEN` (required): Your Glean API token
+
+### Troubleshooting
+
+**Container exits immediately:**
+
+- Verify environment variables are set correctly
+- Check Docker logs: `docker logs <container-id>`
+- Ensure the `-i` flag is present in the args
+
+**Permission or authentication errors:**
+
+- Verify your `GLEAN_API_TOKEN` is valid
+- Check your `GLEAN_INSTANCE` matches your Glean deployment
+
+**MCP client can't connect:**
+
+- Verify Docker is installed and running
+- Check that `docker` command is in your PATH
+- Review MCP client logs for error messages
+
+**Environment variables not being passed:**
+
+- Try using `-e` flags in args instead of the `env` block (see alternative configuration above)
+
+### Docker Compose
+
+For standalone deployment scenarios, a docker-compose example is available in [examples/docker-compose.yaml](../../examples/docker-compose.yaml). This demonstrates how to run the MCP server with Docker Compose, including resource limits and security options.
+
+Note: Most MCP clients manage container lifecycle directly, so docker-compose is primarily useful for testing or custom deployment scenarios.
+
 ### Debugging
 
 Since MCP servers communicate over stdio, debugging can be challenging. We recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), which is available as a package script:

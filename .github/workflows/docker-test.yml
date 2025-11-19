@@ -1,0 +1,75 @@
+name: Docker Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Build and Test Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t glean-mcp-server:test .
+
+      - name: Test image structure
+        run: |
+          docker run --rm glean-mcp-server:test node --version
+          docker run --rm glean-mcp-server:test which npx
+
+      - name: Verify MCP server starts with stdio
+        run: |
+          (echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'; sleep 3) | docker run --rm -i glean-mcp-server:test > /tmp/output.txt 2>&1 &
+          docker_pid=$!
+          sleep 2
+          if kill -0 $docker_pid 2>/dev/null; then
+            echo "Container is running and accepting stdio"
+            kill $docker_pid 2>/dev/null || true
+            wait $docker_pid 2>/dev/null || true
+          else
+            echo "Container exited immediately"
+            cat /tmp/output.txt 2>/dev/null || true
+            exit 1
+          fi
+          if grep -q '"result"' /tmp/output.txt 2>/dev/null; then
+            echo "MCP server responded successfully to initialize request"
+          else
+            echo "MCP server output:"
+            cat /tmp/output.txt
+            exit 1
+          fi
+
+      - name: Test with security constraints
+        run: |
+          (echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}'; sleep 3) | docker run --rm -i \
+            --cpus="1.0" \
+            --memory="2g" \
+            --read-only \
+            --tmpfs /tmp \
+            --tmpfs /home/mcpserver/.npm:uid=1001 \
+            --tmpfs /home/mcpserver/.local:uid=1001 \
+            --cap-drop=ALL \
+            --security-opt=no-new-privileges:true \
+            glean-mcp-server:test > /tmp/output-secure.txt 2>&1 &
+          docker_pid=$!
+          sleep 2
+          if kill -0 $docker_pid 2>/dev/null; then
+            echo "Container is running with security constraints"
+            kill $docker_pid 2>/dev/null || true
+            wait $docker_pid 2>/dev/null || true
+          else
+            echo "Container exited immediately with security constraints"
+            cat /tmp/output-secure.txt 2>/dev/null || true
+            exit 1
+          fi
+          if grep -q '"result"' /tmp/output-secure.txt 2>/dev/null; then
+            echo "MCP server responded successfully with security constraints"
+          else
+            echo "MCP server output:"
+            cat /tmp/output-secure.txt
+            exit 1
+          fi

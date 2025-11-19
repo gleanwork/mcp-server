@@ -10,6 +10,8 @@ This monorepo contains packages for Glean's local MCP server. For more details s
 - [@gleanwork/configure-mcp-server](https://github.com/gleanwork/configure-mcp-server) for configuring the local MCP server with popular MCP clients.
 - [@gleanwork/local-mcp-server](https://github.com/gleanwork/mcp-server/tree/main/packages/local-mcp-server) on running the local MCP server.
 
+The local MCP server can be run via npx or Docker. See the [@gleanwork/local-mcp-server README](https://github.com/gleanwork/mcp-server/tree/main/packages/local-mcp-server#docker-deployment) for Docker deployment instructions.
+
 ## Contributing
 
 Please see [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.

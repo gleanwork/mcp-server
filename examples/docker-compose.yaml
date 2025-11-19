@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  glean-mcp-server:
+    # Use the latest published image from GitHub Container Registry
+    # For specific versions, use: ghcr.io/gleanwork/local-mcp-server:v0.8.0
+    image: ghcr.io/gleanwork/local-mcp-server:latest
+
+    # Container name for easy reference
+    container_name: glean-mcp-server
+
+    # Required for stdio transport communication
+    stdin_open: true
+    tty: false
+
+    # Environment variables for Glean API configuration
+    environment:
+      # REQUIRED: Your Glean instance name (e.g., "acme-corp")
+      GLEAN_INSTANCE: ${GLEAN_INSTANCE}
+
+      # REQUIRED: Your Glean API token
+      GLEAN_API_TOKEN: ${GLEAN_API_TOKEN}
+
+      # OPTIONAL: Set to "production" for optimized performance
+      NODE_ENV: production
+
+    # Resource limits (optional but recommended)
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    # Security options (optional but recommended)
+    security_opt:
+      - no-new-privileges:true
+
+    # Read-only root filesystem for enhanced security (optional)
+    # Uncomment if your use case allows it
+    # read_only: true
+    # tmpfs:
+    #   - /tmp
+    #   - /home/mcpserver/.npm:uid=1001
+    #   - /home/mcpserver/.local:uid=1001
+
+    # Drop all capabilities for enhanced security (optional)
+    cap_drop:
+      - ALL
+
+    # Restart policy
+    restart: unless-stopped
+
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# To use this docker-compose file:
+#
+# 1. Create a .env file in the same directory with your credentials:
+#    GLEAN_INSTANCE=your-instance-name
+#    GLEAN_API_TOKEN=your-api-token
+#
+# 2. Start the service:
+#    docker-compose up -d
+#
+# 3. View logs:
+#    docker-compose logs -f
+#
+# 4. Stop the service:
+#    docker-compose down
+#
+# Note: For MCP client integration, you'll typically use the direct
+# docker run command instead of docker-compose, as MCP clients manage
+# the container lifecycle. This compose file is provided as a reference
+# for standalone deployment scenarios.
