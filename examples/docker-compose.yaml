@@ -55,11 +55,10 @@ services:
 
     # Logging configuration
     logging:
-      driver: "json-file"
+      driver: 'json-file'
       options:
-        max-size: "10m"
-        max-file: "3"
-
+        max-size: '10m'
+        max-file: '3'
 # To use this docker-compose file:
 #
 # 1. Create a .env file in the same directory with your credentials:
