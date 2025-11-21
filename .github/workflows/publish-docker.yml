@@ -44,7 +44,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=ref,event=branch
-            type=sha,prefix={{branch}}-
+            type=sha,prefix=,enable=${{ github.event_name == 'push' && github.ref_type == 'branch' }}
             type=raw,value=latest,enable={{is_default_branch}}
           labels: |
             org.opencontainers.image.title=Glean MCP Server
