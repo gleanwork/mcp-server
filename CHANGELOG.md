@@ -1,20 +1,21 @@
-
 ## v0.9.0 (2025-11-21)
 
 #### :rocket: Enhancement
-* `local-mcp-server`
-  * [#311](https://github.com/gleanwork/mcp-server/pull/311) [feat] Add Docker support with GHCR publishing ([@chris-freeman-glean](https://github.com/chris-freeman-glean))
+
+- `local-mcp-server`
+  - [#311](https://github.com/gleanwork/mcp-server/pull/311) [feat] Add Docker support with GHCR publishing ([@chris-freeman-glean](https://github.com/chris-freeman-glean))
 
 #### :memo: Documentation
-* `local-mcp-server`
-  * [#306](https://github.com/gleanwork/mcp-server/pull/306) docs: Add note in local-mcp-server README.md recommending the use of the remote MCP server ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
+
+- `local-mcp-server`
+  - [#306](https://github.com/gleanwork/mcp-server/pull/306) docs: Add note in local-mcp-server README.md recommending the use of the remote MCP server ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
 
 #### Committers: 4
+
 - Chris Freeman ([@chris-freeman-glean](https://github.com/chris-freeman-glean))
 - David J. Hamilton ([@david-hamilton-glean](https://github.com/david-hamilton-glean))
 - Robert Jackson ([@rwjblue-glean](https://github.com/rwjblue-glean))
 - Steve Calvert ([@steve-calvert-glean](https://github.com/steve-calvert-glean))
-
 
 ## v0.8.0 (2025-08-26)
 
