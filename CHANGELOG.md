@@ -2,7 +2,6 @@
 
 Re-release v0.9.0
 
-
 ## v0.9.0 (2025-11-21)
 
 #### :rocket: Enhancement
