@@ -86,7 +86,7 @@
     "fs-extra": "^11.3.2",
     "open": "^10.2.0",
     "tldts": "^7.0.17",
-    "zod": "^4.1.12"
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
