@@ -59,9 +59,8 @@ describe('client', () => {
       };
 
       vi.mocked(getConfig).mockResolvedValue(mockConfig);
-      const { isGleanTokenConfig } = await import(
-        '@gleanwork/mcp-server-utils/config'
-      );
+      const { isGleanTokenConfig } =
+        await import('@gleanwork/mcp-server-utils/config');
       vi.mocked(isGleanTokenConfig).mockReturnValue(true);
 
       const opts = await getAPIClientOptions();
@@ -79,9 +78,8 @@ describe('client', () => {
       };
 
       vi.mocked(getConfig).mockResolvedValue(mockConfig);
-      const { isGleanTokenConfig } = await import(
-        '@gleanwork/mcp-server-utils/config'
-      );
+      const { isGleanTokenConfig } =
+        await import('@gleanwork/mcp-server-utils/config');
       vi.mocked(isGleanTokenConfig).mockReturnValue(true);
 
       const opts = await getAPIClientOptions();
@@ -98,9 +96,8 @@ describe('client', () => {
       };
 
       vi.mocked(getConfig).mockResolvedValue(mockConfig);
-      const { isGleanTokenConfig } = await import(
-        '@gleanwork/mcp-server-utils/config'
-      );
+      const { isGleanTokenConfig } =
+        await import('@gleanwork/mcp-server-utils/config');
       vi.mocked(isGleanTokenConfig).mockReturnValue(false);
 
       const opts = await getAPIClientOptions();
@@ -120,9 +117,8 @@ describe('client', () => {
       };
 
       vi.mocked(getConfig).mockResolvedValue(mockConfig);
-      const { isGleanTokenConfig } = await import(
-        '@gleanwork/mcp-server-utils/config'
-      );
+      const { isGleanTokenConfig } =
+        await import('@gleanwork/mcp-server-utils/config');
       vi.mocked(isGleanTokenConfig).mockReturnValue(true);
 
       const client1 = await getClient();
@@ -139,9 +135,8 @@ describe('client', () => {
       };
 
       vi.mocked(getConfig).mockResolvedValue(mockConfig);
-      const { isGleanTokenConfig } = await import(
-        '@gleanwork/mcp-server-utils/config'
-      );
+      const { isGleanTokenConfig } =
+        await import('@gleanwork/mcp-server-utils/config');
       vi.mocked(isGleanTokenConfig).mockReturnValue(true);
 
       const client1 = await getClient();
