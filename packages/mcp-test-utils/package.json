@@ -21,16 +21,16 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
-    "@eslint/js": "^9.39.1",
-    "@types/node": "^24.10.1",
-    "@typescript-eslint/eslint-plugin": "^8.48.1",
-    "@typescript-eslint/parser": "^8.48.1",
-    "eslint": "^9.39.1",
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^25.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.52.0",
+    "@typescript-eslint/parser": "^8.52.0",
+    "eslint": "^9.39.2",
     "globals": "^16.5.0",
-    "msw": "^2.12.3",
+    "msw": "^2.12.7",
     "npm-run-all": "^4.1.5",
     "rimraf": "^6.1.2",
-    "sort-package-json": "^3.5.0",
+    "sort-package-json": "^3.6.0",
     "typescript": "^5.9.3"
   }
 }
