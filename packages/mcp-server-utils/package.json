@@ -93,7 +93,7 @@
     "@gleanwork/api-client": "0.13.0",
     "@gleanwork/mcp-test-utils": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.25.2",
-    "@types/node": "^24.10.1",
+    "@types/node": "^25.0.2",
     "@typescript-eslint/eslint-plugin": "^8.48.1",
     "@typescript-eslint/parser": "^8.48.1",
     "console-test-helpers": "^0.3.3",
