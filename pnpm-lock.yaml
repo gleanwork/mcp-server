@@ -54,8 +54,8 @@ importers:
   packages/local-mcp-server:
     dependencies:
       '@gleanwork/api-client':
-        specifier: 0.13.0
-        version: 0.13.0
+        specifier: 0.13.18
+        version: 0.13.18
       '@gleanwork/mcp-server-utils':
         specifier: workspace:*
         version: link:../mcp-server-utils
@@ -161,8 +161,8 @@ importers:
         specifier: ^9.39.1
         version: 9.39.2
       '@gleanwork/api-client':
-        specifier: 0.13.0
-        version: 0.13.0
+        specifier: 0.13.18
+        version: 0.13.18
       '@gleanwork/mcp-test-utils':
         specifier: workspace:*
         version: link:../mcp-test-utils
@@ -701,8 +701,8 @@ packages:
   '@gar/promisify@1.1.3':
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
 
-  '@gleanwork/api-client@0.13.0':
-    resolution: {integrity: sha512-JVuwEbGJlmc+4FyC16rs6+2l/Vx2GGThW3uXHHdFCPz5cQCQoLeNT86ivPy0k9MQjQVnWaI2q5oZzw7kIxgjiQ==}
+  '@gleanwork/api-client@0.13.18':
+    resolution: {integrity: sha512-Pw2rOVhAYYrkvriaUl3c90Gzm4ir4zwEEqgVE25/z8UmSLEY3IxreX8uqQK5YO7sfHRFbLPwUN6xp36llzDM9w==}
     peerDependencies:
       '@tanstack/react-query': ^5
       react: ^18 || ^19
@@ -4252,7 +4252,7 @@ snapshots:
 
   '@gar/promisify@1.1.3': {}
 
-  '@gleanwork/api-client@0.13.0':
+  '@gleanwork/api-client@0.13.18':
     dependencies:
       zod: 4.3.5
 
