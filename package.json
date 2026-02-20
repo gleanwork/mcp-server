@@ -39,7 +39,10 @@
     "onlyBuiltDependencies": [
       "esbuild",
       "msw"
-    ]
+    ],
+    "overrides": {
+      "tar": "^7.5.4"
+    }
   },
   "release-it": {
     "npm": false,
