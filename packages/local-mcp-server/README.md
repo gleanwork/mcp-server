@@ -82,6 +82,20 @@ Multi-architecture Docker images are published to GitHub Container Registry and 
 docker pull ghcr.io/gleanwork/local-mcp-server:latest
 ```
 
+If you see `denied` / `403 Forbidden` when pulling from GHCR, authenticate first:
+
+```bash
+# Token must include read:packages
+echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USERNAME" --password-stdin
+docker pull ghcr.io/gleanwork/local-mcp-server:latest
+```
+
+If GHCR access is blocked in your environment, you can build locally:
+
+```bash
+docker build -t glean/local-mcp-server:local .
+```
+
 ### MCP Client Configuration
 
 Configure your MCP client to use the Docker image. Most MCP clients support passing environment variables via the `env` block:
@@ -147,6 +161,12 @@ If your MCP client doesn't pass the `env` block to Docker, use `-e` flags in the
 
 - Verify your `GLEAN_API_TOKEN` is valid
 - Check your `GLEAN_INSTANCE` matches your Glean deployment
+
+**`docker pull` returns `denied` or `403 Forbidden`:**
+
+- Authenticate to `ghcr.io` with a token that has `read:packages`
+- Retry pull with the same image/tag
+- If this persists, open an issue with your exact pull command and error output
 
 **MCP client can't connect:**
 
