@@ -155,6 +155,31 @@ describe('MCP Server Handlers (integration)', () => {
     );
   });
 
+  it('accepts legacy tool aliases for backwards compatibility', async () => {
+    const req = CallToolRequestSchema.parse({
+      method: 'tools/call',
+      id: '6-legacy',
+      jsonrpc: '2.0',
+      params: {
+        name: 'chat',
+        arguments: { message: 'hello' },
+      },
+    });
+
+    const res = await callToolHandler(req);
+    expect(res).toMatchInlineSnapshot(`
+      {
+        "content": [
+          {
+            "text": "GLEAN_AI (UPDATE): Search company knowledge",
+            "type": "text",
+          },
+        ],
+        "isError": false,
+      }
+    `);
+  });
+
   it('executes people_profile_search with filters only', async () => {
     const req = CallToolRequestSchema.parse({
       method: 'tools/call',
