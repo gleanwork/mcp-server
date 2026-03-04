@@ -60,7 +60,7 @@ To manually configure an MCP client (such as Claude Desktop, Windsurf, Cursor, e
       "command": "npx",
       "args": ["-y", "@gleanwork/local-mcp-server"],
       "env": {
-        "GLEAN_INSTANCE": "<glean instance name>",
+        "GLEAN_SERVER_URL": "<glean server URL>",
         "GLEAN_API_TOKEN": "<glean api token>"
       }
     }
@@ -98,7 +98,7 @@ Configure your MCP client to use the Docker image. Most MCP clients support pass
         "ghcr.io/gleanwork/local-mcp-server:latest"
       ],
       "env": {
-        "GLEAN_INSTANCE": "your-instance",
+        "GLEAN_SERVER_URL": "https://your-instance-be.glean.com",
         "GLEAN_API_TOKEN": "your-token"
       }
     }
@@ -118,7 +118,7 @@ If your MCP client doesn't pass the `env` block to Docker, use `-e` flags in the
         "-i",
         "--rm",
         "-e",
-        "GLEAN_INSTANCE=your-instance",
+        "GLEAN_SERVER_URL=https://your-instance-be.glean.com",
         "-e",
         "GLEAN_API_TOKEN=your-token",
         "ghcr.io/gleanwork/local-mcp-server:latest"
@@ -132,7 +132,8 @@ If your MCP client doesn't pass the `env` block to Docker, use `-e` flags in the
 
 ### Environment Variables
 
-- `GLEAN_INSTANCE` (required): Your Glean instance name
+- `GLEAN_SERVER_URL` (recommended): Your Glean server URL (e.g. `https://your-instance-be.glean.com`)
+- `GLEAN_INSTANCE`: Your Glean instance name (alternative to `GLEAN_SERVER_URL`)
 - `GLEAN_API_TOKEN` (required): Your Glean API token
 
 ### Troubleshooting
@@ -146,7 +147,7 @@ If your MCP client doesn't pass the `env` block to Docker, use `-e` flags in the
 **Permission or authentication errors:**
 
 - Verify your `GLEAN_API_TOKEN` is valid
-- Check your `GLEAN_INSTANCE` matches your Glean deployment
+- Check your `GLEAN_SERVER_URL` or `GLEAN_INSTANCE` matches your Glean deployment
 
 **MCP client can't connect:**
 
