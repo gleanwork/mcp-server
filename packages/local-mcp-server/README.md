@@ -41,10 +41,13 @@ To configure this MCP server in your MCP client (such as Claude Desktop, Windsur
 
 ```bash
 # Configure for Cursor
-npx @gleanwork/configure-mcp-server --client cursor --token your_api_token --instance instance_name
+npx @gleanwork/configure-mcp-server --client cursor --token your_api_token --server-url https://your-company-be.glean.com
 
 # Configure for Claude Desktop
-npx @gleanwork/configure-mcp-server --client claude --token your_api_token --instance instance_name
+npx @gleanwork/configure-mcp-server --client claude --token your_api_token --server-url https://your-company-be.glean.com
+
+# Using deprecated --instance flag (use --server-url instead)
+# npx @gleanwork/configure-mcp-server --client cursor --token your_api_token --instance instance_name
 ```
 
 For more details see: [@gleanwork/configure-mcp-server](https://github.com/gleanwork/configure-mcp-server).
@@ -133,7 +136,7 @@ If your MCP client doesn't pass the `env` block to Docker, use `-e` flags in the
 ### Environment Variables
 
 - `GLEAN_SERVER_URL` (recommended): Your Glean server URL (e.g. `https://your-instance-be.glean.com`)
-- `GLEAN_INSTANCE`: Your Glean instance name (alternative to `GLEAN_SERVER_URL`)
+- `GLEAN_INSTANCE`: Your Glean instance name (deprecated alternative to `GLEAN_SERVER_URL`)
 - `GLEAN_API_TOKEN` (required): Your Glean API token
 
 ### Troubleshooting

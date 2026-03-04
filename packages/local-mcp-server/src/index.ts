@@ -25,7 +25,7 @@ async function main() {
 
     Options
       --server-url, -s Glean server URL (e.g. https://my-company-be.glean.com)
-      --instance, -i   Glean instance name
+      --instance, -i   Glean instance name (deprecated, use --server-url instead)
       --token, -t      Glean API token
       --help, -h       Show this help message
       --trace          Enable trace logging
@@ -33,7 +33,7 @@ async function main() {
     Examples
       $ npx @gleanwork/local-mcp-server
       $ npx @gleanwork/local-mcp-server --server-url https://my-company-be.glean.com --token glean_api_xyz
-      $ npx @gleanwork/local-mcp-server --instance my-company --token glean_api_xyz
+      $ npx @gleanwork/local-mcp-server --instance my-company --token glean_api_xyz  # deprecated, use --server-url
 
     Version: v${VERSION}
   `,

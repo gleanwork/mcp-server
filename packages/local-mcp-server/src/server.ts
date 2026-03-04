@@ -249,6 +249,7 @@ export async function runServer(options?: {
     process.env.GLEAN_SERVER_URL = options.serverUrl;
   }
 
+  // GLEAN_INSTANCE is deprecated; prefer GLEAN_SERVER_URL / --server-url
   if (options?.instance) {
     process.env.GLEAN_INSTANCE = options.instance;
   }
