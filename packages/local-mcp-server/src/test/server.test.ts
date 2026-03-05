@@ -5,12 +5,14 @@ import '@gleanwork/mcp-test-utils/mocks/setup';
 
 describe('MCP Server Handlers (integration)', () => {
   beforeEach(() => {
+    delete process.env.GLEAN_SERVER_URL;
     delete process.env.GLEAN_URL;
     process.env.GLEAN_INSTANCE = 'test';
     process.env.GLEAN_API_TOKEN = 'test-token';
   });
 
   afterEach(() => {
+    delete process.env.GLEAN_SERVER_URL;
     delete process.env.GLEAN_INSTANCE;
     delete process.env.GLEAN_API_TOKEN;
   });

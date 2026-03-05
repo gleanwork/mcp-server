@@ -54,9 +54,17 @@ export async function getConfig(): Promise<GleanConfig> {
   return getLocalConfig();
 }
 
+function normalizeUrl(url: string): string {
+  if (!/^https?:\/\//i.test(url)) {
+    return `https://${url}`;
+  }
+  return url;
+}
+
 function getLocalConfig(): GleanConfig {
   const instance = process.env.GLEAN_INSTANCE || process.env.GLEAN_SUBDOMAIN;
-  const baseUrl = process.env.GLEAN_URL;
+  const serverUrl = process.env.GLEAN_SERVER_URL;
+  const baseUrl = serverUrl ? normalizeUrl(serverUrl) : process.env.GLEAN_URL;
   const token = process.env.GLEAN_API_TOKEN;
   const actAs = process.env.GLEAN_ACT_AS;
 

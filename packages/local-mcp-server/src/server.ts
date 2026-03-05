@@ -240,10 +240,16 @@ server.setRequestHandler(CallToolRequestSchema, callToolHandler);
  * @throws {Error} If server initialization or connection fails
  */
 export async function runServer(options?: {
+  serverUrl?: string;
   instance?: string;
   token?: string;
 }) {
   // Set environment variables from command line args if provided
+  if (options?.serverUrl) {
+    process.env.GLEAN_SERVER_URL = options.serverUrl;
+  }
+
+  // GLEAN_INSTANCE is deprecated; prefer GLEAN_SERVER_URL / --server-url
   if (options?.instance) {
     process.env.GLEAN_INSTANCE = options.instance;
   }

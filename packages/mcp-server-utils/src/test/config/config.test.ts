@@ -105,4 +105,51 @@ describe('getConfig', () => {
 
     expect(config.baseUrl).toBe('https://test-subdomain-be.glean.com/');
   });
+
+  it('uses GLEAN_SERVER_URL when provided', async () => {
+    process.env.GLEAN_SERVER_URL = 'https://custom-be.glean.com/';
+    process.env.GLEAN_API_TOKEN = 'test-token';
+
+    const config = await getConfig();
+
+    expect(config.baseUrl).toBe('https://custom-be.glean.com/');
+  });
+
+  it('GLEAN_SERVER_URL takes precedence over GLEAN_URL', async () => {
+    process.env.GLEAN_SERVER_URL = 'https://server-url-be.glean.com/';
+    process.env.GLEAN_URL = 'https://glean-url-be.glean.com/';
+    process.env.GLEAN_API_TOKEN = 'test-token';
+
+    const config = await getConfig();
+
+    expect(config.baseUrl).toBe('https://server-url-be.glean.com/');
+  });
+
+  it('GLEAN_SERVER_URL takes precedence over GLEAN_INSTANCE', async () => {
+    process.env.GLEAN_SERVER_URL = 'https://server-url-be.glean.com/';
+    process.env.GLEAN_INSTANCE = 'test-company';
+    process.env.GLEAN_API_TOKEN = 'test-token';
+
+    const config = await getConfig();
+
+    expect(config.baseUrl).toBe('https://server-url-be.glean.com/');
+  });
+
+  it('normalizes schemeless GLEAN_SERVER_URL by adding https://', async () => {
+    process.env.GLEAN_SERVER_URL = 'acme-be.glean.com';
+    process.env.GLEAN_API_TOKEN = 'test-token';
+
+    const config = await getConfig();
+
+    expect(config.baseUrl).toBe('https://acme-be.glean.com');
+  });
+
+  it('preserves GLEAN_SERVER_URL that already has https://', async () => {
+    process.env.GLEAN_SERVER_URL = 'https://acme-be.glean.com';
+    process.env.GLEAN_API_TOKEN = 'test-token';
+
+    const config = await getConfig();
+
+    expect(config.baseUrl).toBe('https://acme-be.glean.com');
+  });
 });

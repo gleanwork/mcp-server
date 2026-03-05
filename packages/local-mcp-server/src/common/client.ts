@@ -3,7 +3,9 @@
  *
  * This module provides a client for interacting with the Glean API.
  *
- * Required environment variables:
+ * Required environment variables (one of):
+ * - GLEAN_SERVER_URL: Full Glean server URL (recommended, highest priority)
+ * - GLEAN_URL: Full Glean URL (alternative)
  * - GLEAN_INSTANCE or GLEAN_SUBDOMAIN: Name of the Glean instance
  * - GLEAN_API_TOKEN: API token for authentication
  *

@@ -24,20 +24,26 @@ async function main() {
       $ npx @gleanwork/local-mcp-server [options]
 
     Options
-      --instance, -i   Glean instance name
+      --server-url, -s Glean server URL (e.g. https://my-company-be.glean.com)
+      --instance, -i   Glean instance name (deprecated, use --server-url instead)
       --token, -t      Glean API token
       --help, -h       Show this help message
       --trace          Enable trace logging
 
     Examples
       $ npx @gleanwork/local-mcp-server
-      $ npx @gleanwork/local-mcp-server --instance my-company --token glean_api_xyz
+      $ npx @gleanwork/local-mcp-server --server-url https://my-company-be.glean.com --token glean_api_xyz
+      $ npx @gleanwork/local-mcp-server --instance my-company --token glean_api_xyz  # deprecated, use --server-url
 
     Version: v${VERSION}
   `,
     {
       importMeta: import.meta,
       flags: {
+        serverUrl: {
+          type: 'string',
+          shortFlag: 's',
+        },
         token: {
           type: 'string',
           shortFlag: 't',
@@ -66,8 +72,8 @@ async function main() {
 
   await checkAndOpenLaunchWarning(VERSION);
 
-  const { instance, token } = cli.flags;
-  runServer({ instance, token }).catch((error) => {
+  const { serverUrl, instance, token } = cli.flags;
+  runServer({ serverUrl, instance, token }).catch((error) => {
     console.error('Error starting MCP server:', error);
     process.exit(1);
   });
