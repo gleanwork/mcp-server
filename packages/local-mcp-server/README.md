@@ -19,21 +19,23 @@ The Glean MCP Server is a [Model Context Protocol (MCP)](https://modelcontextpro
 
 ## Tools
 
-- ### company_search
+- ### glean_company_search
 
   Search Glean's content index using the Glean Search API. This tool allows you to query Glean's content index with various filtering and configuration options.
 
-- ### chat
+- ### glean_chat
 
   Interact with Glean's AI assistant using the Glean Chat API. This tool allows you to have conversational interactions with Glean's AI, including support for message history, citations, and various configuration options.
 
-- ### people_profile_search
+- ### glean_people_profile_search
 
   Search Glean's People directory to find employee information.
 
-- ### read_documents
+- ### glean_read_documents
 
   Read documents from Glean by providing document IDs or URLs. This tool allows you to retrieve the full content of specific documents for detailed analysis or reference.
+
+For backwards compatibility, legacy tool names (`company_search`, `chat`, `people_profile_search`, and `read_documents`) are still accepted by the server when invoked directly.
 
 ## MCP Client Configuration
 
