@@ -61,3 +61,60 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  verify-public-access:
+    name: Verify Anonymous GHCR Pull Access
+    runs-on: ubuntu-latest
+    needs: publish
+    if: needs.publish.result == 'success'
+    timeout-minutes: 10
+    steps:
+      - name: Verify anonymous manifest access (with retry)
+        run: |
+          set -euo pipefail
+          image="ghcr.io/gleanwork/local-mcp-server:latest"
+          attempts=18
+          sleep_seconds=10
+          success=0
+
+          for attempt in $(seq 1 "${attempts}"); do
+            if docker manifest inspect "${image}" >/dev/null 2>&1; then
+              success=1
+              echo "Anonymous manifest access verified for ${image}"
+              break
+            fi
+
+            echo "Attempt ${attempt}/${attempts}: ${image} not anonymously available yet"
+            sleep "${sleep_seconds}"
+          done
+
+          if [[ "${success}" -ne 1 ]]; then
+            echo "::error title=Anonymous GHCR pull failed::Unable to pull ${image} without authentication. Set GitHub Packages visibility to Public for ghcr.io/gleanwork/local-mcp-server."
+            exit 1
+          fi
+
+      - name: Pull and smoke test image anonymously
+        run: |
+          set -euo pipefail
+          image="ghcr.io/gleanwork/local-mcp-server:latest"
+
+          docker pull "${image}"
+          docker run --rm --entrypoint node "${image}" --version
+
+          init_payload='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"gh-actions","version":"1.0"}}}'
+          printf '%s\n' "${init_payload}" | docker run --rm -i "${image}" > /tmp/mcp-init.txt 2>&1 &
+          docker_pid=$!
+          sleep 3
+
+          if kill -0 "${docker_pid}" 2>/dev/null; then
+            kill "${docker_pid}" 2>/dev/null || true
+            wait "${docker_pid}" 2>/dev/null || true
+          fi
+
+          if grep -q '"result"' /tmp/mcp-init.txt; then
+            echo "MCP initialize handshake succeeded"
+          else
+            echo "::error title=Docker runtime smoke test failed::MCP initialize response missing from container output"
+            cat /tmp/mcp-init.txt
+            exit 1
+          fi
