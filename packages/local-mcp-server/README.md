@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/npm/l/@gleanwork%2Fmcp-server.svg)](https://github.com/gleanwork/mcp-server/blob/main/LICENSE)
 
 > [!WARNING]
-> We recommend using the [remote MCP server integrated directly in Glean](https://docs.glean.com/administration/platform/mcp/about) instead of this local MCP server. The remote server provides a more seamless experience with automatic updates, better performance, and simplified configuration. This local MCP server is primarily intended for experimental and testing purposes.
+> We recommend using the [remote MCP server integrated directly in Glean](https://docs.glean.com/administration/platform/mcp/about) instead of this local MCP server. The remote server provides a more seamless experience with automatic updates, better performance, and simplified configuration. For local usage, consider [Glean CLI](https://github.com/gleanwork/glean-cli). This local MCP server is primarily intended for experimental and testing purposes.
 
 The Glean MCP Server is a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) server that provides seamless integration with Glean's enterprise knowledge.
 
