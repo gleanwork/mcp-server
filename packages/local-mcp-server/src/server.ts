@@ -6,10 +6,10 @@
  * for communication and implements the MCP specification for tool discovery and execution.
  *
  * The server exposes four tools:
- * 1. company_search - Search across Glean's indexed content
- * 2. people_profile_search - Search for people profiles inside the company
- * 3. chat - Converse with Glean's AI assistant
- * 4. read_documents - Retrieve documents by ID or URL
+ * 1. glean_company_search - Search across Glean's indexed content
+ * 2. glean_people_profile_search - Search for people profiles inside the company
+ * 3. glean_chat - Converse with Glean's AI assistant
+ * 4. glean_read_documents - Retrieve documents by ID or URL
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -31,11 +31,33 @@ import {
 import { VERSION } from './common/version.js';
 
 export const TOOL_NAMES = {
+  companySearch: 'glean_company_search',
+  peopleProfileSearch: 'glean_people_profile_search',
+  chat: 'glean_chat',
+  readDocuments: 'glean_read_documents',
+};
+
+const LEGACY_TOOL_NAMES = {
   companySearch: 'company_search',
   peopleProfileSearch: 'people_profile_search',
   chat: 'chat',
   readDocuments: 'read_documents',
 };
+
+const TOOL_NAME_ALIASES = new Map<string, string>([
+  [TOOL_NAMES.companySearch, TOOL_NAMES.companySearch],
+  [LEGACY_TOOL_NAMES.companySearch, TOOL_NAMES.companySearch],
+  [TOOL_NAMES.peopleProfileSearch, TOOL_NAMES.peopleProfileSearch],
+  [LEGACY_TOOL_NAMES.peopleProfileSearch, TOOL_NAMES.peopleProfileSearch],
+  [TOOL_NAMES.chat, TOOL_NAMES.chat],
+  [LEGACY_TOOL_NAMES.chat, TOOL_NAMES.chat],
+  [TOOL_NAMES.readDocuments, TOOL_NAMES.readDocuments],
+  [LEGACY_TOOL_NAMES.readDocuments, TOOL_NAMES.readDocuments],
+]);
+
+function normalizeToolName(toolName: string): string {
+  return TOOL_NAME_ALIASES.get(toolName) ?? toolName;
+}
 
 /**
  * MCP server instance configured for Glean's implementation.
@@ -134,7 +156,7 @@ export async function callToolHandler(request: CallToolRequest) {
       throw new Error('Arguments are required');
     }
 
-    switch (request.params.name) {
+    switch (normalizeToolName(request.params.name)) {
       case TOOL_NAMES.companySearch: {
         const args = search.ToolSearchSchema.parse(request.params.arguments);
         const result = await search.search(args);
