@@ -5,6 +5,9 @@
 [![npm version](https://badge.fury.io/js/@gleanwork%2Fmcp-server.svg)](https://badge.fury.io/js/@gleanwork%2Fmcp-server)
 [![License](https://img.shields.io/npm/l/@gleanwork%2Fmcp-server.svg)](https://github.com/gleanwork/mcp-server/blob/main/LICENSE)
 
+> [!WARNING]
+> We recommend using the [remote MCP server integrated directly in Glean](https://docs.glean.com/administration/platform/mcp/about) instead of this local MCP server. The remote server provides a more seamless experience with automatic updates, better performance, and simplified configuration. This local MCP server is primarily intended for experimental and testing purposes.
+
 This monorepo contains packages for Glean's local MCP server. For more details see the READMEs of the individual packages.
 
 - [@gleanwork/configure-mcp-server](https://github.com/gleanwork/configure-mcp-server) for configuring the local MCP server with popular MCP clients.
