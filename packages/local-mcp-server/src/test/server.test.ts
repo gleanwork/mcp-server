@@ -26,6 +26,7 @@ describe('MCP Server Handlers (integration)', () => {
         TOOL_NAMES.companySearch,
         TOOL_NAMES.chat,
         TOOL_NAMES.peopleProfileSearch,
+        TOOL_NAMES.escalationsGet,
       ]),
     );
 
@@ -211,6 +212,56 @@ describe('MCP Server Handlers (integration)', () => {
         "isError": true,
       }
     `);
+  });
+
+  it('executes escalations_get tool with default pagination', async () => {
+    const req = CallToolRequestSchema.parse({
+      method: 'tools/call',
+      id: '9',
+      jsonrpc: '2.0',
+      params: {
+        name: TOOL_NAMES.escalationsGet,
+        arguments: {},
+      },
+    });
+
+    const res = await callToolHandler(req);
+    expect(res.isError).toBe(false);
+    expect(res.content[0].text).toContain('3 escalations');
+    expect(res.content[0].text).toContain('Auth service outage');
+  });
+
+  it('executes escalations_get tool with query filter', async () => {
+    const req = CallToolRequestSchema.parse({
+      method: 'tools/call',
+      id: '10',
+      jsonrpc: '2.0',
+      params: {
+        name: TOOL_NAMES.escalationsGet,
+        arguments: { query: 'auth', limit: 10 },
+      },
+    });
+
+    const res = await callToolHandler(req);
+    expect(res.isError).toBe(false);
+    expect(res.content[0].text).toContain('1 escalation');
+    expect(res.content[0].text).toContain('Auth service outage');
+  });
+
+  it('executes escalations_get tool with pagination', async () => {
+    const req = CallToolRequestSchema.parse({
+      method: 'tools/call',
+      id: '11',
+      jsonrpc: '2.0',
+      params: {
+        name: TOOL_NAMES.escalationsGet,
+        arguments: { limit: 1, offset: 0 },
+      },
+    });
+
+    const res = await callToolHandler(req);
+    expect(res.isError).toBe(false);
+    expect(res.content[0].text).toContain('more results available');
   });
 
   it('validation error when pageSize is out of range', async () => {

@@ -5,11 +5,12 @@
  * for AI models to interact with Glean's capabilities. It uses stdio
  * for communication and implements the MCP specification for tool discovery and execution.
  *
- * The server exposes four tools:
+ * The server exposes five tools:
  * 1. company_search - Search across Glean's indexed content
  * 2. people_profile_search - Search for people profiles inside the company
  * 3. chat - Converse with Glean's AI assistant
  * 4. read_documents - Retrieve documents by ID or URL
+ * 5. escalations_get - List and search escalations with pagination
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -24,6 +25,7 @@ import * as search from './tools/search.js';
 import * as chat from './tools/chat.js';
 import * as peopleProfileSearch from './tools/people_profile_search.js';
 import * as readDocuments from './tools/read_documents.js';
+import * as escalations from './tools/escalations.js';
 import {
   formatGleanError,
   isGleanError,
@@ -35,6 +37,7 @@ export const TOOL_NAMES = {
   peopleProfileSearch: 'people_profile_search',
   chat: 'chat',
   readDocuments: 'read_documents',
+  escalationsGet: 'escalations_get',
 };
 
 /**
@@ -121,6 +124,20 @@ export async function listToolsHandler() {
         `,
         inputSchema: z.toJSONSchema(readDocuments.ToolReadDocumentsSchema),
       },
+      {
+        name: TOOL_NAMES.escalationsGet,
+        description: `List and search escalations with pagination
+
+        Example request:
+
+        {
+            "query": "auth service outage",
+            "limit": 10,
+            "offset": 0
+        }
+        `,
+        inputSchema: z.toJSONSchema(escalations.ToolEscalationsGetSchema),
+      },
     ],
   };
 }
@@ -176,6 +193,19 @@ export async function callToolHandler(request: CallToolRequest) {
         );
         const result = await readDocuments.readDocuments(args);
         const formattedResults = readDocuments.formatResponse(result);
+
+        return {
+          content: [{ type: 'text', text: formattedResults }],
+          isError: false,
+        };
+      }
+
+      case TOOL_NAMES.escalationsGet: {
+        const args = escalations.ToolEscalationsGetSchema.parse(
+          request.params.arguments,
+        );
+        const result = await escalations.escalationsGet(args);
+        const formattedResults = escalations.formatResponse(result);
 
         return {
           content: [{ type: 'text', text: formattedResults }],
