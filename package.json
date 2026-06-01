@@ -33,7 +33,7 @@
     "release-it": "^19.0.6",
     "sort-package-json": "^3.5.0",
     "vitepress": "^1.6.4",
-    "vitest": "^4.0.8"
+    "vitest": "^4.1.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
