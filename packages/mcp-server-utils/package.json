@@ -16,10 +16,10 @@
   "author": "Steve Calvert <steve.calvert@glean.com>",
   "type": "module",
   "exports": {
-    "./auth": {
-      "types": "./build/auth/index.d.ts",
-      "import": "./build/auth/index.js",
-      "default": "./build/auth/index.js"
+    ".": {
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js",
+      "default": "./build/index.js"
     },
     "./config": {
       "types": "./build/config/index.d.ts",
@@ -30,21 +30,6 @@
       "types": "./build/common/errors.d.ts",
       "import": "./build/common/errors.js",
       "default": "./build/common/errors.js"
-    },
-    "./tools/chat": {
-      "types": "./build/tools/chat.d.ts",
-      "import": "./build/tools/chat.js",
-      "default": "./build/tools/chat.js"
-    },
-    "./tools/people-profile-search": {
-      "types": "./build/tools/people_profile_search.d.ts",
-      "import": "./build/tools/people_profile_search.js",
-      "default": "./build/tools/people_profile_search.js"
-    },
-    "./tools/search": {
-      "types": "./build/tools/search.d.ts",
-      "import": "./build/tools/search.js",
-      "default": "./build/tools/search.js"
     },
     "./util": {
       "types": "./build/util/index.d.ts",
