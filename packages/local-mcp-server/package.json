@@ -70,7 +70,7 @@
     "console-test-helpers": "^0.3.3",
     "eslint": "^9.39.1",
     "fixturify": "^3.0.0",
-    "form-data": "^4.0.5",
+    "form-data": "^4.0.6",
     "fs-extra": "^11.3.2",
     "globals": "^16.5.0",
     "msw": "^2.12.3",
