@@ -1,213 +1,41 @@
 # @gleanwork/local-mcp-server
 
-![MCP Server](https://badge.mcpx.dev?type=server 'MCP Server')
-![CI Build](https://github.com/gleanwork/mcp-server/actions/workflows/ci.yml/badge.svg)
-[![npm version](https://badge.fury.io/js/@gleanwork%2Flocal-mcp-server.svg)](https://badge.fury.io/js/@gleanwork%2Flocal-mcp-server)
-[![License](https://img.shields.io/npm/l/@gleanwork%2Fmcp-server.svg)](https://github.com/gleanwork/mcp-server/blob/main/LICENSE)
+> [!IMPORTANT]
+> This package is deprecated / no longer maintained.
+>
+> Do not use `@gleanwork/local-mcp-server` for new MCP setups. It predates Glean’s managed remote MCP server and is no longer the supported path for connecting MCP-compatible hosts to Glean.
 
-> [!WARNING]
-> We recommend using the [remote MCP server integrated directly in Glean](https://docs.glean.com/administration/platform/mcp/about) instead of this local MCP server. The remote server provides a more seamless experience with automatic updates, better performance, and simplified configuration. For local usage, consider [Glean CLI](https://github.com/gleanwork/glean-cli). This local MCP server is primarily intended for experimental and testing purposes.
+## What to use instead
 
-The Glean MCP Server is a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) server that provides seamless integration with Glean's enterprise knowledge.
+Use the managed Glean MCP server built into your Glean instance:
 
-## Features
+- [Using the Glean MCP Server](https://docs.glean.com/user-guide/mcp/usage) — end-user setup for supported MCP hosts.
+- [Set up Glean MCP server](https://docs.glean.com/administration/platform/mcp/enable-mcp-servers) — admin setup and enablement.
+- [About Glean MCP server](https://docs.glean.com/administration/platform/mcp/about) — overview of Glean’s managed MCP server.
 
-- **Company Search**: Access Glean's powerful content search capabilities
-- **People Profile Search**: Access Glean's people directory
-- **Chat**: Interact with Glean's AI assistant
-- **Read Documents**: Retrieve documents from Glean by ID or URL
-- **MCP Compliant**: Implements the Model Context Protocol specification
+For local command-line workflows, use [Glean CLI](https://github.com/gleanwork/glean-cli) instead.
 
-## Tools
+## Package status
 
-- ### company_search
+`@gleanwork/local-mcp-server` is being retired in favor of the managed Glean MCP server. No new feature work or bug fixes are planned for this package.
 
-  Search Glean's content index using the Glean Search API. This tool allows you to query Glean's content index with various filtering and configuration options.
+Do not treat this package as an actively maintained MCP surface. Existing users should migrate to the managed Glean MCP server where possible.
 
-- ### chat
+## Historical note
 
-  Interact with Glean's AI assistant using the Glean Chat API. This tool allows you to have conversational interactions with Glean's AI, including support for message history, citations, and various configuration options.
+This package previously implemented a local stdio-based Model Context Protocol server for Glean. It exposed tools for:
 
-- ### people_profile_search
+- Glean company search
+- Glean Chat
+- People profile search
+- Document reading
 
-  Search Glean's People directory to find employee information.
+That local implementation was useful before Glean’s managed remote MCP server was available. The managed server is now the supported path and provides centralized enablement, OAuth-based setup, and a better long-term support model.
 
-- ### read_documents
+## Historical reference only
 
-  Read documents from Glean by providing document IDs or URLs. This tool allows you to retrieve the full content of specific documents for detailed analysis or reference.
-
-## MCP Client Configuration
-
-To configure this MCP server in your MCP client (such as Claude Desktop, Windsurf, Cursor, etc.), run [@gleanwork/configure-mcp-server](https://github.com/gleanwork/configure-mcp-server) passing in your client, token and instance.
-
-```bash
-# Configure for Cursor
-npx @gleanwork/configure-mcp-server --client cursor --token your_api_token --server-url https://your-company-be.glean.com
-
-# Configure for Claude Desktop
-npx @gleanwork/configure-mcp-server --client claude --token your_api_token --server-url https://your-company-be.glean.com
-
-# Using deprecated --instance flag (use --server-url instead)
-# npx @gleanwork/configure-mcp-server --client cursor --token your_api_token --instance instance_name
-```
-
-For more details see: [@gleanwork/configure-mcp-server](https://github.com/gleanwork/configure-mcp-server).
-
-### Manual MCP Configuration
-
-To manually configure an MCP client (such as Claude Desktop, Windsurf, Cursor, etc.), add the following configuration to your MCP client settings:
-
-```json
-{
-  "mcpServers": {
-    "glean": {
-      "command": "npx",
-      "args": ["-y", "@gleanwork/local-mcp-server"],
-      "env": {
-        "GLEAN_SERVER_URL": "<glean server URL>",
-        "GLEAN_API_TOKEN": "<glean api token>"
-      }
-    }
-  }
-}
-```
-
-Replace the environment variable values with your actual Glean credentials.
-
-## Docker Deployment
-
-As an alternative to npx, you can run the Glean MCP server in a Docker container. This provides isolation and consistent runtime environments.
-
-Multi-architecture Docker images are published to GitHub Container Registry and work on both Intel/AMD (amd64) and Apple Silicon (arm64) systems.
-
-### Pull the Image
-
-```bash
-docker pull ghcr.io/gleanwork/local-mcp-server:latest
-```
-
-If you see `denied` / `403 Forbidden` when pulling from GHCR, authenticate first:
-
-```bash
-# Token must include read:packages
-echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_USERNAME" --password-stdin
-docker pull ghcr.io/gleanwork/local-mcp-server:latest
-```
-
-If GHCR access is blocked in your environment, you can build locally:
-
-```bash
-docker build -t glean/local-mcp-server:local .
-```
-
-### MCP Client Configuration
-
-Configure your MCP client to use the Docker image. Most MCP clients support passing environment variables via the `env` block:
-
-```json
-{
-  "mcpServers": {
-    "glean": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "ghcr.io/gleanwork/local-mcp-server:latest"
-      ],
-      "env": {
-        "GLEAN_SERVER_URL": "https://your-instance-be.glean.com",
-        "GLEAN_API_TOKEN": "your-token"
-      }
-    }
-  }
-}
-```
-
-If your MCP client doesn't pass the `env` block to Docker, use `-e` flags in the args instead:
-
-```json
-{
-  "mcpServers": {
-    "glean": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e",
-        "GLEAN_SERVER_URL=https://your-instance-be.glean.com",
-        "-e",
-        "GLEAN_API_TOKEN=your-token",
-        "ghcr.io/gleanwork/local-mcp-server:latest"
-      ]
-    }
-  }
-}
-```
-
-**Important:** The `-i` flag is required for stdio transport communication.
-
-### Environment Variables
-
-- `GLEAN_SERVER_URL` (recommended): Your Glean server URL (e.g. `https://your-instance-be.glean.com`)
-- `GLEAN_INSTANCE`: Your Glean instance name (deprecated alternative to `GLEAN_SERVER_URL`)
-- `GLEAN_API_TOKEN` (required): Your Glean API token
-
-### Troubleshooting
-
-**Container exits immediately:**
-
-- Verify environment variables are set correctly
-- Check Docker logs: `docker logs <container-id>`
-- Ensure the `-i` flag is present in the args
-
-**Permission or authentication errors:**
-
-- Verify your `GLEAN_API_TOKEN` is valid
-- Check your `GLEAN_SERVER_URL` or `GLEAN_INSTANCE` matches your Glean deployment
-
-**`docker pull` returns `denied` or `403 Forbidden`:**
-
-- Authenticate to `ghcr.io` with a token that has `read:packages`
-- Retry pull with the same image/tag
-- If this persists, open an issue with your exact pull command and error output
-
-**MCP client can't connect:**
-
-- Verify Docker is installed and running
-- Check that `docker` command is in your PATH
-- Review MCP client logs for error messages
-
-**Environment variables not being passed:**
-
-- Try using `-e` flags in args instead of the `env` block (see alternative configuration above)
-
-### Docker Compose
-
-For standalone deployment scenarios, a docker-compose example is available in [examples/docker-compose.yaml](../../examples/docker-compose.yaml). This demonstrates how to run the MCP server with Docker Compose, including resource limits and security options.
-
-Note: Most MCP clients manage container lifecycle directly, so docker-compose is primarily useful for testing or custom deployment scenarios.
-
-### Debugging
-
-Since MCP servers communicate over stdio, debugging can be challenging. We recommend using the [MCP Inspector](https://github.com/modelcontextprotocol/inspector), which is available as a package script:
-
-```bash
-npm run inspector
-```
-
-The Inspector will provide a URL to access debugging tools in your browser.
-
-## Contributing
-
-Please see [CONTRIBUTING.md](https://github.com/gleanwork/mcp-server/blob/main/CONTRIBUTING.md) for development setup and guidelines.
+Install, Docker, environment-variable, and MCP client configuration instructions have intentionally been removed from this README so new users are not directed toward an unsupported setup. If you need to understand the old implementation or recover old setup details, inspect the repository history.
 
 ## License
 
-MIT License - see the [LICENSE](LICENSE) file for details
-
-## Support
-
-- Documentation: [docs.glean.com](https://docs.glean.com)
-- Issues: [GitHub Issues](https://github.com/gleanwork/mcp-server/issues)
+MIT License — see the repository [LICENSE](../../LICENSE) file for details.
